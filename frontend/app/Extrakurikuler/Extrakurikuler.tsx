@@ -129,37 +129,6 @@ const SchoolPortfolio: React.FC = () => {
       </Head>
 
       <div className="min-h-screen bg-gray-50">
-        {/* Header */}
-        <header className="bg-white shadow-sm">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-16">
-              <div className="flex items-center">
-                <Image
-                  src="/images/logo-sekolah.png"
-                  alt="Logo Sekolah"
-                  width={40}
-                  height={40}
-                  className="mr-3"
-                />
-                <h1 className="text-xl font-bold text-gray-800">SMA Negeri 1</h1>
-              </div>
-              <nav className="hidden md:flex space-x-8">
-                <a href="#" className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium">
-                  Beranda
-                </a>
-                <a href="#" className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium">
-                  Tentang
-                </a>
-                <a href="#" className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium">
-                  Kegiatan
-                </a>
-                <a href="#" className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium">
-                  Kontak
-                </a>
-              </nav>
-            </div>
-          </div>
-        </header>
 
         {/* Main Content */}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -170,50 +139,6 @@ const SchoolPortfolio: React.FC = () => {
         </main>
 
         {/* Footer */}
-        <footer className="bg-gray-800 text-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-              <div>
-                <h3 className="text-lg font-semibold mb-4">SMA Negeri 1</h3>
-                <p className="text-gray-300 text-sm">
-                  Sekolah unggulan yang berkomitmen memberikan pendidikan berkualitas untuk masa depan yang cerah.
-                </p>
-              </div>
-              <div>
-                <h4 className="font-semibold mb-4">Quick Links</h4>
-                <ul className="space-y-2 text-sm">
-                  <li><a href="#" className="text-gray-300 hover:text-white">Beranda</a></li>
-                  <li><a href="#" className="text-gray-300 hover:text-white">Tentang Kami</a></li>
-                  <li><a href="#" className="text-gray-300 hover:text-white">Kegiatan</a></li>
-                  <li><a href="#" className="text-gray-300 hover:text-white">Kontak</a></li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-semibold mb-4">Program</h4>
-                <ul className="space-y-2 text-sm">
-                  <li><a href="#" className="text-gray-300 hover:text-white">Ekstrakurikuler</a></li>
-                  <li><a href="#" className="text-gray-300 hover:text-white">English Club</a></li>
-                  <li><a href="#" className="text-gray-300 hover:text-white">Olahraga</a></li>
-                  <li><a href="#" className="text-gray-300 hover:text-white">Seni & Budaya</a></li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-semibold mb-4">Kontak</h4>
-                <div className="text-sm text-gray-300 space-y-2">
-                  <p>Jl. Pendidikan No. 123</p>
-                  <p>Jakarta, Indonesia</p>
-                  <p>Tel: (021) 123-4567</p>
-                  <p>Email: info@sman1.sch.id</p>
-                </div>
-              </div>
-            </div>
-            <div className="border-t border-gray-700 mt-8 pt-8 text-center">
-              <p className="text-gray-300 text-sm">
-                © 2024 SMA Negeri 1. All rights reserved.
-              </p>
-            </div>
-          </div>
-        </footer>
       </div>
     </>
   );
