@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import Logo from '../images/LogoSMK.png';
+import Logo from '../../public/images/LogoSMK.png';
 
 interface NavigationItem {
   label: string;
@@ -25,16 +25,16 @@ const Header: React.FC = () => {
   ];
 
   return (
-    <header className="bg-white shadow-sm border-b border-gray-200">
+    <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-10">
       <div className="max-w-9xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-30">
           {/* Logo and School Info */}
           <div className="flex items-center space-x-3">
-            <div className="relative w-60 h-12">
+            <div className="relative w-60">
               <img 
                 src={Logo.src} 
                 alt="Logo SMKN 2 Buduran Sidoarjo" 
-                className="w-60 h-12 object-contain"
+                className="w-40 object-contain"
               />
             </div>
            
