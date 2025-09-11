@@ -5,7 +5,7 @@ export default function JurusanRPL() {
   return (
     <div className="font-sans text-gray-800 bg-gray-50">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-blue-600/90 to-indigo-500/90 text-white text-center py-20 px-4">
+      <section className="bg-indigo-500 text-white text-center py-20 px-4">
         <h1 className="text-4xl md:text-5xl font-bold mb-4 drop-shadow">Rekayasa Perangkat Lunak</h1>
         <p className="max-w-4xl mx-auto text-base md:text-lg opacity-90">
             Program Keahlian Pengembangan Perangkat Lunak dan Gim Mempersiapkan peserta didik yang kompeten dalam pengembangan perangkat lunak berbasis web maupun berbasis desktop, menjawab kebutuhan programmer di era digital yang terus berkembang
@@ -30,7 +30,7 @@ export default function JurusanRPL() {
                 ) : (
                 <span
                     key={i}
-                    className="bg-blue-600 text-white px-5 py-2 rounded-full text-sm font-medium shadow-md"
+                    className="bg-white text-blue-600 px-5 py-2 rounded-full text-sm font-medium shadow-md"
                 >
                     {item.label}
                 </span>
@@ -93,7 +93,7 @@ export default function JurusanRPL() {
               <h3 className="text-blue-600 font-semibold mb-3">🌟 Kelas X - Tingkat Dasar</h3>
               <div className="flex flex-wrap gap-2">
                 {['Dasar-dasar Pengembangan Perangkat Lunak dan Gim','Algoritma Pemrograman','Bahasa Pemrograman Dasar','Pemrograman Terstruktur'].map((s,i)=>(
-                  <span key={i} className="bg-gradient-to-r from-blue-600 to-blue-800 text-white px-4 py-2 rounded-full text-sm shadow">{s}</span>
+                  <span key={i} className="bg-gradient-to-r from-blue-600 to-blue-600 text-white px-4 py-2 rounded-full text-sm shadow">{s}</span>
                 ))}
               </div>
             </div>
@@ -101,7 +101,7 @@ export default function JurusanRPL() {
               <h3 className="text-blue-600 font-semibold mb-3">🔥 Kelas XI & XII - Tingkat Lanjutan</h3>
               <div className="flex flex-wrap gap-2">
                 {['Pemodelan Perangkat Lunak','Basis Data','Pemrograman Berorientasi Objek','Pemrograman Web','Perangkat Bergerak (Mobile)','Produk Kreatif dan Kewirausahaan'].map((s,i)=>(
-                  <span key={i} className="bg-gradient-to-r from-blue-600 to-blue-800 text-white px-4 py-2 rounded-full text-sm shadow">{s}</span>
+                  <span key={i} className="bg-gradient-to-r from-blue-600 to-blue-600 text-white px-4 py-2 rounded-full text-sm shadow">{s}</span>
                 ))}
               </div>
             </div>
