@@ -117,7 +117,7 @@ const Header: React.FC = () => {
   const currentItem = navigationItems.find((item) => item.label === hoveredMenu);
 
   return (
-    <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-10">
+    <header className="bg-white shadow-sm border-b border-gray-200 relative">
       <div className="max-w-9xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-30">
           {/* Logo */}
