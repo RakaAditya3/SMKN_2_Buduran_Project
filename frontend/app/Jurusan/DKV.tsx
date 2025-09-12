@@ -8,7 +8,7 @@ export default function JurusanDKV() {
       <section className="bg-indigo-800 text-white text-center py-20 px-4">
         <h1 className="text-4xl md:text-5xl font-bold mb-4 drop-shadow">Desain Komunikasi Visual</h1>
         <p className="max-w-4xl mx-auto text-base md:text-lg opacity-90">
-            Program Keahlian yang Menggabungkan Seni dan Komunikasi. Mempelajari konsep komunikasi dan ungkapan kreatif dengan memanfaatkan elemen visual untuk menyampaikan pesan yang informatif dan persuasif dengan nilai estetika tinggi.
+            Program Keahlian yang Menggabungkan Seni dan Komunikasi. Mempelajari konsep komunikasi dan ungkapan kreatif dengan memanfaatkan elemen visual untuk menyampaikan pesan yang informatif dan persuasif dengan nilai estetika tinggi
         </p>
         <div className="flex flex-wrap justify-center gap-3 mt-8">
             {[
