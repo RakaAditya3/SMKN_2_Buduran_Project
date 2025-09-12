@@ -1,9 +1,14 @@
+'use client'
+
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Pagination } from "swiper/modules";
 import React from 'react';
 import { Users, Clock, MapPin, Award, Target, Calendar, Phone, Mail } from 'lucide-react';
 import Navbar from '../../Components/Navbar';
 import Footer from '../../Components/Footer';
+import * as motion from "motion/react-client"
 
-export default function BadmintonDetail() {
+export default function PramukaDetail() {
   const benefits = [
     "Pembentukan karakter dan kepemimpinan",
     "Pengembangan keterampilan sosial",
@@ -21,24 +26,72 @@ export default function BadmintonDetail() {
     { name: "Upacara dan PBB", description: "Baris berbaris dan upacara" }
   ];
 
+   const images = [
+    "/images/dummyImage.jpg",
+    "/images/dummyImage.jpg",
+    "/images/dummyImage.jpg"
+  ];
+
   return (
     <>
     <Navbar />
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-6 py-12">
-          <div className="text-center">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              Ekstrakurikuler Pramuka
-            </h1>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-              Program pengembangan karakter melalui kegiatan kepanduan yang terintegrasi 
-              dengan kurikulum pendidikan nasional
-            </p>
-          </div>
-        </div>
+     {/* Header */}
+<div className="bg-white border-b border-gray-200">
+  <div className="max-w-6xl mx-auto px-6 py-12">
+    <div className="text-center">
+      <h1 className="text-4xl font-bold text-gray-900 mb-4">
+        Ekstrakurikuler Pramuka
+      </h1>
+      <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+        Program pengembangan karakter melalui kegiatan kepanduan yang terintegrasi 
+        dengan kurikulum pendidikan nasional
+      </p>
+
+      {/* Image */}
+<div className="mt-8">
+      {/* Grid layar >= sm */}
+      <div className="hidden sm:grid grid-cols-3 gap-10">
+        {images.map((src, i) => (
+          <motion.img
+            key={i}
+            src={src}
+            alt={`Kegiatan Pramuka ${i + 1}`}
+            className="mx-auto rounded-lg shadow-md max-h-80 object-cover"
+            whileHover={{ scale: 1.2 }}
+            whileTap={{ scale: 0.8 }}
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}   
+            transition={{ duration: 0.4, ease: "easeOut", delay: i * 0.1 }}
+            viewport={{ once: true, amount: 0.3 }}
+          />
+        ))}
       </div>
+
+      {/* Carousel layar < sm */}
+      <div className="sm:hidden">
+        <Swiper
+          modules={[Pagination]}
+          spaceBetween={20}
+          slidesPerView={1}
+          pagination={{ clickable: true }}
+        >
+          {images.map((src, i) => (
+            <SwiperSlide key={i}>
+              <img
+                src={src}
+                alt={`Kegiatan Pramuka ${i + 1}`}
+                className="mx-auto rounded-lg shadow-md max-h-80 object-cover"
+              />
+            </SwiperSlide>
+          ))}
+        </Swiper>
+      </div>
+    </div>
+    </div>
+  </div>
+</div>
+
 
       {/* Main Content */}
       <div className="max-w-6xl mx-auto px-6 py-12">
@@ -173,10 +226,10 @@ export default function BadmintonDetail() {
               <div className="text-center">
                 <Award className="text-yellow-500 mx-auto mb-3" size={32} />
                 <div className="text-sm text-gray-600 mb-2">
-                  Juara 1 Lomba Pioneering
+                  Juara 1 LT 2
                 </div>
                 <div className="text-xs text-gray-500">
-                  Tingkat Provinsi 2024
+                  Provinsi 2024
                 </div>
               </div>
             </div>

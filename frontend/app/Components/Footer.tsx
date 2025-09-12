@@ -1,7 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import Logo from '../../public/images/LogoSMK.png';
+
 
 const Footer: React.FC = () => {
   return (
@@ -12,7 +12,7 @@ const Footer: React.FC = () => {
           <div className="space-y-4">
             <div className="flex items-center space-x-3">
               <div className="w-40 h-16 relative">
-                <img src={Logo.src} alt="" />
+                <img src='/images/LogoSMK.png' alt="" />
               </div>
               
             </div>

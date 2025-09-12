@@ -6,6 +6,7 @@ import React from 'react';
 import { Users, Clock, MapPin, Award, Target, Calendar, Phone, Mail } from 'lucide-react';
 import Navbar from '../../Components/Navbar';
 import Footer from '../../Components/Footer';
+import * as motion from "motion/react-client"
 
 export default function PramukaDetail() {
   const benefits = [
@@ -52,11 +53,17 @@ export default function PramukaDetail() {
       {/* Grid layar >= sm */}
       <div className="hidden sm:grid grid-cols-3 gap-10">
         {images.map((src, i) => (
-          <img
+          <motion.img
             key={i}
             src={src}
             alt={`Kegiatan Pramuka ${i + 1}`}
             className="mx-auto rounded-lg shadow-md max-h-80 object-cover"
+            whileHover={{ scale: 1.2 }}
+            whileTap={{ scale: 0.8 }}
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}   
+            transition={{ duration: 0.4, ease: "easeOut", delay: i * 0.1 }}
+            viewport={{ once: true, amount: 0.3 }}
           />
         ))}
       </div>
@@ -219,10 +226,10 @@ export default function PramukaDetail() {
               <div className="text-center">
                 <Award className="text-yellow-500 mx-auto mb-3" size={32} />
                 <div className="text-sm text-gray-600 mb-2">
-                  Juara 1 Lomba Pioneering
+                  Juara 1 LT 2
                 </div>
                 <div className="text-xs text-gray-500">
-                  Tingkat Provinsi 2024
+                  Provinsi 2024
                 </div>
               </div>
             </div>
