@@ -65,7 +65,7 @@ export default function JurusanLPB() {
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              {icon:'📊',title:'AKutansi Perbankan',desc:'Menguasai sistem akutansi khusus perbankan dan laporan keuangan bank'},
+              {icon:'📊',title:'Akutansi Perbankan',desc:'Menguasai sistem akutansi khusus perbankan dan laporan keuangan bank'},
               {icon:'💻',title:'Komputer Akuntansi',desc:'Mengoperasikan software akutansi dan aplikasi perbankan modern'},
               {icon:'🤝',title:'Customer Service',desc:'Melayani nasabah dengan profesional dan menguasai produk perbankan'},
               {icon:'💰',title:'Administrasi Keuangan',desc:'Mengelola administrasi kredit, kas, dan transaksi perbankan'},
@@ -167,7 +167,7 @@ export default function JurusanLPB() {
               {icon:'🏧',title:'Teller Bank',desc:'Melayani penarikan, transfer dan penyetoran uang dari pelanggan hingga pemeriksaan kas'},
               {icon:'🤝',title:'Customer Service',desc:'Melayani nasabah dengan pemahaman mendalam tentang produk dan layanan perbankan'},
               {icon:'📈',title:'Account Officer',desc:'Melakukan pengenalan produk finansial berupa simpanan, kredit, dan asuransi'},
-              {icon:'💼',title:'FUnding Officer',desc:'Bertugas sebagai pengumpul dana dari nasabah bank dan lembaga keuangan'},
+              {icon:'💼',title:'Funding Officer',desc:'Bertugas sebagai pengumpul dana dari nasabah bank dan lembaga keuangan'},
               {icon:'🚀',title:'Wirausaha',desc:'Mengelola uang dan manajemen keuangan dengan baik untuk membangun bisnis sendiri'},
             ].map((c,i)=>(
               <div key={i} className="bg-gradient-to-r from-pink-600 to-pink-600 text-white p-6 rounded-xl text-center hover:scale-105 transition relative overflow-hidden">
