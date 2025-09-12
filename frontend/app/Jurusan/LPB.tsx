@@ -8,7 +8,7 @@ export default function JurusanLPB() {
       <section className="bg-pink-500 text-white text-center py-20 px-4">
         <h1 className="text-4xl md:text-5xl font-bold mb-4 drop-shadow">Layanan Perbankan</h1>
         <p className="max-w-4xl mx-auto text-base md:text-lg opacity-90">
-            Program Keahlian Layanan Perbankan dan Keuangan Lembaga. Mempersiapkan tenaga professional di bidang keuangan dan perbankan yang kompeten dalam menghadapi kebutuhan industri perbankan yang terus berkembang seiring kemajuan teknologi.        </p>
+            Program Keahlian Layanan Perbankan dan Keuangan Lembaga. Mempersiapkan tenaga professional di bidang keuangan dan perbankan yang kompeten dalam menghadapi kebutuhan industri perbankan yang terus berkembang seiring kemajuan teknologi</p>
         <div className="flex flex-wrap justify-center gap-3 mt-8">
             {[
                 { label: "Rekayasa Perangkat Lunak", href: "/Jurusan/RPL" },
