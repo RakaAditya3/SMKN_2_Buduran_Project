@@ -5,7 +5,7 @@ export default function JurusanRPL() {
   return (
     <div className="font-sans text-gray-800 bg-gray-50">
       {/* Hero Section */}
-      <section className="bg-indigo-500 text-white text-center py-20 px-4">
+      <section className="bg-blue-500 text-white text-center py-20 px-4">
         <h1 className="text-4xl md:text-5xl font-bold mb-4 drop-shadow">Rekayasa Perangkat Lunak</h1>
         <p className="max-w-4xl mx-auto text-base md:text-lg opacity-90">
             Program Keahlian Pengembangan Perangkat Lunak dan Gim Mempersiapkan peserta didik yang kompeten dalam pengembangan perangkat lunak berbasis web maupun berbasis desktop, menjawab kebutuhan programmer di era digital yang terus berkembang
@@ -90,7 +90,7 @@ export default function JurusanRPL() {
           </div>
           <div className="bg-white p-8 rounded-xl shadow space-y-8">
             <div>
-              <h3 className="text-blue-600 font-semibold mb-3">🌟 Kelas X - Tingkat Dasar</h3>
+              <h3 className="text-blue-600 font-semibold mb-3">🌱 Kelas X - Tingkat Dasar</h3>
               <div className="flex flex-wrap gap-2">
                 {['Dasar-dasar Pengembangan Perangkat Lunak dan Gim','Algoritma Pemrograman','Bahasa Pemrograman Dasar','Pemrograman Terstruktur'].map((s,i)=>(
                   <span key={i} className="bg-gradient-to-r from-blue-600 to-blue-600 text-white px-4 py-2 rounded-full text-sm shadow">{s}</span>
@@ -153,7 +153,7 @@ export default function JurusanRPL() {
               {icon:'🎮',title:'Game Programmer',desc:'Game Development'},
               {icon:'🛠️',title:'IT Support & Staff',desc:'Technical Support'},
             ].map((c,i)=>(
-              <div key={i} className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-6 rounded-xl text-center hover:scale-105 transition relative overflow-hidden">
+              <div key={i} className="bg-gradient-to-r from-blue-600 to-blue-600 text-white p-6 rounded-xl text-center hover:scale-105 transition relative overflow-hidden">
                 <span className="text-3xl mb-2 block">{c.icon}</span>
                 <h3 className="font-semibold text-lg mb-1">{c.title}</h3>
                 <p className="text-sm opacity-90">{c.desc}</p>
