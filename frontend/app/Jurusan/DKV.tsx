@@ -90,7 +90,7 @@ export default function JurusanDKV() {
           </div>
           <div className="bg-white p-8 rounded-xl shadow space-y-8">
             <div>
-              <h3 className="text-blue-900 font-semibold mb-3">🌟 Kelas X - Fondasi Kreativitas</h3>
+              <h3 className="text-blue-900 font-semibold mb-3">🌱 Kelas X - Fondasi Kreativitas</h3>
               <div className="flex flex-wrap gap-2">
                 {['Pemahaman Kreativitas Dasar','Kemampuan Menggambar Sketsa','Teknik Ilustrasi Manual','Pengetahuan Tipografi','Dasar-dasar Fotografi','Pengusaan Kemampuan Grafis'].map((s,i)=>(
                   <span key={i} className="bg-gradient-to-r from-blue-900 to-blue-900 text-white px-4 py-2 rounded-full text-sm shadow">{s}</span>
@@ -171,7 +171,7 @@ export default function JurusanDKV() {
               {icon:'💼',title:'Media Desain Komersial',desc:'Mampu merancang produk media desain komunikasi visual untuk kebutuhan komersial maupun sosial'},
               {icon:'✅',title:'Quality Control Expert',desc:'Mampu melaksanakan quality control di setiap tahap proses produk media desain komunikasi visual'},
             ].map((c,i)=>(
-              <div key={i} className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-6 rounded-xl text-center hover:scale-105 transition relative overflow-hidden">
+              <div key={i} className="bg-gradient-to-r from-indigo-900 to-indigo-900 text-white p-6 rounded-xl text-center hover:scale-105 transition relative overflow-hidden">
                 <span className="text-3xl mb-2 block">{c.icon}</span>
                 <h3 className="font-semibold text-lg mb-1">{c.title}</h3>
                 <p className="text-sm opacity-90">{c.desc}</p>
