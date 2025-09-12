@@ -1,7 +1,28 @@
-import React from 'react'
+"use client";
+
+import React, { useEffect, useState } from 'react'
 import Link from "next/link"
+import { FaArrowUp } from "react-icons/fa"
 
 export default function JurusanMP() {
+  const [isVisible, setIsVisible] = useState(false)
+  
+    useEffect(() => {
+      const toggleVisibility = () => {
+        if (window.scrollY > 300) {
+          setIsVisible(true)
+        } else {
+          setIsVisible(false)
+        }
+      }
+  
+      window.addEventListener("scroll", toggleVisibility)
+      return () => window.removeEventListener("scroll", toggleVisibility)
+    }, [])
+  
+    const scrollToTop = () => {
+      window.scrollTo({ top: 0, behavior: "smooth" })
+    }
   return (
     <div className="font-sans text-gray-800 bg-gray-50">
       {/* Hero Section */}
@@ -168,6 +189,17 @@ export default function JurusanMP() {
             </div>
           </div>
         </section>
+        {isVisible && (
+                  <div className='flex justify-center mt-6'>
+                    <button
+                      onClick={scrollToTop}
+                      className="bg-green-900 text-white px-6 py-3 rounded-full shadow-lg hover:bg-gray-800 transition cursor-pointer"
+                      aria-label="Back to top"
+                    >
+                      <FaArrowUp />
+                    </button>
+                  </div>
+                )}
       </main>
     </div>
   );
