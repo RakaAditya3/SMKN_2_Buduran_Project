@@ -5,7 +5,7 @@ import axios from 'axios';
 const token = localStorage.getItem('token');
 
 const api = axios.create({
-    baseURL : 'http://localhost:8000/api',
+    baseURL : 'http://localhost:8000/api', //route laravel
     headers : {
         Accept : 'application/json',
         Authorization : `Bearer ${token}`,
