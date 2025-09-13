@@ -18,5 +18,13 @@ class DatabaseSeeder extends Seeder
             'email' => 'admin@gmail.com',
             'password' => 'artisan'
         ]);
+        $this->call([
+            CompanySeeder::class,
+            CategorySeeder::class,
+            ExtracurricularSeeder::class,
+            AchievementSeeder::class,
+            NewsSeeder::class,
+            AlumnySeeder::class,
+        ]);
     }
 }
