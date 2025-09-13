@@ -26,9 +26,9 @@ class AuthController extends Controller
             ]);
         }
 
-        throw ValidationException::withMessages([
-            'email' => [trans('auth.failed')],
-        ]);
+        return response()->json([
+            'message' => 'Email atau Password Anda Salah !'
+        ], 401);
     }
 
     public function logout(Request $request)
