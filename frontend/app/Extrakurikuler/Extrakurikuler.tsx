@@ -23,7 +23,7 @@ const SchoolPortfolio: React.FC = () => {
       title: "Pramuka",
       image: "/images/dummyImage.jpg",
       description: "Kegiatan pramuka yang mengembangkan karakter dan kepemimpinan siswa melalui berbagai aktivitas outdoor dan indoor.",
-      href : "/Login",
+      href : "/Extrakurikuler/pramuka",
     },
     {
       id: 2,
