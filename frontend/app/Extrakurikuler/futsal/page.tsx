@@ -8,22 +8,23 @@ import Navbar from '../../Components/Navbar';
 import Footer from '../../Components/Footer';
 import * as motion from "motion/react-client"
 
-export default function PramukaDetail() {
-  const benefits = [
-    "Pembentukan karakter dan kepemimpinan",
-    "Pengembangan keterampilan sosial",
-    "Pelatihan kemandirian dan kedisiplinan",
-    "Pembelajaran survival dan alam",
-    "Penanaman nilai-nilai pancasila"
-  ];
+export default function FutsalDetail() {
+const benefits = [
+  "Pengembangan kerja sama tim dan sportivitas",
+  "Peningkatan kemampuan teknik dan strategi bermain futsal",
+  "Latihan disiplin dan konsistensi melalui latihan rutin",
+  "Peningkatan kebugaran, koordinasi, dan refleks",
+  "Penanaman nilai sportifitas dan semangat kompetitif"
+];
+
 
   const activities = [
-    { name: "Perkemahan", description: "Kegiatan berkemah dan survival" },
-    { name: "Pioneering", description: "Konstruksi menggunakan tali dan bambu" },
-    { name: "Penjelajahan Alam", description: "Kegiatan tracking dan orientasi" },
-    { name: "Keterampilan Komunikasi", description: "Morse code dan semaphore" },
-    { name: "Pertolongan Pertama", description: "Pelatihan P3K dasar" },
-    { name: "Upacara dan PBB", description: "Baris berbaris dan upacara" }
+    { name: "Latihan Teknik Dasar", description: "Menguasai dribble, passing, dan shooting" },
+    { name: "Strategi dan Taktik", description: "Belajar formasi, peran pemain, dan strategi pertandingan" },
+    { name: "Latihan Fisik dan Kebugaran", description: "Meningkatkan stamina, kecepatan, dan koordinasi" },
+    { name: "Permainan dan Scrimmage", description: "Praktik permainan dalam simulasi pertandingan" },
+    { name: "Kerja Sama Tim", description: "Melatih komunikasi dan kerja sama antaranggota" },
+    { name: "Turnamen dan Kompetisi", description: "Pengalaman bertanding dan mengasah mental kompetitif" }
   ];
 
    const images = [
@@ -41,7 +42,7 @@ export default function PramukaDetail() {
   <div className="max-w-6xl mx-auto px-6 py-12">
     <div className="text-center">
       <h1 className="text-4xl font-bold text-gray-900 mb-4">
-        Ekstrakurikuler Pramuka
+        Ekstrakurikuler Futsal
       </h1>
       <p className="text-lg text-gray-600 max-w-3xl mx-auto">
         Program pengembangan karakter melalui kegiatan kepanduan yang terintegrasi 
@@ -105,14 +106,10 @@ export default function PramukaDetail() {
               </h2>
               <div className="space-y-4 text-gray-700">
                 <p>
-                  Ekstrakurikuler Pramuka merupakan kegiatan pendidikan kepanduan yang bertujuan 
-                  membentuk karakter dan mengembangkan keterampilan siswa melalui metode pembelajaran 
-                  yang menyenangkan dan menantang.
+                  Ekstrakurikuler Futsal merupakan kegiatan olahraga yang bertujuan mengembangkan keterampilan bermain, kerja sama tim, dan membentuk karakter siswa melalui latihan yang menyenangkan dan menantang.
                 </p>
                 <p>
-                  Program ini mengikuti sistem pendidikan kepanduan yang telah terbukti efektif 
-                  dalam mengembangkan kepemimpinan, kemandirian, dan rasa tanggung jawab pada 
-                  generasi muda.
+                  Program ini menerapkan sistem latihan futsal yang terbukti efektif dalam mengembangkan keterampilan bermain, kedisiplinan, kerja sama tim, dan rasa tanggung jawab pada generasi muda.
                 </p>
               </div>
             </div>
@@ -198,7 +195,7 @@ export default function PramukaDetail() {
             {/* Contact */}
             <div className="bg-white rounded-lg border border-gray-200 p-6">
               <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                Kontak Pembina
+                Kontak Pembimbing
               </h3>
               
               <div className="space-y-3">
@@ -213,7 +210,7 @@ export default function PramukaDetail() {
               </div>
               
               <button className="w-full mt-6 bg-green-600 text-white font-medium py-2 px-4 rounded-lg hover:bg-green-700 transition-colors">
-                Hubungi Pembina
+                Hubungi Pembimbing
               </button>
             </div>
 
@@ -226,10 +223,10 @@ export default function PramukaDetail() {
               <div className="text-center">
                 <Award className="text-yellow-500 mx-auto mb-3" size={32} />
                 <div className="text-sm text-gray-600 mb-2">
-                  Juara 1 LT 2
+                  Juara 1 Futsal Tingkat
                 </div>
                 <div className="text-xs text-gray-500">
-                  Provinsi 2024
+                  Kecamatan 2025
                 </div>
               </div>
             </div>
