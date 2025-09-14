@@ -38,17 +38,17 @@ const Header: React.FC = () => {
         image: "/images/dummyImage.jpg",
         description: "SMK 2 Buduran telah menjadi rujukan pendidikan menengah atas terkemuka di Jawa Timur. Kami menggabungkan kurikulum nasional dengan standar internasional untuk menghasilkan lulusan yang kompeten dan berkarakter.",
         subMenu: [
-          { label: 'Sambutan Kepala Sekolah', href: '/' },
-          { label: 'Sambutan Ketua Komite', href: '/' },
-          { label: 'Sejarah dan Perkembangan', href: '/' },
-          { label: 'Visi Misi', href: '/' },
+          { label: 'Sambutan Kepala Sekolah', href: '/Pages/Profile/Kepsek' },
+          { label: 'Sambutan Ketua Komite', href: '/Pages/Profile/Komite' },
+          { label: 'Sejarah dan Perkembangan', href: '/Pages/Profile/Sejarah' },
+          { label: 'Visi Misi', href: '/Pages/Profile/Visi-Misi' },
         ],
       }
     },
 
     { 
       label: 'Program', 
-      href: '/',
+      href: '/Pages/Extrakurikuler',
       dropdown: {
         layout: "program",
         image: "/images/dummyImage.jpg",
@@ -80,38 +80,38 @@ const Header: React.FC = () => {
 
 {
   label: "Berita & Kegiatan",
-  href: "/",
+  href: "/Pages/Berita-Kegiatan",
   dropdown: {
     layout: "berita",
     items: [
       {
         image: "/images/dummyImage.jpg",
         description: "Kegiatan upacara bendera rutin setiap Senin.",
-        href: "/"
+        href: "/Pages/Berita-Kegiatan"
       },
       {
         image: "/images/dummyImage.jpg",
         description: "Prestasi siswa dalam lomba tingkat nasional.",
-        href: "/"
+        href: "/Pages/Berita-Kegiatan"
       },
       {
         image: "/images/dummyImage.jpg",
         description: "Kegiatan ekstrakurikuler pramuka di sekolah.",
-        href: "/"
+        href: "/Pages/Berita-Kegiatan"
       },
       {
         image: "/images/dummyImage.jpg",
         description: "Program magang industri siswa kelas XII selama 6 Bulan.",
-        href: "/"
+        href: "/Pages/Berita-Kegiatan"
       }
     ]
   }
 },
 
 
-    { label: 'Alumni & Karier', href: '/' },
-    { label: 'eComplaint', href: '/' },
-    { label: 'Presensi Online', href: '/' },
+    { label: 'Alumni & Karier', href: '/Pages/Alumni-Karier' },
+    { label: 'eComplaint', href: '/Pages/eComplaint' },
+    { label: 'Presensi Online', href: '/Pages/Presensi' },
   ];
 
   const currentItem = navigationItems.find((item) => item.label === hoveredMenu);
