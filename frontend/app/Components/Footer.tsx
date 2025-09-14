@@ -39,23 +39,23 @@ const Footer: React.FC = () => {
                 </Link>
               </li>
               <li>
-                <Link href="/absensi" className="text-gray-300 hover:text-white transition-colors duration-200">
-                  Absensi Online
+                <Link href="/Pages/Presensi" className="text-gray-300 hover:text-white transition-colors duration-200">
+                  Presensi Online
                 </Link>
               </li>
               <li>
-                <Link href="/library" className="text-gray-300 hover:text-white transition-colors duration-200">
+                <Link href="/Pages/eLibrary" className="text-gray-300 hover:text-white transition-colors duration-200">
                   eLibrary
                 </Link>
               </li>
               <li>
-                <Link href="/alumni" className="text-gray-300 hover:text-white transition-colors duration-200">
+                <Link href="/Pages/Alumni-Karier" className="text-gray-300 hover:text-white transition-colors duration-200">
                   Alumni & Karier
                 </Link>
               </li>
               <li>
-                <Link href="/complaint" className="text-gray-300 hover:text-white transition-colors duration-200">
-                  E Komplain
+                <Link href="/Pages/eComplaint" className="text-gray-300 hover:text-white transition-colors duration-200">
+                  eComplaint
                 </Link>
               </li>
             </ul>
