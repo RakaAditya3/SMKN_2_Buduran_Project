@@ -8,22 +8,22 @@ import Navbar from '../../Components/Navbar';
 import Footer from '../../Components/Footer';
 import * as motion from "motion/react-client"
 
-export default function PramukaDetail() {
+export default function PencakDetail() {
   const benefits = [
-    "Pembentukan karakter dan kepemimpinan",
-    "Pengembangan keterampilan sosial",
-    "Pelatihan kemandirian dan kedisiplinan",
-    "Pembelajaran survival dan alam",
-    "Penanaman nilai-nilai pancasila"
+    "Pengembangan karakter dan mental juara",
+    "Peningkatan keterampilan kerja sama dan sosial",
+    "Latihan kedisiplinan dan kemandirian",
+    "Penguasaan teknik bela diri dan strategi",
+    "Penanaman nilai sportifitas dan etika organisasi"
   ];
 
   const activities = [
-    { name: "Perkemahan", description: "Kegiatan berkemah dan survival" },
-    { name: "Pioneering", description: "Konstruksi menggunakan tali dan bambu" },
-    { name: "Penjelajahan Alam", description: "Kegiatan tracking dan orientasi" },
-    { name: "Keterampilan Komunikasi", description: "Morse code dan semaphore" },
-    { name: "Pertolongan Pertama", description: "Pelatihan P3K dasar" },
-    { name: "Upacara dan PBB", description: "Baris berbaris dan upacara" }
+    { name: "Latihan Dasar Pencak", description: "Penguasaan teknik dasar bela diri" },
+    { name: "Kombinasi dan Strategi", description: "Pengembangan teknik kombinasi dan strategi bertanding" },
+    { name: "Sparring dan Simulasi", description: "Latihan tanding dan situasi nyata" },
+    { name: "Disiplin dan Konsentrasi", description: "Pelatihan fokus, kontrol diri, dan kedisiplinan" },
+    { name: "Kesehatan dan Kebugaran", description: "Latihan fisik untuk stamina dan kekuatan" },
+    { name: "Etika dan Sportivitas", description: "Penanaman nilai sportifitas dan kerja sama tim" }
   ];
 
    const images = [
@@ -41,11 +41,10 @@ export default function PramukaDetail() {
   <div className="max-w-6xl mx-auto px-6 py-12">
     <div className="text-center">
       <h1 className="text-4xl font-bold text-gray-900 mb-4">
-        Ekstrakurikuler Pramuka
+        Ekstrakurikuler Pencak Organisasi
       </h1>
       <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-        Program pengembangan karakter melalui kegiatan kepanduan yang terintegrasi 
-        dengan kurikulum pendidikan nasional
+        Program pengembangan karakter dan keterampilan bela diri melalui kegiatan pencak yang terintegrasi dengan kurikulum pendidikan nasional.
       </p>
 
       {/* Image */}
@@ -56,7 +55,7 @@ export default function PramukaDetail() {
           <motion.img
             key={i}
             src={src}
-            alt={`Kegiatan Pramuka ${i + 1}`}
+            alt={`Kegiatan Pencak Organisasi ${i + 1}`}
             className="mx-auto rounded-lg shadow-md max-h-80 object-cover"
             whileHover={{ scale: 1.2 }}
             whileTap={{ scale: 0.8 }}
@@ -80,7 +79,7 @@ export default function PramukaDetail() {
             <SwiperSlide key={i}>
               <img
                 src={src}
-                alt={`Kegiatan Pramuka ${i + 1}`}
+                alt={`Kegiatan Pencak Organisasi ${i + 1}`}
                 className="mx-auto rounded-lg shadow-md max-h-80 object-cover"
               />
             </SwiperSlide>
@@ -105,9 +104,7 @@ export default function PramukaDetail() {
               </h2>
               <div className="space-y-4 text-gray-700">
                 <p>
-                  Ekstrakurikuler Pramuka merupakan kegiatan pendidikan kepanduan yang bertujuan 
-                  membentuk karakter dan mengembangkan keterampilan siswa melalui metode pembelajaran 
-                  yang menyenangkan dan menantang.
+                 Ekstrakurikuler Pencak Organisasi merupakan kegiatan pendidikan bela diri yang bertujuan membentuk karakter, meningkatkan kedisiplinan, dan mengembangkan keterampilan siswa melalui metode pembelajaran yang menyenangkan dan menantang.
                 </p>
                 <p>
                   Program ini mengikuti sistem pendidikan kepanduan yang telah terbukti efektif 
@@ -226,7 +223,7 @@ export default function PramukaDetail() {
               <div className="text-center">
                 <Award className="text-yellow-500 mx-auto mb-3" size={32} />
                 <div className="text-sm text-gray-600 mb-2">
-                  Juara 1 LT 2
+                  Juara 1 Silat Lomba Tingkat 
                 </div>
                 <div className="text-xs text-gray-500">
                   Provinsi 2024
