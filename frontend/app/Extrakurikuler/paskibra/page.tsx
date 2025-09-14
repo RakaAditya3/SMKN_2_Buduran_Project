@@ -8,22 +8,24 @@ import Navbar from '../../Components/Navbar';
 import Footer from '../../Components/Footer';
 import * as motion from "motion/react-client"
 
-export default function PramukaDetail() {
+export default function PaskibraDetail() {
   const benefits = [
-    "Pembentukan karakter dan kepemimpinan",
-    "Pengembangan keterampilan sosial",
-    "Pelatihan kemandirian dan kedisiplinan",
-    "Pembelajaran survival dan alam",
-    "Penanaman nilai-nilai pancasila"
+    "Pembentukan disiplin dan tanggung jawab",
+    "Pengembangan kemampuan baris-berbaris dan koordinasi",
+    "Latihan kepemimpinan dan kerja sama tim",
+    "Peningkatan fokus dan ketahanan mental",
+    "Penanaman nilai nasionalisme dan kebanggaan berbangsa"
   ];
 
+
+
   const activities = [
-    { name: "Perkemahan", description: "Kegiatan berkemah dan survival" },
-    { name: "Pioneering", description: "Konstruksi menggunakan tali dan bambu" },
-    { name: "Penjelajahan Alam", description: "Kegiatan tracking dan orientasi" },
-    { name: "Keterampilan Komunikasi", description: "Morse code dan semaphore" },
-    { name: "Pertolongan Pertama", description: "Pelatihan P3K dasar" },
-    { name: "Upacara dan PBB", description: "Baris berbaris dan upacara" }
+    { name: "Latihan Baris-Berbaris", description: "Menguasai teknik PBB dan formasi" },
+    { name: "Koordinasi Tim", description: "Melatih kerja sama dan sinkronisasi antaranggota" },
+    { name: "Kepemimpinan", description: "Latihan memimpin regu atau kelompok" },
+    { name: "Fokus dan Disiplin", description: "Pengembangan konsentrasi dan ketahanan mental" },
+    { name: "Upacara Resmi", description: "Praktik upacara bendera dan protokol resmi" },
+    { name: "Etika dan Nasionalisme", description: "Penanaman nilai kebangsaan dan sportifitas" }
   ];
 
    const images = [
@@ -41,7 +43,7 @@ export default function PramukaDetail() {
   <div className="max-w-6xl mx-auto px-6 py-12">
     <div className="text-center">
       <h1 className="text-4xl font-bold text-gray-900 mb-4">
-        Ekstrakurikuler Pramuka
+        Ekstrakurikuler Paskibra
       </h1>
       <p className="text-lg text-gray-600 max-w-3xl mx-auto">
         Program pengembangan karakter melalui kegiatan kepanduan yang terintegrasi 
@@ -105,14 +107,10 @@ export default function PramukaDetail() {
               </h2>
               <div className="space-y-4 text-gray-700">
                 <p>
-                  Ekstrakurikuler Pramuka merupakan kegiatan pendidikan kepanduan yang bertujuan 
-                  membentuk karakter dan mengembangkan keterampilan siswa melalui metode pembelajaran 
-                  yang menyenangkan dan menantang.
+                  Ekstrakurikuler Paskibra merupakan kegiatan pendidikan kepemimpinan dan disiplin yang bertujuan membentuk karakter, meningkatkan fokus, dan mengembangkan keterampilan siswa melalui metode pembelajaran yang menyenangkan dan menantang.
                 </p>
                 <p>
-                  Program ini mengikuti sistem pendidikan kepanduan yang telah terbukti efektif 
-                  dalam mengembangkan kepemimpinan, kemandirian, dan rasa tanggung jawab pada 
-                  generasi muda.
+                 Program ini menerapkan sistem latihan Paskibra yang telah terbukti efektif dalam mengembangkan disiplin, kepemimpinan, kemandirian, dan rasa tanggung jawab pada generasi muda.
                 </p>
               </div>
             </div>
@@ -226,7 +224,7 @@ export default function PramukaDetail() {
               <div className="text-center">
                 <Award className="text-yellow-500 mx-auto mb-3" size={32} />
                 <div className="text-sm text-gray-600 mb-2">
-                  Juara 1 LT 2
+                  Juara 1 Paskibra Tingkat
                 </div>
                 <div className="text-xs text-gray-500">
                   Provinsi 2024
