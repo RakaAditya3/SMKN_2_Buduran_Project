@@ -8,23 +8,25 @@ import Navbar from '../../Components/Navbar';
 import Footer from '../../Components/Footer';
 import * as motion from "motion/react-client"
 
-export default function PramukaDetail() {
+export default function EnglishDetail() {
   const benefits = [
-    "Pembentukan karakter dan kepemimpinan",
-    "Pengembangan keterampilan sosial",
-    "Pelatihan kemandirian dan kedisiplinan",
-    "Pembelajaran survival dan alam",
-    "Penanaman nilai-nilai pancasila"
-  ];
+    "Peningkatan kemampuan berbicara dan menulis dalam bahasa Inggris",
+    "Pengembangan keterampilan komunikasi dan sosial",
+    "Latihan percaya diri melalui diskusi dan presentasi",
+    "Pembelajaran budaya dan kosakata internasional",
+    "Penanaman kebiasaan belajar bahasa Inggris secara konsisten"
+];
+
 
   const activities = [
-    { name: "Perkemahan", description: "Kegiatan berkemah dan survival" },
-    { name: "Pioneering", description: "Konstruksi menggunakan tali dan bambu" },
-    { name: "Penjelajahan Alam", description: "Kegiatan tracking dan orientasi" },
-    { name: "Keterampilan Komunikasi", description: "Morse code dan semaphore" },
-    { name: "Pertolongan Pertama", description: "Pelatihan P3K dasar" },
-    { name: "Upacara dan PBB", description: "Baris berbaris dan upacara" }
+    { name: "Conversation Practice", description: "Latihan berbicara bahasa Inggris dalam kelompok" },
+    { name: "Debate and Discussion", description: "Meningkatkan kemampuan berargumentasi dan berpikir kritis" },
+    { name: "Writing Workshop", description: "Latihan menulis esai, cerita, dan surat dalam bahasa Inggris" },
+    { name: "Vocabulary and Grammar", description: "Memperluas kosakata dan menguasai tata bahasa" },
+    { name: "Cultural Activities", description: "Mempelajari budaya dan tradisi negara berbahasa Inggris" },
+    { name: "Presentations and Performances", description: "Latihan presentasi dan public speaking dalam bahasa Inggris" }
   ];
+
 
    const images = [
     "/images/dummyImage.jpg",
@@ -41,7 +43,7 @@ export default function PramukaDetail() {
   <div className="max-w-6xl mx-auto px-6 py-12">
     <div className="text-center">
       <h1 className="text-4xl font-bold text-gray-900 mb-4">
-        Ekstrakurikuler Pramuka
+        Ekstrakurikuler English Club
       </h1>
       <p className="text-lg text-gray-600 max-w-3xl mx-auto">
         Program pengembangan karakter melalui kegiatan kepanduan yang terintegrasi 
@@ -56,7 +58,7 @@ export default function PramukaDetail() {
           <motion.img
             key={i}
             src={src}
-            alt={`Kegiatan Pramuka ${i + 1}`}
+            alt={`Kegiatan English Club ${i + 1}`}
             className="mx-auto rounded-lg shadow-md max-h-80 object-cover"
             whileHover={{ scale: 1.2 }}
             whileTap={{ scale: 0.8 }}
@@ -80,7 +82,7 @@ export default function PramukaDetail() {
             <SwiperSlide key={i}>
               <img
                 src={src}
-                alt={`Kegiatan Pramuka ${i + 1}`}
+                alt={`Kegiatan English Club ${i + 1}`}
                 className="mx-auto rounded-lg shadow-md max-h-80 object-cover"
               />
             </SwiperSlide>
@@ -105,14 +107,10 @@ export default function PramukaDetail() {
               </h2>
               <div className="space-y-4 text-gray-700">
                 <p>
-                  Ekstrakurikuler Pramuka merupakan kegiatan pendidikan kepanduan yang bertujuan 
-                  membentuk karakter dan mengembangkan keterampilan siswa melalui metode pembelajaran 
-                  yang menyenangkan dan menantang.
+                  Ekstrakurikuler English Club merupakan kegiatan pendidikan bahasa yang bertujuan meningkatkan kemampuan berbahasa Inggris, membangun percaya diri, dan mengembangkan keterampilan komunikasi siswa melalui metode pembelajaran yang menyenangkan dan menantang.
                 </p>
                 <p>
-                  Program ini mengikuti sistem pendidikan kepanduan yang telah terbukti efektif 
-                  dalam mengembangkan kepemimpinan, kemandirian, dan rasa tanggung jawab pada 
-                  generasi muda.
+                  Program ini menerapkan sistem pembelajaran bahasa Inggris yang terbukti efektif dalam mengembangkan kemampuan komunikasi, percaya diri, dan rasa tanggung jawab pada generasi muda.
                 </p>
               </div>
             </div>
@@ -198,7 +196,7 @@ export default function PramukaDetail() {
             {/* Contact */}
             <div className="bg-white rounded-lg border border-gray-200 p-6">
               <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                Kontak Pembina
+                Kontak Pembimbing
               </h3>
               
               <div className="space-y-3">
@@ -213,7 +211,7 @@ export default function PramukaDetail() {
               </div>
               
               <button className="w-full mt-6 bg-green-600 text-white font-medium py-2 px-4 rounded-lg hover:bg-green-700 transition-colors">
-                Hubungi Pembina
+                Hubungi Pembimbing
               </button>
             </div>
 
@@ -226,7 +224,7 @@ export default function PramukaDetail() {
               <div className="text-center">
                 <Award className="text-yellow-500 mx-auto mb-3" size={32} />
                 <div className="text-sm text-gray-600 mb-2">
-                  Juara 1 LT 2
+                  Juara 3 Olimpiade English Tingkat
                 </div>
                 <div className="text-xs text-gray-500">
                   Provinsi 2024

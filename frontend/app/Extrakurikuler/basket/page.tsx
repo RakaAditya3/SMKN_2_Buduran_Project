@@ -8,23 +8,25 @@ import Navbar from '../../Components/Navbar';
 import Footer from '../../Components/Footer';
 import * as motion from "motion/react-client"
 
-export default function PramukaDetail() {
+export default function Basket() {
   const benefits = [
-    "Pembentukan karakter dan kepemimpinan",
-    "Pengembangan keterampilan sosial",
-    "Pelatihan kemandirian dan kedisiplinan",
-    "Pembelajaran survival dan alam",
-    "Penanaman nilai-nilai pancasila"
+    "Pengembangan kerja sama tim dan sportivitas",
+    "Peningkatan kemampuan teknik dan strategi bermain basket",
+    "Latihan kedisiplinan dan konsistensi melalui latihan rutin",
+    "Peningkatan kebugaran, koordinasi, dan refleks",
+    "Penanaman nilai kompetitif dan semangat fair play"
   ];
 
+
   const activities = [
-    { name: "Perkemahan", description: "Kegiatan berkemah dan survival" },
-    { name: "Pioneering", description: "Konstruksi menggunakan tali dan bambu" },
-    { name: "Penjelajahan Alam", description: "Kegiatan tracking dan orientasi" },
-    { name: "Keterampilan Komunikasi", description: "Morse code dan semaphore" },
-    { name: "Pertolongan Pertama", description: "Pelatihan P3K dasar" },
-    { name: "Upacara dan PBB", description: "Baris berbaris dan upacara" }
+    { name: "Latihan Teknik Dasar", description: "Menguasai dribble, passing, shooting, dan rebound" },
+    { name: "Strategi dan Taktik", description: "Belajar formasi, peran pemain, dan strategi pertandingan" },
+    { name: "Latihan Fisik dan Kebugaran", description: "Meningkatkan stamina, kecepatan, dan koordinasi" },
+    { name: "Scrimmage dan Permainan", description: "Praktik permainan dalam simulasi pertandingan" },
+    { name: "Kerja Sama Tim", description: "Latihan komunikasi dan koordinasi antaranggota" },
+    { name: "Turnamen dan Kompetisi", description: "Pengalaman bertanding dan mengasah mental kompetitif" }
   ];
+
 
    const images = [
     "/images/dummyImage.jpg",
@@ -41,7 +43,7 @@ export default function PramukaDetail() {
   <div className="max-w-6xl mx-auto px-6 py-12">
     <div className="text-center">
       <h1 className="text-4xl font-bold text-gray-900 mb-4">
-        Ekstrakurikuler Pramuka
+        Ekstrakurikuler Basket
       </h1>
       <p className="text-lg text-gray-600 max-w-3xl mx-auto">
         Program pengembangan karakter melalui kegiatan kepanduan yang terintegrasi 
@@ -56,7 +58,7 @@ export default function PramukaDetail() {
           <motion.img
             key={i}
             src={src}
-            alt={`Kegiatan Pramuka ${i + 1}`}
+            alt={`Kegiatan Basket ${i + 1}`}
             className="mx-auto rounded-lg shadow-md max-h-80 object-cover"
             whileHover={{ scale: 1.2 }}
             whileTap={{ scale: 0.8 }}
@@ -80,7 +82,7 @@ export default function PramukaDetail() {
             <SwiperSlide key={i}>
               <img
                 src={src}
-                alt={`Kegiatan Pramuka ${i + 1}`}
+                alt={`Kegiatan Basket ${i + 1}`}
                 className="mx-auto rounded-lg shadow-md max-h-80 object-cover"
               />
             </SwiperSlide>
@@ -105,14 +107,10 @@ export default function PramukaDetail() {
               </h2>
               <div className="space-y-4 text-gray-700">
                 <p>
-                  Ekstrakurikuler Pramuka merupakan kegiatan pendidikan kepanduan yang bertujuan 
-                  membentuk karakter dan mengembangkan keterampilan siswa melalui metode pembelajaran 
-                  yang menyenangkan dan menantang.
+                  Ekstrakurikuler Basket merupakan kegiatan olahraga yang bertujuan mengembangkan keterampilan bermain, kerja sama tim, dan membentuk karakter siswa melalui latihan yang menyenangkan dan menantang.
                 </p>
                 <p>
-                  Program ini mengikuti sistem pendidikan kepanduan yang telah terbukti efektif 
-                  dalam mengembangkan kepemimpinan, kemandirian, dan rasa tanggung jawab pada 
-                  generasi muda.
+                  Program ini menerapkan sistem latihan basket yang terbukti efektif dalam mengembangkan keterampilan bermain, disiplin, kerja sama tim, dan rasa tanggung jawab pada generasi muda.
                 </p>
               </div>
             </div>
@@ -226,10 +224,10 @@ export default function PramukaDetail() {
               <div className="text-center">
                 <Award className="text-yellow-500 mx-auto mb-3" size={32} />
                 <div className="text-sm text-gray-600 mb-2">
-                  Juara 1 LT 2
+                  Juara 1 Lomba Basket Tingkat
                 </div>
                 <div className="text-xs text-gray-500">
-                  Provinsi 2024
+                  Nasional 2024
                 </div>
               </div>
             </div>

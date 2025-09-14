@@ -8,22 +8,22 @@ import Navbar from '../../Components/Navbar';
 import Footer from '../../Components/Footer';
 import * as motion from "motion/react-client"
 
-export default function PramukaDetail() {
+export default function RobotikDetail() {
   const benefits = [
-    "Pembentukan karakter dan kepemimpinan",
-    "Pengembangan keterampilan sosial",
-    "Pelatihan kemandirian dan kedisiplinan",
-    "Pembelajaran survival dan alam",
-    "Penanaman nilai-nilai pancasila"
+    "Penguasaan teknologi dan inovasi",
+    "Pengembangan keterampilan problem solving",
+    "Pelatihan kerja tim dan kolaborasi",
+    "Penerapan ilmu sains, matematika, dan logika dalam praktik nyata",
+    "Penumbuhan kreatiivitas dan daya cipta dalam merancang robot"
   ];
 
   const activities = [
-    { name: "Perkemahan", description: "Kegiatan berkemah dan survival" },
-    { name: "Pioneering", description: "Konstruksi menggunakan tali dan bambu" },
-    { name: "Penjelajahan Alam", description: "Kegiatan tracking dan orientasi" },
-    { name: "Keterampilan Komunikasi", description: "Morse code dan semaphore" },
-    { name: "Pertolongan Pertama", description: "Pelatihan P3K dasar" },
-    { name: "Upacara dan PBB", description: "Baris berbaris dan upacara" }
+    { name: "Perakitan Robot", description: "Mempelajari komponen elektronik dan mekanik" },
+    { name: "Pemrograman Robot", description: "Coding untuk mengendalikan gerakan dan fungsi robot" },
+    { name: "Sensor dan Otomasi", description: "Penggunaan sensor untuk navigasi dan otomatisasi" },
+    { name: "Desain dan Kreativitas", description: "Merancang bentuk robot sesuai kebutuhan" },
+    { name: "Kompetisi Robotik", description: "Persiapan dan partisipasi lomba robotik" },
+    { name: "Kerja Tim dan Kolaborasi", description: "Melatih kerjasama dalam proyek robotik" }
   ];
 
    const images = [
@@ -41,11 +41,10 @@ export default function PramukaDetail() {
   <div className="max-w-6xl mx-auto px-6 py-12">
     <div className="text-center">
       <h1 className="text-4xl font-bold text-gray-900 mb-4">
-        Ekstrakurikuler Pramuka
+        Ekstrakurikuler Robotik
       </h1>
       <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-        Program pengembangan karakter melalui kegiatan kepanduan yang terintegrasi 
-        dengan kurikulum pendidikan nasional
+       Program pengembangan kemampuan teknologi dan kreativitas melalui kegiatan robotik yang terintegrasi dengan kurikulum pendidikan nasional.
       </p>
 
       {/* Image */}
@@ -56,7 +55,7 @@ export default function PramukaDetail() {
           <motion.img
             key={i}
             src={src}
-            alt={`Kegiatan Pramuka ${i + 1}`}
+            alt={`Kegiatan Robotik ${i + 1}`}
             className="mx-auto rounded-lg shadow-md max-h-80 object-cover"
             whileHover={{ scale: 1.2 }}
             whileTap={{ scale: 0.8 }}
@@ -80,7 +79,7 @@ export default function PramukaDetail() {
             <SwiperSlide key={i}>
               <img
                 src={src}
-                alt={`Kegiatan Pramuka ${i + 1}`}
+                alt={`Kegiatan Robotik ${i + 1}`}
                 className="mx-auto rounded-lg shadow-md max-h-80 object-cover"
               />
             </SwiperSlide>
@@ -105,9 +104,7 @@ export default function PramukaDetail() {
               </h2>
               <div className="space-y-4 text-gray-700">
                 <p>
-                  Ekstrakurikuler Pramuka merupakan kegiatan pendidikan kepanduan yang bertujuan 
-                  membentuk karakter dan mengembangkan keterampilan siswa melalui metode pembelajaran 
-                  yang menyenangkan dan menantang.
+                  Ekstrakurikuler Robotik merupakan kegiatan pendidikan teknologi yang bertujuan mengembangkan kreativitas, kemampuan problem solving, dan keterampilan siswa melalui metode pembelajaran yang menyenangkan dan menantang.
                 </p>
                 <p>
                   Program ini mengikuti sistem pendidikan kepanduan yang telah terbukti efektif 
@@ -165,7 +162,7 @@ export default function PramukaDetail() {
                   <Users className="text-gray-500 mr-3" size={18} />
                   <div className="text-sm">
                     <div className="font-medium text-gray-900">Kapasitas</div>
-                    <div className="text-gray-600">30-40 siswa</div>
+                    <div className="text-gray-600">10-40 siswa</div>
                   </div>
                 </div>
 
@@ -173,7 +170,7 @@ export default function PramukaDetail() {
                   <Clock className="text-gray-500 mr-3" size={18} />
                   <div className="text-sm">
                     <div className="font-medium text-gray-900">Jadwal</div>
-                    <div className="text-gray-600">Sabtu, 14:00 - 17:00</div>
+                    <div className="text-gray-600">Senin, 15:00 - 17:00</div>
                   </div>
                 </div>
 
@@ -181,7 +178,7 @@ export default function PramukaDetail() {
                   <MapPin className="text-gray-500 mr-3" size={18} />
                   <div className="text-sm">
                     <div className="font-medium text-gray-900">Lokasi</div>
-                    <div className="text-gray-600">Lapangan sekolah</div>
+                    <div className="text-gray-600">Laboratorium sekolah</div>
                   </div>
                 </div>
 
@@ -198,7 +195,7 @@ export default function PramukaDetail() {
             {/* Contact */}
             <div className="bg-white rounded-lg border border-gray-200 p-6">
               <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                Kontak Pembina
+                Kontak Pembimbing
               </h3>
               
               <div className="space-y-3">
@@ -208,12 +205,12 @@ export default function PramukaDetail() {
                 </div>
                 <div className="flex items-center text-sm">
                   <Mail className="text-gray-500 mr-3" size={16} />
-                  <span className="text-gray-700">pramuka@sekolah.ac.id</span>
+                  <span className="text-gray-700">robotiksmenda@gmail.com</span>
                 </div>
               </div>
               
               <button className="w-full mt-6 bg-green-600 text-white font-medium py-2 px-4 rounded-lg hover:bg-green-700 transition-colors">
-                Hubungi Pembina
+                Hubungi Pembimbing
               </button>
             </div>
 
@@ -226,7 +223,7 @@ export default function PramukaDetail() {
               <div className="text-center">
                 <Award className="text-yellow-500 mx-auto mb-3" size={32} />
                 <div className="text-sm text-gray-600 mb-2">
-                  Juara 1 LT 2
+                  Juara 1 Lomba Robotik Tingkat
                 </div>
                 <div className="text-xs text-gray-500">
                   Provinsi 2024
