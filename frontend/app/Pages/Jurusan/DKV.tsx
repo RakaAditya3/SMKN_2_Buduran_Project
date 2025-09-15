@@ -33,12 +33,12 @@ export default function JurusanDKV() {
         </p>
         <div className="flex flex-wrap justify-center gap-3 mt-8">
             {[
-                { label: "Rekayasa Perangkat Lunak", href: "/Jurusan/RPL" },
-                { label: "Manajemen Perkantoran", href: "/Jurusan/MP" },
-                { label: "Layanan Perbankan", href: "/Jurusan/LPB" },
+                { label: "Rekayasa Perangkat Lunak", href: "/Pages/Jurusan/RPL" },
+                { label: "Manajemen Perkantoran", href: "/Pages/Jurusan/MP" },
+                { label: "Layanan Perbankan", href: "/Pages/Jurusan/LPB" },
                 { label: "Desain Komunikasi Visual", href: null },
-                { label: "Akuntansi", href: "/Jurusan/AK" },
-                { label: "Bisnis Digital", href: "/Jurusan/BD" },
+                { label: "Akuntansi", href: "/Pages/Jurusan/AK" },
+                { label: "Bisnis Digital", href: "/Pages/Jurusan/BD" },
             ].map((item, i) =>
                 item.href ? (
                 <Link

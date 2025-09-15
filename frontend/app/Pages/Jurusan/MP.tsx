@@ -32,12 +32,12 @@ export default function JurusanMP() {
             Program Keahlian Modern untuk Dunia Kerja Perkantoran. Program Keahlian MPLB membekali peserta didik dengan keterampilan manajemen perkantoran yang kompeten, mencetak tenaga kerja tingkat menengah yang terampil, kompetitif, berkepribadian, dan profesional</p>
         <div className="flex flex-wrap justify-center gap-3 mt-8">
             {[
-                { label: "Rekayasa Perangkat Lunak", href: "/Jurusan/RPL" },
+                { label: "Rekayasa Perangkat Lunak", href: "/Pages/Jurusan/RPL" },
                 { label: "Manajemen Perkantoran", href: null },
-                { label: "Layanan Perbankan", href: "/Jurusan/LPB" },
-                { label: "Desain Komunikasi Visual", href: "/Jurusan/DKV" },
-                { label: "Akuntansi", href: "/Jurusan/AK" },
-                { label: "Bisnis Digital", href: "/Jurusan/BD" },
+                { label: "Layanan Perbankan", href: "/Pages/Jurusan/LPB" },
+                { label: "Desain Komunikasi Visual", href: "/Pages/Jurusan/DKV" },
+                { label: "Akuntansi", href: "/Pages/Jurusan/AK" },
+                { label: "Bisnis Digital", href: "/Pages/Jurusan/BD" },
             ].map((item, i) =>
                 item.href ? (
                 <Link

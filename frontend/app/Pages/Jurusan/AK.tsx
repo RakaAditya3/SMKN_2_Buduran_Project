@@ -32,12 +32,12 @@ export default function JurusanAK() {
             Program Keahlian Bisnis dan Manajemen. Dasar-Dasar Akuntansi dan Keuangan Lembaga adalah kompetensi mendasari penguasaan akuntansi dan keuangan untuk profesi Teknisi Akuntansi Junior dalam proses dokumentasi, pencatatan, dan penyajian data keuangan</p>
         <div className="flex flex-wrap justify-center gap-3 mt-8">
             {[
-                { label: "Rekayasa Perangkat Lunak", href: "/Jurusan/RPL" },
-                { label: "Manajemen Perkantoran", href: "/Jurusan/MP" },
-                { label: "Layanan Perbankan", href: "/Jurusan/LPB" },
-                { label: "Desain Komunikasi Visual", href: "/Jurusan/DKV" },
+                { label: "Rekayasa Perangkat Lunak", href: "/Pages/Jurusan/RPL" },
+                { label: "Manajemen Perkantoran", href: "/Pages/Jurusan/MP" },
+                { label: "Layanan Perbankan", href: "/Pages/Jurusan/LPB" },
+                { label: "Desain Komunikasi Visual", href: "/Pages/Jurusan/DKV" },
                 { label: "Akuntansi", href: null },
-                { label: "Bisnis Digital", href: "/Jurusan/BD" },
+                { label: "Bisnis Digital", href: "/Pages/Jurusan/BD" },
             ].map((item, i) =>
                 item.href ? (
                 <Link
