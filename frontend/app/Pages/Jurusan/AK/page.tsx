@@ -1,6 +1,6 @@
 import Navbar from '@/app/Components/Navbar'
 import Footer from '@/app/Components/Footer'
-import Ak from '@/app/Jurusan/AK'  // ini file RPL.tsx yang sudah ada
+import Ak from '../AK'
 
 export default function RplPage() {
   return (

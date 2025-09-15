@@ -1,12 +1,12 @@
 import Navbar from '@/app/Components/Navbar'
 import Footer from '@/app/Components/Footer'
-import Dkv from '@/app/Jurusan/DKV'  // ini file RPL.tsx yang sudah ada
+import Lpb from '../LPB'
 
 export default function RplPage() {
   return (
     <div className="bg-white">
       <Navbar />
-      <Dkv />
+      <Lpb />
       <Footer />
     </div>
   )
