@@ -1,6 +1,6 @@
 import Navbar from '@/app/Components/Navbar'
 import Footer from '@/app/Components/Footer'
-import Bd from '@/app/Jurusan/BD'  // ini file RPL.tsx yang sudah ada
+import Bd from '../BD'
 
 export default function RplPage() {
   return (

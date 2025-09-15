@@ -54,12 +54,12 @@ const Header: React.FC = () => {
         image: "/images/dummyImage.jpg",
         description: "Pusat inovasi dan teknologi yang mengintegrasikan pembelajaran praktis dengan industri. Techno Park kami menyediakan fasilitas modern untuk pengembangan keterampilan siswa dalam bidang teknologi, manufaktur, dan kewirausahaan, menciptakan lulusan yang siap kerja dan kompetitif di era industri 4.0.",
         subMenu: [
-          { label: 'Rekasaya Perangkat Lunak', href: '/' },
-          { label: 'Desain Komunikasi Visual', href: '/' },
-          { label: 'Layanan PerBankan', href: '/' },
-          { label: 'Akutansi', href: '/' },
-          { label: 'Manajemen Perkantoran Layanan Bisnis', href: '/' },
-          { label: 'Bisnis Digital', href: '/' },
+          { label: 'Rekasaya Perangkat Lunak', href: '/Pages/Jurusan/RPL' },
+          { label: 'Desain Komunikasi Visual', href: '/Pages/Jurusan/DKV' },
+          { label: 'Layanan PerBankan', href: '/Pages/Jurusan/LPB' },
+          { label: 'Akutansi', href: '/Pages/Jurusan/AK' },
+          { label: 'Manajemen Perkantoran Layanan Bisnis', href: '/Pages/Jurusan/MP' },
+          { label: 'Bisnis Digital', href: '/Pages/Jurusan/BD' },
         ],
          subMenus: [
           { label: 'Pencak Organisasi', href: '/' },
