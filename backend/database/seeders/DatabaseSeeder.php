@@ -25,6 +25,8 @@ class DatabaseSeeder extends Seeder
             AchievementSeeder::class,
             NewsSeeder::class,
             AlumnySeeder::class,
+            RecordSeeder::class,
+            EbooksSeeder::class,
         ]);
     }
 }
