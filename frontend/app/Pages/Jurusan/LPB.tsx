@@ -32,12 +32,12 @@ export default function JurusanLPB() {
             Program Keahlian Layanan Perbankan dan Keuangan Lembaga. Mempersiapkan tenaga professional di bidang keuangan dan perbankan yang kompeten dalam menghadapi kebutuhan industri perbankan yang terus berkembang seiring kemajuan teknologi</p>
         <div className="flex flex-wrap justify-center gap-3 mt-8">
             {[
-                { label: "Rekayasa Perangkat Lunak", href: "/Jurusan/RPL" },
-                { label: "Manajemen Perkantoran", href: "/Jurusan/MP" },
+                { label: "Rekayasa Perangkat Lunak", href: "/Pages/Jurusan/RPL" },
+                { label: "Manajemen Perkantoran", href: "/Pages/Jurusan/MP" },
                 { label: "Layanan Perbankan", href: null },
-                { label: "Desain Komunikasi Visual", href: "/Jurusan/DKV" },
-                { label: "Akuntansi", href: "/Jurusan/AK" },
-                { label: "Bisnis Digital", href: "/Jurusan/BD" },
+                { label: "Desain Komunikasi Visual", href: "/Pages/Jurusan/DKV" },
+                { label: "Akuntansi", href: "/Pages/Jurusan/AK" },
+                { label: "Bisnis Digital", href: "/Pages/Jurusan/BD" },
             ].map((item, i) =>
                 item.href ? (
                 <Link
