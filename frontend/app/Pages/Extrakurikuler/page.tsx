@@ -114,6 +114,54 @@ const SchoolPortfolio: React.FC = () => {
        href : "/Pages/Extrakurikuler/robotik",
     }
   ];
+  const Kompetensi1: ActivityItem[] = [
+    {
+      id: 1,
+      title: "Rekayasa Perangkat Lunak",
+      image: "/images/dummyImage.jpg",
+      description: "Tim basket putra sekolah yang aktif mengikuti kompetisi antar sekolah dan meraih berbagai prestasi.",
+       href : "/Pages/Extrakurikuler/badminton",
+    },
+    {
+      id: 2,
+      title: "Desain Komunikasi Visual", 
+      image: "/images/dummyImage.jpg",
+      description: "Tim basket putri yang menunjukkan dedikasi tinggi dalam latihan dan pertandingan resmi.",
+       href : "/Pages/Extrakurikuler/dance",
+    },
+    {
+      id: 3,
+      title: "Akutansi",
+      image: "/images/dummyImage.jpg",
+      description: "Turnamen basket internal sekolah yang diselenggarakan setiap tahun untuk semua siswa.",
+       href : "/Pages/Extrakurikuler/robotik",
+    }
+  ];
+  const Kompetensi2: ActivityItem[] = [
+    {
+      id: 1,
+      title: "Bisnis Digital",
+      image: "/images/dummyImage.jpg",
+      description: "Tim basket putra sekolah yang aktif mengikuti kompetisi antar sekolah dan meraih berbagai prestasi.",
+       href : "/Pages/Extrakurikuler/badminton",
+    },
+    {
+      id: 2,
+      title: "Layanan Perbankan", 
+      image: "/images/dummyImage.jpg",
+      description: "Tim basket putri yang menunjukkan dedikasi tinggi dalam latihan dan pertandingan resmi.",
+       href : "/Pages/Extrakurikuler/dance",
+    },
+    {
+      id: 3,
+      title: "Manajemen Perkantoran Layanan Bisnis",
+      image: "/images/dummyImage.jpg",
+      description: "Turnamen basket internal sekolah yang diselenggarakan setiap tahun untuk semua siswa.",
+       href : "/Pages/Extrakurikuler/robotik",
+    }
+  ];
+
+
    const scrollRef = useRef(null)
    
 
@@ -158,6 +206,8 @@ const SchoolPortfolio: React.FC = () => {
 
         {/* Main Content */}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <ActivityGrid title="Kompetensi Keahlian" data={Kompetensi1} />
+          <ActivityGrid title="" data={Kompetensi2} />
           <ActivityGrid title="Ekstrakurikuler" data={ekstrakurikulerData} />
           <ActivityGrid title="" data={fasilitasData} />
           <ActivityGrid title="" data={englishClubData} />

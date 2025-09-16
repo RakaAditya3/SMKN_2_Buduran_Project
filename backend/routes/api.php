@@ -24,6 +24,7 @@ use App\Http\Controllers\RecordController;
 */
 
 Route::post('/login', [AuthController::class, 'login'])->name('login');
+Route::post('/login-elibrary', [EBookController::class, 'login']);
 
 Route::middleware('auth:sanctum')->group(function () {
 Route::get('/user', function (Request $request) {
