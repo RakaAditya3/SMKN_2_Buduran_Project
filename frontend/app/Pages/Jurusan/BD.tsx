@@ -32,11 +32,11 @@ export default function JurusanMP() {
             Program Keahlian Bisnis dan Manajemen Modern. Bisnis Digital adalah rumpun ilmu terapan yang mengajarkan perancangan dan pengelolaan bisnis berbasis digital. Perpaduan manajemen, bisnis, teknik informatika, dan sistem informasi untuk menjawab tantangan bisnis masa depan</p>
         <div className="flex flex-wrap justify-center gap-3 mt-8">
             {[
-                { label: "Rekayasa Perangkat Lunak", href: "/Jurusan/RPL" },
-                { label: "Manajemen Perkantoran", href: "/Jurusan/MP" },
-                { label: "Layanan Perbankan", href: "/Jurusan/LPB" },
-                { label: "Desain Komunikasi Visual", href: "/Jurusan/DKV" },
-                { label: "Akuntansi", href: "/Jurusan/AK" },
+                { label: "Rekayasa Perangkat Lunak", href: "/Pages/Jurusan/RPL" },
+                { label: "Manajemen Perkantoran", href: "/Pages/Jurusan/MP" },
+                { label: "Layanan Perbankan", href: "/Pages/Jurusan/LPB" },
+                { label: "Desain Komunikasi Visual", href: "/Pages/Jurusan/DKV" },
+                { label: "Akuntansi", href: "/Pages/Jurusan/AK" },
                 { label: "Bisnis Digital", href: null },
             ].map((item, i) =>
                 item.href ? (
