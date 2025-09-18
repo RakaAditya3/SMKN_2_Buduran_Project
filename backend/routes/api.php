@@ -12,38 +12,32 @@ use App\Http\Controllers\Admin\ExtracurricularController;
 use App\Http\Controllers\Admin\AlumnyController;
 use App\Http\Controllers\RecordController;
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "api" middleware group. Make something great!
-|
-*/
 
-Route::post('/login', [AuthController::class, 'login'])->name('login');
+// === AUTH ===
+Route::post('/login', [AuthController::class, 'login']);
 Route::post('/login-elibrary', [EBookController::class, 'login']);
 
-Route::middleware('auth:sanctum')->group(function () {
-Route::get('/user', function (Request $request) {
-return $request->user();
+// ADMIN
+Route::middleware('auth:admin')->prefix('admin')->group(function () {
+    Route::get('/user', fn(Request $request) => $request->user());
+
+    Route::apiResource('categories', CategoryController::class);
+    Route::apiResource('companies', CompanyController::class);
+    Route::apiResource('achievements', AchievementController::class);
+    Route::apiResource('news', NewsController::class);
+    Route::apiResource('extracurriculars', ExtracurricularController::class);
+    Route::apiResource('alumni', AlumnyController::class);
+
+    
+    Route::post('/ebooks', [EBookController::class, 'store']);
+    Route::patch('/books/records/{id}/status', [RecordController::class, 'updateStatus']);
 });
 
-Route::post('/logout', [AuthController::class, 'logout']);
-
-Route::prefix('admin')->group(function () {
-Route::apiResource('categories', CategoryController::class);
-Route::apiResource('companies', CompanyController::class);
-Route::apiResource('achievements', AchievementController::class);
-Route::apiResource('news', NewsController::class);
-Route::apiResource('extracurriculars', ExtracurricularController::class);
-Route::apiResource('alumni', AlumnyController::class);
-Route::get('/ebooks', [EBookController::class, 'index']);
-Route::post('/ebooks', [EBookController::class, 'store']);
-Route::get('/admin-books/records', [RecordController::class, 'index']);
-Route::post('/admin-books/records', [RecordController::class, 'store']);
-Route::patch('/admin-books/records/{id}/status', [RecordController::class, 'updateStatus']);
-});
+// STUDENT
+Route::middleware('auth:student')->group(function () {
+    Route::get('/ebooks', [EBookController::class, 'index']);
+    Route::get('/books/records', [RecordController::class, 'index']);
+    Route::post('/books/records', [RecordController::class, 'store']);
+    Route::get('/ebooks/{id}', [EBookController::class, 'show']);
+   
 });

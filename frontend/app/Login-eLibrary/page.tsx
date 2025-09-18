@@ -45,7 +45,7 @@ const LoginPage: React.FC = () => {
 
         setSuccess('Login berhasil! Anda akan diarahkan...');
         setTimeout(() => {
-          router.push('/dashboard');
+          router.push('/Pages/eLibrary/Dashboard');
         }, 1000);
       } else {
         setError(res.data.message || 'Login gagal, periksa NIS/Password!');

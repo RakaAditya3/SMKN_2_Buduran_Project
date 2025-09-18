@@ -13,4 +13,13 @@ class EBook extends Model
         'description',
         'image_path',
     ];
+
+     protected $appends = ['image_url'];
+
+     public function getImageUrlAttribute()
+    {
+        return $this->image_path 
+            ? asset('storage/' . $this->image_path) 
+            : null;
+    }
 }

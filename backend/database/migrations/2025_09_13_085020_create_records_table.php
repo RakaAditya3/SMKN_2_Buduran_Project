@@ -13,8 +13,7 @@ return new class extends Migration
     {
         Schema::create('records', function (Blueprint $table) {
             $table->id();
-            $table->string('user_name');
-            $table->string('nisn');
+            $table->foreignId('student_id')->constrained()->onDelete('cascade');
             $table->foreignId('ebook_id')->constrained()->onDelete('cascade');
             $table->timestamp('borrowed_at');
             $table->timestamp('returned_at')->nullable();

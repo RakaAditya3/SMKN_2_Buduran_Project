@@ -8,8 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Record extends Model
 {
     protected $fillable = [
-        'user_name',
-        'nisn',
+        'student_id',
         'ebook_id',
         'borrowed_at',
         'returned_at',
@@ -25,4 +24,10 @@ class Record extends Model
     {
         return $this->belongsTo(EBook::class);
     }
+
+    public function student()
+    {
+        return $this->belongsTo(Student::class);
+    }
+    
 }

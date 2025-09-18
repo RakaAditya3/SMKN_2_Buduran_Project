@@ -15,8 +15,7 @@ class RecordSeeder extends Seeder
     {
         DB::table('records')->insert([
             [
-                'user_name'   => 'Budi Santoso',
-                'nisn'        => '1234567890',
+                'student_id'   => 1,
                 'ebook_id'    => 1, // Laskar Pelangi
                 'borrowed_at' => Carbon::now()->subDays(5),
                 'returned_at' => null,
@@ -25,8 +24,7 @@ class RecordSeeder extends Seeder
                 'updated_at'  => now(),
             ],
             [
-                'user_name'   => 'Siti Aminah',
-                'nisn'        => '1234567891',
+                'student_id'   => 2,
                 'ebook_id'    => 2, // Bumi Manusia
                 'borrowed_at' => Carbon::now()->subDays(10),
                 'returned_at' => Carbon::now()->subDays(2),
@@ -35,8 +33,7 @@ class RecordSeeder extends Seeder
                 'updated_at'  => now(),
             ],
             [
-                'user_name'   => 'Raka Aditya',
-                'nisn'        => '1234567892',
+                'student_id'   => 3,
                 'ebook_id'    => 3, // Negeri 5 Menara
                 'borrowed_at' => Carbon::now()->subDays(3),
                 'returned_at' => null,
@@ -45,8 +42,7 @@ class RecordSeeder extends Seeder
                 'updated_at'  => now(),
             ],
             [
-                'user_name'   => 'Ani Kusuma',
-                'nisn'        => '1234567893',
+                'student_id'   => 4,
                 'ebook_id'    => 4, // Sang Pemimpi
                 'borrowed_at' => Carbon::now()->subDays(15),
                 'returned_at' => Carbon::now()->subDays(5),
