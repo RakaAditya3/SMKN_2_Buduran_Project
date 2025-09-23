@@ -5,8 +5,10 @@ import { Search } from 'lucide-react';
 import useSWR from 'swr';
 import { fetcher } from '@/lib/fetcher';
 import Link from 'next/link';
+import Image from "next/image";
 
 interface EBook {
+  data: EBook[];
   id: number;
   title: string;
   description: string;
@@ -16,17 +18,25 @@ interface EBook {
 const EBookDashboard: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
-  // pakai SWR untuk fetch data
-  const { data: ebooks, error, isLoading } = useSWR<EBook[]>('/ebooks', fetcher, {
-    revalidateOnFocus : false,
-    revalidateIfStale : false,
-    revalidateOnReconnect : false,
-    dedupingInterval: 99999999,
-  });
+ const { data: ebooksResponse, error, isLoading } = useSWR('/ebooks', fetcher, {
+  revalidateOnFocus: false,
+  revalidateIfStale: false,
+  revalidateOnReconnect: false,
+  dedupingInterval: 99999999,
+});
 
-  const filteredBooks = ebooks?.filter((book) =>
-    book.title.toLowerCase().includes(searchQuery.toLowerCase())
-  ) || [];
+
+const ebooks: EBook[] = ebooksResponse?.data || [];
+console.log(ebooks)
+
+const filteredBooks = ebooks.filter((book) =>
+  book.title.toLowerCase().includes(searchQuery.toLowerCase())
+);
+
+function getImageUrl(path: string) {
+  if (!path) return "/placeholder.png";
+  return path.startsWith("http") ? path : `https://kmzmzmrdwbaaibcgqowh.supabase.co/storage/v1/object/public/${path}`;
+}
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -60,9 +70,11 @@ const EBookDashboard: React.FC = () => {
                   <div className="aspect-[3/4] bg-gray-200 rounded-lg overflow-hidden mb-3 shadow-sm group-hover:shadow-md transition-shadow">
                     {book.image_url ? (
                       <Link href={`/Pages/eLibrary/${book.id}`}>
-                        <img
-                          src={book.image_url}
+                        <Image
+                          src={getImageUrl(book.image_url)}
                           alt={book.title}
+                          width={300}
+                          height={400}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                         />
                       </Link>

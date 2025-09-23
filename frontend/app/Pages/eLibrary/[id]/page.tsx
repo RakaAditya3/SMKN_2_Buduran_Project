@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import api from "@/api/api";
 import dayjs from "dayjs";
+import Image from "next/image";
 
 const EbookDetail = () => {
   const { id } = useParams();
@@ -13,61 +14,73 @@ const EbookDetail = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [popupData, setPopupData] = useState<any>(null);
+  
 
   useEffect(() => {
     const fetchBook = async () => {
       try {
         const res = await api.get(`/ebooks/${id}`);
         setBook(res.data);
+        console.log(res.data);
+
       } catch (err) {
         console.error("Gagal ambil data");
       }
     };
     if (id) fetchBook();
+    
   }, [id]);
 
   if (!book) return <p>Loading...</p>;
 
-  const handleBorrow = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setMessage("");
+const handleBorrow = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setLoading(true);
+  setMessage("");
 
-    const diff = dayjs(returnedAt).diff(dayjs(borrowedAt), "day");
-    if (diff > 7) {
-      setMessage("Maksimal peminjaman adalah 7 hari");
-      setLoading(false);
-      return;
-    }
+  const diff = dayjs(returnedAt).diff(dayjs(borrowedAt), "day");
+  if (diff > 7) {
+    setMessage("Maksimal peminjaman adalah 7 hari");
+    setLoading(false);
+    return;
+  }
 
-    try {
-      const res = await api.post("/books/records", {
-        ebook_id: book.id,
-        borrowed_at: borrowedAt,
-        returned_at: returnedAt,
-      });
+  try {
+    const res = await api.post("/books/records", {
+      ebook_id: book.data.id, // ✅ ambil dari book.data
+      borrowed_at: borrowedAt,
+      returned_at: returnedAt,
+    });
 
-      setPopupData({
-  student_name: res.data.record.student.nama,
-  ebook_title: res.data.record.ebook.title,
-  borrowed_at: dayjs(res.data.record.borrowed_at).format('YYYY-MM-DD'),
-  returned_at: dayjs(res.data.record.returned_at).format('YYYY-MM-DD'),
-});
-      setMessage("Berhasil meminjam buku!");
-    } catch (err: any) {
-      setMessage("Gagal meminjam buku");
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+    setPopupData({
+      student_name: res.data.record.student?.nama || "Tidak diketahui",
+      ebook_title: res.data.record.ebook?.title || "Tidak diketahui",
+      borrowed_at: dayjs(res.data.record.borrowed_at).format("YYYY-MM-DD"),
+      returned_at: dayjs(res.data.record.returned_at).format("YYYY-MM-DD"),
+    });
+
+    setMessage("Berhasil meminjam buku!");
+  } catch (err: any) {
+    setMessage("Gagal meminjam buku");
+    console.error(err);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
 
   return (
     <div className="p-6 max-w-5xl mx-auto flex flex-col md:flex-row gap-8">
       <div className="flex-1">
-        <img src={book.image_url} alt={book.title} className="w-full rounded-lg shadow-md" />
+        <Image
+          src={book?.data.image_path ? book.data.image_path : "/placeholder.png"}
+          alt={book.title || "Ebook cover"}
+          width={300}
+          height={400}
+          className="rounded-lg shadow-md object-cover w-full h-full"
+        />
       </div>
-
       <div className="flex-1">
         <h1 className="text-2xl font-bold mb-2 text-black">{book.title}</h1>
         <p className="text-gray-600 mb-4">{book.description}</p>

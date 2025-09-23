@@ -9,6 +9,9 @@ use Illuminate\Support\Str;
 use App\Models\Student;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
+use App\Http\Resources\EBookResource;
+
 
 class EBookController extends Controller
 {
@@ -48,40 +51,60 @@ class EBookController extends Controller
     public function index()
     {
         $ebooks = EBook::all();
-        return response()->json($ebooks);
+        return EBookResource::collection($ebooks);
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'title' => 'required|string|max:255',
+            'title'       => 'required|string|max:255',
             'description' => 'required|string',
-            'image' => 'nullable|image|max:2048', // max 2MB
+            'image'       => 'nullable|image|max:2048', // max 2MB
         ]);
 
-        $imagePath = null;
+        $imageUrl = null;
+
         if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $imageName = Str::random(40) . '.' . $image->getClientOriginalExtension();
-            $imagePath = $image->storeAs('ebooks/images', $imageName, 'public');
+            $image     = $request->file('image');
+            $fileName  = 'ebooks/' . Str::random(40) . '.' . $image->getClientOriginalExtension();
+
+            $response = Http::withToken(env('SUPABASE_KEY'))
+                ->attach('file', fopen($image->getRealPath(), 'r'), $fileName)
+                ->post(env('SUPABASE_URL')."/storage/v1/object/images/".$fileName);
+
+            if ($response->failed()) {
+                return response()->json([
+                    'message' => 'Upload gagal',
+                    'error'   => $response->body()
+                ], 500);
+            }
+
+            $imageUrl = env('SUPABASE_URL')."/storage/v1/object/public/images/".$fileName;
         }
 
         $ebook = EBook::create([
-            'title' => $request->title,
+            'title'       => $request->title,
             'description' => $request->description,
-            'image_path' => $imagePath,
+            'image_path'  => $imageUrl,
         ]);
 
         return response()->json([
             'message' => 'EBook uploaded successfully',
-            'ebook' => $ebook,
+            'ebook'   => $ebook,
         ], 201);
     }
 
 
-    public function show($id)
-{
-    $ebook = Ebook::findOrFail($id);
-    return response()->json($ebook);
+   public function show($id)
+    {
+    $ebook = Ebook::with('records.student')->findOrFail($id);
+    $ebook->image_url = $ebook->image_path 
+        ? "https://kmzmzmrdwbaaibcgqowh.supabase.co/storage/v1/object/public/{$ebook->image_path}"
+        : null;
+
+    return response()->json([
+        'data' => $ebook
+    ]);
     }
+
 }

@@ -51,7 +51,7 @@ export default function RootLayout({
             const onLoad=function(){
               const script=document.createElement("script");
               script.src="https://www.chatbase.co/embed.min.js";
-              script.id="JDPf-P_Gzm93upUQWwdmr"; // <-- ID kamu
+              script.id="JDPf-P_Gzm93upUQWwdmr";
               script.domain="www.chatbase.co";
               document.body.appendChild(script)
             };

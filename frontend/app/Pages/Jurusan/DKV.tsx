@@ -24,7 +24,7 @@ export default function JurusanDKV() {
       window.scrollTo({ top: 0, behavior: "smooth" })
     }
   return (
-    <div className="font-sans text-gray-800 bg-gray-50">
+    <div className="font-sans text-gray-800 bg-gray-50 mt-30">
       {/* Hero Section */}
       <section className="bg-indigo-800 text-white text-center py-20 px-4">
         <h1 className="text-4xl md:text-5xl font-bold mb-4 drop-shadow">Desain Komunikasi Visual</h1>

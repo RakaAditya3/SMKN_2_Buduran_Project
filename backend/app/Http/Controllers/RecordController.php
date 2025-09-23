@@ -69,7 +69,7 @@ public function store(Request $request): JsonResponse
         'ebook_id' => $request->ebook_id,
         'borrowed_at' => $borrowed,
         'returned_at' => $returned,
-        'status' => 'Dipinjam',
+        'status' => 'borrowed',
     ]);
 
 

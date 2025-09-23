@@ -120,21 +120,21 @@ const SchoolPortfolio: React.FC = () => {
       title: "Rekayasa Perangkat Lunak",
       image: "/images/dummyImage.jpg",
       description: "Tim basket putra sekolah yang aktif mengikuti kompetisi antar sekolah dan meraih berbagai prestasi.",
-       href : "/Pages/Extrakurikuler/badminton",
+       href : "/Pages/Jurusan/RPL",
     },
     {
       id: 2,
       title: "Desain Komunikasi Visual", 
       image: "/images/dummyImage.jpg",
       description: "Tim basket putri yang menunjukkan dedikasi tinggi dalam latihan dan pertandingan resmi.",
-       href : "/Pages/Extrakurikuler/dance",
+       href : "/Pages/Jurusan/DKV",
     },
     {
       id: 3,
       title: "Akutansi",
       image: "/images/dummyImage.jpg",
       description: "Turnamen basket internal sekolah yang diselenggarakan setiap tahun untuk semua siswa.",
-       href : "/Pages/Extrakurikuler/robotik",
+       href : "/Pages/Jurusan/AK",
     }
   ];
   const Kompetensi2: ActivityItem[] = [
@@ -143,21 +143,21 @@ const SchoolPortfolio: React.FC = () => {
       title: "Bisnis Digital",
       image: "/images/dummyImage.jpg",
       description: "Tim basket putra sekolah yang aktif mengikuti kompetisi antar sekolah dan meraih berbagai prestasi.",
-       href : "/Pages/Extrakurikuler/badminton",
+       href : "/Pages/Jurusan/BD",
     },
     {
       id: 2,
       title: "Layanan Perbankan", 
       image: "/images/dummyImage.jpg",
       description: "Tim basket putri yang menunjukkan dedikasi tinggi dalam latihan dan pertandingan resmi.",
-       href : "/Pages/Extrakurikuler/dance",
+       href : "/Pages/Jurusan/LPB",
     },
     {
       id: 3,
       title: "Manajemen Perkantoran Layanan Bisnis",
       image: "/images/dummyImage.jpg",
       description: "Turnamen basket internal sekolah yang diselenggarakan setiap tahun untuk semua siswa.",
-       href : "/Pages/Extrakurikuler/robotik",
+       href : "/Pages/Jurusan/MP",
     }
   ];
 
@@ -166,7 +166,7 @@ const SchoolPortfolio: React.FC = () => {
    
 
   const ActivityGrid: React.FC<{ title: string; data: ActivityItem[] }> = ({ title, data }) => (
-    <section className="mb-12">
+    <section className="mt-52 mb-12">
       <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">{title}</h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-40">
         
