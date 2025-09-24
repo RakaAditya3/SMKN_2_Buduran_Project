@@ -166,7 +166,7 @@ const SchoolPortfolio: React.FC = () => {
    
 
   const ActivityGrid: React.FC<{ title: string; data: ActivityItem[] }> = ({ title, data }) => (
-    <section className="mt-52 mb-12">
+    <section className="mt-30 mb-12">
       <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">{title}</h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-40">
         

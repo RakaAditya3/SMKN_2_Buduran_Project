@@ -1,11 +1,14 @@
 'use client'
 
-import React from 'react'
-import Image from 'next/image'
+import React from 'react';
+import Image from 'next/image';
 import { GraduationCap, Star, ChevronLeft, ChevronRight, Shield, TrendingUp, Users, Zap, CheckCircle, MessageCircle, BarChart3} from 'lucide-react';
 import Link from 'next/link';
 import dynamic from "next/dynamic";
 import { useState } from 'react';
+import useSWR from 'swr';
+import { fetcher } from '@/lib/fetcher';
+
 
 const CountUp = dynamic(() => import("react-countup"), { ssr: false });
 
@@ -406,6 +409,121 @@ const Feature = () => {
   );
 };
 
+interface News {
+  id: number
+  title: string
+  thumbnail: string | null
+  published_at: string
+  category_id: number
+}
+
+const HomeSection = () => {
+  const { data: news, error } = useSWR<News[]>('/news', fetcher)
+
+  if (error) return <div>Gagal memuat data</div>
+  if (!news) return <div>Loading...</div>
+
+  const berita = news
+    .filter((item) => item.category_id === 2)
+    .slice(0, 4)
+
+  const prestasi = news
+    .filter((item) => item.category_id === 1)
+    .slice(0, 4)
+
+  return (
+   <div className="space-y-16 px-4 md:px-8 lg:px-12 mt-10">
+  {/* Berita Terbaru */}
+  <section>
+    <div className="flex items-center justify-between mb-6">
+      <h2 className="text-2xl font-bold text-gray-800">Berita Terbaru</h2>
+      <Link
+        href="/Pages/Berita-Kegiatan"
+        className="text-red-600 font-medium hover:underline transition"
+      >
+        Selengkapnya →
+      </Link>
+    </div>
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+      {berita.map((item) => (
+        <div
+          key={item.id}
+          className="group bg-white rounded-lg shadow hover:shadow-lg overflow-hidden transition"
+        >
+          {item.thumbnail && (
+            <Image
+              src={item.thumbnail}
+              alt={item.title}
+              width={400}
+              height={250}
+              className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+            />
+          )}
+          <div className="p-4">
+            <h3 className="font-semibold text-gray-800 text-lg line-clamp-2 group-hover:text-red-600 transition">
+              {item.title}
+            </h3>
+            <p className="text-sm text-gray-500 mt-2">
+              {new Date(item.published_at).toLocaleDateString('id-ID', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+              })}
+            </p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  {/* Prestasi Terbaru */}
+  <section>
+    <div className="flex items-center justify-between mb-6">
+      <h2 className="text-2xl font-bold text-gray-800">Prestasi Terbaru</h2>
+      <Link
+        href="/Pages/Berita-Kegiatan"
+        className="text-red-600 font-medium hover:underline transition"
+      >
+        Selengkapnya →
+      </Link>
+    </div>
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-25">
+      {prestasi.map((item) => (
+        <div
+          key={item.id}
+          className="group bg-white rounded-lg shadow hover:shadow-lg overflow-hidden transition"
+        >
+          {item.thumbnail && (
+            <Image
+              src={item.thumbnail}
+              alt={item.title}
+              width={400}
+              height={250}
+              className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+            />
+          )}
+          <div className="p-4">
+            <h3 className="font-semibold text-gray-800 text-lg line-clamp-2 group-hover:text-red-600 transition">
+              {item.title}
+            </h3>
+            <p className="text-sm text-gray-500 mt-2">
+              {new Date(item.published_at).toLocaleDateString('id-ID', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+              })}
+            </p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+  </div>
+
+  )
+}
+
+
 const page = () => {
   
   return (
@@ -463,52 +581,44 @@ const page = () => {
       </div>
 
       {/* Content Section */}
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-6xl mx-auto mt-25">
         <div className="flex gap-6">
           {/* Left Column */}
           <div className="flex-1">
-            <div className="bg-white rounded-lg shadow-md overflow-hidden mb-6 h-[410]">
+            <div className="bg-white rounded-lg shadow-md overflow-hidden mb-25 ">
               <div className="bg-blue-500 text-white p-4">
-                <h2 className="text-2xl font-bold">Sambutan kepala sekolah</h2>
+                <h2 className="text-2xl font-bold">Sambutan Kepala Sekolah</h2>
               </div>
-              
-              <div className="p-6">
-                <div className="flex gap-52">
-                    <img 
-                      src="https://kmzmzmrdwbaaibcgqowh.supabase.co/storage/v1/object/public/images/Images/SMKN2BuduranVM.jpg" 
-                      alt="SMK Building" 
-                      className="w-[700] h-full object-cover rounded z-0"
-                    />
-                  <div className="w-full absolute z-10 pl-95 pt-23 ">
-                    <img 
-                      src="https://kmzmzmrdwbaaibcgqowh.supabase.co/storage/v1/object/public/images/Images/image.png" 
-                      alt="Kepala Sekolah" 
-                      className="w-[280] h-fit object-cover rounded"
-                    />
-                  </div>
-                </div>
+              <div className="p-2 flex justify-center">
+                <img
+                  src="https://kmzmzmrdwbaaibcgqowh.supabase.co/storage/v1/object/public/images/Images/kepsek.png"
+                  alt="Kepala Sekolah"
+                  className="w-fit h-[330px] object-cover rounded-lg shadow"
+                />
               </div>
             </div>
-                <div className="bg-white rounded-md shadow-md overflow-hidden mt-35">
-                  <div className="relative w-full h-100">
-                    <iframe
-                      className="absolute inset-0 w-full h-full rounded-lg"
-                      src="https://www.youtube.com/embed/OnlrEXnjrBY?si=eqrw318vc1mSO97O"
-                      title="YouTube video player"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    />
-                  </div>
-                <div className="p-4">
-                  <h3 className="font-bold text-lg mb-1 hover:text-blue-600 cursor-pointer text-black">
-                    Profil SMKN 2 Buduran Sidoarjo
-                  </h3>
-                  <p className="text-gray-600 text-sm">
-                    7,3 RB x ditonton • 9 tahun yang lalu
-                  </p>
-                </div>
+            {/* Video Profil Sekolah */}
+            <div className="bg-white rounded-md shadow-md overflow-hidden mt-35">
+              <div className="relative w-full h-64 md:h-96">
+                <iframe
+                  className="absolute inset-0 w-full h-full rounded-lg"
+                  src="https://www.youtube.com/embed/OnlrEXnjrBY?si=eqrw318vc1mSO97O"
+                  title="YouTube video player"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+              <div className="p-4">
+                <h3 className="font-bold text-lg mb-1 hover:text-blue-600 cursor-pointer text-black">
+                  Profil SMKN 2 Buduran Sidoarjo
+                </h3>
+                <p className="text-gray-600 text-sm">
+                  7,3 RB x ditonton • 9 tahun yang lalu
+                </p>
               </div>
             </div>
+          </div>
+
 
           {/* Right Column */}
           <div className="w-110">
@@ -536,7 +646,7 @@ const page = () => {
                 </div>
               </div>
 
-              <div className="bg-white rounded-md shadow-md overflow-hidden mt-20">
+              <div className="bg-white rounded-md shadow-md overflow-hidden mt-25">
                 <div className="aspect-video">
                   <iframe
                     className="w-full h-full"
@@ -548,7 +658,7 @@ const page = () => {
                 </div>
               </div>
 
-              <div className="bg-white rounded-md shadow-md overflow-hidden mt-25 ">
+              <div className="bg-white rounded-md shadow-md overflow-hidden mt-15 ">
                 <div className="aspect-video">
                   <iframe
                     className="w-full h-full"
@@ -672,6 +782,7 @@ const page = () => {
     <ProgramsCarousel />
     <InfiniteCarousel />
     <Feature />
+    <HomeSection />
 
     </>
   )

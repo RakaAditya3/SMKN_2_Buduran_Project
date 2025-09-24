@@ -16,6 +16,7 @@ use App\Http\Controllers\RecordController;
 // === AUTH ===
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/login-elibrary', [EBookController::class, 'login']);
+Route::get('news', [NewsController::class, 'index']);
 
 // ADMIN
 Route::middleware('auth:admin')->prefix('admin')->group(function () {

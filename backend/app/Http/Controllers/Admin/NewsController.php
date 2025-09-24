@@ -3,8 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\News;
 use App\Services\NewsService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 
 class NewsController extends Controller
 {
@@ -21,30 +24,69 @@ class NewsController extends Controller
         return response()->json($news);
     }
 
-    public function store(Request $request)
-    {
-        $id = $request->input('id');
-        $rules = [
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'slug' => 'required|string|unique:news,slug,' . $id,
-            'published_at' => 'required|date',
-            'category_id' => 'required|exists:categories,id',
-            'thumbnail' => 'required|string',
-            'content' => 'required|string',
-        ];
-        $validatedData = $request->validate($rules);
+public function store(Request $request)
+{
+    $request->validate([
+        'title'        => 'required|string|max:255',
+        'description'  => 'required|string',
+        'slug'         => 'required|string|unique:news,slug',
+        'published_at' => 'required|date',
+        'category_id'  => 'required|exists:categories,id',
+        'thumbnail'    => 'nullable|image|max:2048', // opsional, max 2MB
+        'content'      => 'required|string',
+    ]);
 
-        if ($id) {
-            $news = $this->newsService->update($validatedData, $id);
-            $message = 'Berita berhasil diperbarui.';
-        } else {
-            $news = $this->newsService->store($validatedData);
-            $message = 'Berita berhasil ditambahkan.';
+    $imageUrl = null;
+
+    if ($request->hasFile('thumbnail')) {
+        $image     = $request->file('thumbnail');
+        $fileName  = 'news/' . Str::random(40) . '.' . $image->getClientOriginalExtension();
+        $bucket    = 'images';
+
+        $response = Http::withToken(env('SUPABASE_KEY'))
+            ->attach(
+                'file',
+                fopen($image->getRealPath(), 'r'),
+                $fileName
+            )
+            ->post(env('SUPABASE_URL') . "/storage/v1/object/$bucket/$fileName?upsert=true");
+
+        if ($response->failed()) {
+            \Log::error('Supabase upload failed', [
+                'status' => $response->status(),
+                'body'   => $response->body(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Upload thumbnail gagal',
+                'error'   => $response->body(),
+            ], 500);
         }
 
-        return response()->json(['success' => true, 'message' => $message, 'data' => $news]);
+        // URL publik file
+        $imageUrl = rtrim(env('SUPABASE_URL'), '/') .
+            "/storage/v1/object/public/$bucket/$fileName";
     }
+
+    $news = News::create([
+        'title'        => $request->title,
+        'description'  => $request->description,
+        'slug'         => $request->slug,
+        'thumbnail'    => $imageUrl,
+        'content'      => $request->content,
+        'category_id'  => $request->category_id,
+        'published_at' => $request->published_at,
+    ]);
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Berita berhasil ditambahkan.',
+        'data'    => $news,
+    ], 201);
+}
+
+
 
     public function show($id)
     {

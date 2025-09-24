@@ -178,7 +178,7 @@ const Header: React.FC = () => {
                         </div>
                         <div className="flex flex-col justify-center border-l border-r border-gray-300 px-6">
                           <p className="text-gray-700 mb-4 leading-relaxed text-sm">{currentItem.dropdown.description}</p>
-                          <Link href="#selengkapnya" className="inline-block bg-[#0E74BC] text-white px-4 py-2 rounded-md font-semibold hover:bg-blue-700 transition-colors">Lihat Selengkapnya</Link>
+                          <Link href="/#selengkapnya" className="inline-block bg-[#0E74BC] text-white px-4 py-2 rounded-md font-semibold hover:bg-blue-700 transition-colors">Lihat Selengkapnya</Link>
                         </div>
                         <div className="flex flex-col justify-center space-y-3 px-2">
                           {currentItem.dropdown.subMenu?.map((sub) => (
