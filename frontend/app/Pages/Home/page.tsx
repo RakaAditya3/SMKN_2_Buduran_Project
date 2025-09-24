@@ -140,7 +140,7 @@ const ProgramsCarousel: React.FC = () => {
 
       {/* Carousel Section */}
       <div className="bg-gradient-to-br from-blue-50 via-gray-50 to-blue-50">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 mt-5">
           {/* Carousel Indicators */}
           <div className="flex justify-center mb-12 space-x-3">
             {Array.from({ length: totalSlides }).map((_, index) => (
@@ -243,16 +243,6 @@ const ProgramsCarousel: React.FC = () => {
             </div>
           </div>
         </div>
-
-        <div className="w-full mt-15">
-          <div className="bg-gradient-to-r from-blue-400 to-blue-600 overflow-hidden">
-            <div className="flex justify-center items-end min-h-64 gap-20">
-                <img src="https://kmzmzmrdwbaaibcgqowh.supabase.co/storage/v1/object/public/images/Images/student1.png" alt="" className='w-[300] h-full' />
-                <img src="https://kmzmzmrdwbaaibcgqowh.supabase.co/storage/v1/object/public/images/Images/student2.png" alt="" className='w-[300] h-full' />
-                <img src="https://kmzmzmrdwbaaibcgqowh.supabase.co/storage/v1/object/public/images/Images/student3.png" alt="" className='w-[300] h-full' />
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   )
@@ -271,7 +261,7 @@ const InfiniteCarousel: React.FC = () => {
   ]
 
   return (
-    <div className="relative w-full overflow-hidden py-8 mt-10">
+    <div className="relative w-full overflow-hidden py-8">
       <div className="flex animate-loop-scroll">
         {[...images, ...images].map((src, i) => (
           <div
@@ -296,7 +286,7 @@ const InfiniteCarousel: React.FC = () => {
 
 const Feature = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-gray-50 to-blue-50 mt-10">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-gray-50 to-blue-50">
       {/* Main Content */}
       <main className="container mx-auto px-6 py-12">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -319,13 +309,13 @@ const Feature = () => {
 
             {/* Illustration */}
             <div className="relative">
-              <div className="bg-gradient-to-r from-pink-100 to-purple-100 rounded-3xl p-8 relative overflow-hidden">
-                <div className="absolute top-4 right-4 w-16 h-16 bg-gradient-to-r from-orange-400 to-pink-400 rounded-full opacity-20"></div>
+              <div className="bg-gradient-to-r from-pink-100 to-blue-100 rounded-3xl p-8 relative overflow-hidden">
+                <div className="absolute top-4 right-4 w-16 h-16 bg-gradient-to-r from-blue-400 to-pink-400 rounded-full opacity-20"></div>
                 <div className="absolute bottom-4 left-4 w-12 h-12 bg-gradient-to-r from-purple-400 to-blue-400 rounded-full opacity-20"></div>
                 
                 {/* Device Mockup */}
                 <div className="bg-white rounded-2xl p-4 shadow-xl transform -rotate-3 hover:rotate-0 transition-transform duration-500">
-                  <div className="bg-gradient-to-r from-red-100 to-pink-100 rounded-lg p-4 mb-4">
+                  <div className="bg-gradient-to-r from-blue-100 to-pink-100 rounded-lg p-4 mb-4">
                     <div className="flex items-center space-x-2 mb-3">
                       <div className="w-3 h-3 bg-red-400 rounded-full"></div>
                       <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
@@ -364,7 +354,7 @@ const Feature = () => {
                 </div>
                 <h3 className="text-lg font-semibold text-gray-800 mb-2">Presensi Online</h3>
                 <p className="text-gray-600 text-sm">
-                  Our clients stick with us because we deliver the results they want, not because they are bound to us.
+                  Fitur presensi online membantu siswa mencatat kehadiran tanpa ribet, kapan saja dan di mana saja.
                 </p>
               </div>
               </Link>
@@ -377,7 +367,7 @@ const Feature = () => {
                 </div>
                 <h3 className="text-lg font-semibold text-gray-800 mb-2">eLibrary</h3>
                 <p className="text-gray-600 text-sm">
-                  We provide customized, clear, and fact providing every fortnight.
+                  eLibrary memudahkan siswa meminjam dan membaca buku secara online tanpa harus datang ke perpustakaan.
                 </p>
               </div>
               </Link>
@@ -390,7 +380,7 @@ const Feature = () => {
                 </div>
                 <h3 className="text-lg font-semibold text-gray-800 mb-2">eComplaint</h3>
                 <p className="text-gray-600 text-sm">
-                  We use simplified, streamlined but comprehensive process design and development.
+                  eComplaint memudahkan siswa menyampaikan keluh kesah dan masukan kepada sekolah secara online.
                 </p>
               </div>
               </Link>
@@ -403,7 +393,7 @@ const Feature = () => {
                 </div>
                 <h3 className="text-lg font-semibold text-gray-800 mb-2">Student Showcase</h3>
                 <p className="text-gray-600 text-sm">
-                  Getting more customers and retention is as important as sales growth and we actively work on retention for you.
+                  Student Showcase menjadi ruang bagi siswa untuk menampilkan karya dan prestasi mereka secara online.
                 </p>
               </div>
               </Link>
