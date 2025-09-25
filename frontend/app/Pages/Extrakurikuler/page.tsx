@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { useRef } from 'react';
 import Navbar from '../../Components/Navbar'
 import Footer from '../../Components/Footer'
+import InfiniteCarousel from '@/app/Components/InfinityCarousel';
 
 
 interface ActivityItem {
@@ -213,7 +214,7 @@ const SchoolPortfolio: React.FC = () => {
           <ActivityGrid title="" data={englishClubData} />
           <ActivityGrid title="" data={basketData} />
         </main>
-
+        <InfiniteCarousel />
         {/* Footer */}
       </div>
       <Footer />

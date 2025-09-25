@@ -8,7 +8,7 @@ import dynamic from "next/dynamic";
 import { useState } from 'react';
 import useSWR from 'swr';
 import { fetcher } from '@/lib/fetcher';
-
+import InfiniteCarousel from '@/app/Components/InfinityCarousel';
 
 const CountUp = dynamic(() => import("react-countup"), { ssr: false });
 
@@ -19,7 +19,12 @@ interface AnimatedCountUpProps {
   duration?: number;
 }
 
-function AnimatedCountUp({ end, suffix = "", prefix = "", duration = 2.5 }: AnimatedCountUpProps) {
+export function AnimatedCountUp({
+  end,
+  suffix = "",
+  prefix = "",
+  duration = 2.5,
+}: AnimatedCountUpProps) {
   return (
     <div className="text-4xl font-bold text-blue-500 mb-2">
       <CountUp
@@ -31,7 +36,9 @@ function AnimatedCountUp({ end, suffix = "", prefix = "", duration = 2.5 }: Anim
         suffix={suffix}
         enableScrollSpy
         scrollSpyOnce
-      />
+      >
+        {({ countUpRef }) => <span ref={countUpRef} />}
+      </CountUp>
     </div>
   );
 }
@@ -246,42 +253,6 @@ const ProgramsCarousel: React.FC = () => {
             </div>
           </div>
         </div>
-      </div>
-    </div>
-  )
-}
-
-const InfiniteCarousel: React.FC = () => {
-  const images = [
-    '/images/LogoJagoan-1.png',
-    '/images/komdigi.png',
-    '/images/maspion.png',
-    '/images/1000sd.png',
-    '/images/LogoJagoan-1.png',
-    '/images/komdigi.png',
-    '/images/maspion.png',
-    '/images/1000sd.png',
-  ]
-
-  return (
-    <div className="relative w-full overflow-hidden py-8">
-      <div className="flex animate-loop-scroll">
-        {[...images, ...images].map((src, i) => (
-          <div
-            key={i}
-            className="flex-shrink-0 w-[100px] mx-6 flex items-center justify-center"
-          >
-            <div className="transition-all duration-500 transform hover:scale-105">
-              <Image
-                src={src}
-                alt={`carousel-${i}`}
-                width={70}
-                height={120}
-                className="object-contain w-[200px] h-[120px] hover:grayscale-0 transition duration-500"
-              />
-            </div>
-          </div>
-        ))}
       </div>
     </div>
   )

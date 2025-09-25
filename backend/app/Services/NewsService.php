@@ -8,11 +8,14 @@ class NewsService extends Service
 {
     public function search($params = [])
     {
-        $news = News::orderBy('id');
+
+        $news = News::orderBy('created_at', 'desc');
+
         $title = $params['title'] ?? '';
         if ($title !== '') {
             $news = $news->where('title', 'like', "%$title%");
         }
+
         $news = $this->searchFilter($params, $news, ['category_id', 'slug', 'published_at']);
         return $this->searchResponse($params, $news);
     }

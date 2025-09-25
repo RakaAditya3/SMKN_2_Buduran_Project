@@ -99,15 +99,6 @@ const Header: React.FC = () => {
     {
       label: "Berita & Kegiatan",
       href: "/Pages/Berita-Kegiatan",
-      dropdown: {
-        layout: "berita",
-        items: [
-          { image: "/images/dummyImage.jpg", description: "Kegiatan upacara bendera rutin setiap Senin.", href: "/Pages/Berita-Kegiatan" },
-          { image: "/images/dummyImage.jpg", description: "Prestasi siswa dalam lomba tingkat nasional.", href: "/Pages/Berita-Kegiatan" },
-          { image: "/images/dummyImage.jpg", description: "Kegiatan ekstrakurikuler pramuka di sekolah.", href: "/Pages/Berita-Kegiatan" },
-          { image: "/images/dummyImage.jpg", description: "Program magang industri siswa kelas XII selama 6 Bulan.", href: "/Pages/Berita-Kegiatan" }
-        ]
-      }
     },
     { label: 'Alumni & Karier', href: '/Pages/Alumni-Karier' },
     { label: 'eComplaint', href: '/Pages/eComplaint' },
@@ -211,19 +202,6 @@ const Header: React.FC = () => {
                           <img src={currentItem.dropdown.image!} alt={currentItem.label} className="w-full h-40 rounded-md shadow-md object-cover"/>
                           <p className="text-gray-700 text-sm mt-3">{currentItem.dropdown.description}</p>
                         </div>
-                      </div>
-                    )}
-
-                    {/* Layout Berita */}
-                    {currentItem.dropdown.layout === "berita" && (
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {currentItem.dropdown.items?.map((news, idx) => (
-                          <div key={idx} className="flex flex-col items-center text-center space-y-3">
-                            <img src={news.image} alt={`Berita ${idx + 1}`} className="w-full h-40 object-cover rounded-md shadow-md"/>
-                            <p className="text-gray-700 text-sm">{news.description}</p>
-                            <Link href={news.href} className="inline-block bg-[#0E74BC] text-white px-3 py-1.5 rounded-md text-sm font-semibold hover:bg-blue-700 transition-colors">Lihat Selengkapnya</Link>
-                          </div>
-                        ))}
                       </div>
                     )}
                   </div>

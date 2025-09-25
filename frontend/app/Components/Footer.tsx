@@ -131,7 +131,8 @@ const Footer: React.FC = () => {
         </div>
 
         {/* Copyright */}
-        <div className="border-t border-gray-700 mt-8 pt-6 text-center">
+        <div className="flex border-t border-gray-700 mt-8 pt-6 text-center items-center justify-between">
+          <img src="/images/Logo-Jagoan.png" alt="" className='w-70 h-auto' />
           <p className="text-gray-400 text-sm">
             SMKN 2 BUDURAN © 2025. All Rights Reserved.
           </p>
