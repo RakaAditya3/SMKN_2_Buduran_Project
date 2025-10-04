@@ -10,8 +10,9 @@ use App\Http\Controllers\Admin\AchievementController;
 use App\Http\Controllers\Admin\NewsController;
 use App\Http\Controllers\Admin\ExtracurricularController;
 use App\Http\Controllers\ComplaintController;
+use App\Http\Controllers\PresensiController;
 use App\Http\Controllers\RecordController;
-
+use App\Http\Controllers\RfidLogController;
 
 // === AUTH ===
 Route::post('/login', [AuthController::class, 'login']);
@@ -23,6 +24,7 @@ Route::get('news/{id}', [NewsController::class, 'show']);
 Route::get('company', [CompanyController::class, 'index']);
 Route::post('/complaints', [ComplaintController::class, 'store']);
 Route::get('/complaints/{ticket_number}', [ComplaintController::class, 'show']);
+Route::get('/presensi/check/{uid}', [PresensiController::class, 'check']);
 
 // ADMIN
 Route::middleware('auth:admin')->prefix('admin')->group(function () {
@@ -39,6 +41,9 @@ Route::middleware('auth:admin')->prefix('admin')->group(function () {
     Route::patch('/books/records/{id}/status', [RecordController::class, 'updateStatus']);
 
     Route::put('/complaints/{id}', [ComplaintController::class, 'update']);
+
+    Route::post('/rfid-logs', [RfidLogController::class, 'store']);
+    Route::post('/presensi/process-today', [PresensiController::class, 'processToday']);
 });
 
 // STUDENT
