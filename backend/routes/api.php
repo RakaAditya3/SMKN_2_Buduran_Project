@@ -9,15 +9,20 @@ use App\Http\Controllers\Admin\CompanyController;
 use App\Http\Controllers\Admin\AchievementController;
 use App\Http\Controllers\Admin\NewsController;
 use App\Http\Controllers\Admin\ExtracurricularController;
+use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\RecordController;
 
 
 // === AUTH ===
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/login-elibrary', [EBookController::class, 'login']);
+
+// === PUBLIC ===
 Route::get('news', [NewsController::class, 'index']);
 Route::get('news/{id}', [NewsController::class, 'show']);
 Route::get('company', [CompanyController::class, 'index']);
+Route::post('/complaints', [ComplaintController::class, 'store']);
+Route::get('/complaints/{ticket_number}', [ComplaintController::class, 'show']);
 
 // ADMIN
 Route::middleware('auth:admin')->prefix('admin')->group(function () {
@@ -32,6 +37,8 @@ Route::middleware('auth:admin')->prefix('admin')->group(function () {
     
     Route::post('/ebooks', [EBookController::class, 'store']);
     Route::patch('/books/records/{id}/status', [RecordController::class, 'updateStatus']);
+
+    Route::put('/complaints/{id}', [ComplaintController::class, 'update']);
 });
 
 // STUDENT
