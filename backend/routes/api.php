@@ -14,6 +14,7 @@ use App\Http\Controllers\PresensiController;
 use App\Http\Controllers\RecordController;
 use App\Http\Controllers\RfidLogController;
 
+
 // === AUTH ===
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/login-elibrary', [EBookController::class, 'login']);
@@ -43,6 +44,7 @@ Route::middleware('auth:admin')->prefix('admin')->group(function () {
     Route::put('/complaints/{id}', [ComplaintController::class, 'update']);
 
     Route::post('/rfid-logs', [RfidLogController::class, 'store']);
+    Route::get('/rfid/check-scan/{uid}', [RfidLogController::class, 'checkScan']);
     Route::post('/presensi/process-today', [PresensiController::class, 'processToday']);
 });
 

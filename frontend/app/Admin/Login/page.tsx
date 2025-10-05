@@ -29,7 +29,7 @@ const LoginPage: React.FC = () => {
       setSuccess("Login berhasil! Anda akan diarahkan...");
 
       setTimeout(() => {
-        window.location.href = "/Admin/Dashboard";
+        window.location.href = "/Admin/Dashboard/Presensi";
       }, 1000);
 
     } catch (err: any) {

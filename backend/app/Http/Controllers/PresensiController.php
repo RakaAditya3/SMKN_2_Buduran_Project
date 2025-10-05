@@ -13,8 +13,10 @@ class PresensiController extends Controller
     {
         $today = Carbon::today();
 
-        $scannedUids = RfidLog::whereDate('scanned_at', $today)->pluck('uid')->toArray();
-
+        $scannedUids = RfidLog::whereDate('scanned_at', $today)
+            ->pluck('uid')
+            ->unique()
+            ->toArray();
 
         $students = Student::all();
 

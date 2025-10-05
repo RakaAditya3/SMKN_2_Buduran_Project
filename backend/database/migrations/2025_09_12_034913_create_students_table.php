@@ -14,12 +14,12 @@ return new class extends Migration
         Schema::create('students', function (Blueprint $table) {
             $table->id();
             $table->string('nama');
-            $table->string('nisn')->unique(); // unik untuk identifikasi siswa
-            $table->string('password');       // bcrypt untuk login eLibrary
-            $table->string('uid')->unique();  // RFID UID, unik untuk absensi
+            $table->string('nisn')->unique();
+            $table->string('password');   
+            $table->string('uid')->unique(); 
             $table->enum('kelas', ['X', 'XI', 'XII']);
             $table->enum('jurusan', ['RPL', 'DKV', 'BD', 'MP', 'AK', 'LPB']);
-            $table->unsignedInteger('no_absen'); // nomor absen dalam kelas
+            $table->unsignedInteger('no_absen'); 
             $table->timestamps();
         });
     }
