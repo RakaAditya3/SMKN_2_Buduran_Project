@@ -26,6 +26,8 @@ const Header: React.FC = () => {
   const [activeNav, setActiveNav] = useState<string>('Home');
   const [hoveredMenu, setHoveredMenu] = useState<string | null>(null);
   const [showSearch, setShowSearch] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [expandedMobileItems, setExpandedMobileItems] = useState<string[]>([]);
 
   const navigationItems: NavigationItem[] = [
     { label: 'Home', href: '/' },
@@ -116,6 +118,14 @@ const Header: React.FC = () => {
 
   const currentItem = navigationItems.find((item) => item.label === hoveredMenu);
 
+  const toggleMobileSubmenu = (label: string) => {
+    setExpandedMobileItems(prev => 
+      prev.includes(label) 
+        ? prev.filter(item => item !== label)
+        : [...prev, label]
+    );
+  };
+
   return (
     <header className="bg-white shadow-sm border-b border-gray-200 relative">
       <div className="max-w-9xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -129,7 +139,26 @@ const Header: React.FC = () => {
             />
           </div>
 
-          {/* Wrapper nav + dropdown */}
+          {/* Mobile menu button - Moved to right side */}
+          <div className="md:hidden flex items-center">
+            <button 
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-2 text-gray-600 hover:text-blue-600 transition-colors"
+              aria-expanded="false"
+            >
+              <span className="sr-only">Open main menu</span>
+              {/* Burger icon */}
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                {mobileMenuOpen ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                )}
+              </svg>
+            </button>
+          </div>
+
+          {/* Wrapper nav + dropdown - Desktop */}
           <div 
             className="hidden md:flex items-center relative"
             onMouseLeave={() => setHoveredMenu(null)}
@@ -294,8 +323,8 @@ const Header: React.FC = () => {
 
             )}
           </div>
-            {/* Search Icon */}
-            <div className="relative">
+            {/* Search Icon - Desktop only */}
+            <div className="hidden md:block relative">
               <button
                 onClick={() => setShowSearch((prev) => !prev)}
                 className="p-2 text-gray-600 hover:text-blue-600 transition-colors"
@@ -329,6 +358,139 @@ const Header: React.FC = () => {
             </div>
         </div>
       </div>
+      
+      {/* Mobile menu */}
+      {mobileMenuOpen && (
+        <>
+          {/* Overlay */}
+          <div 
+            className="fixed inset-0 bg-black/30 bg-opacity-50 z-40"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+          
+          {/* Side menu */}
+          <div className="fixed top-0 right-0 h-full w-3/4 bg-white shadow-lg z-50 transform transition-transform duration-300 ease-in-out">
+            <div className="flex justify-between items-center p-4 border-b border-gray-200">
+              <button 
+                onClick={() => setMobileMenuOpen(false)}
+                className="p-2 text-gray-600 hover:text-blue-600 transition-colors"
+              >
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+              {/* Home */}
+              <Link
+                href="/"
+                className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-[#0E74BC] hover:bg-gray-50 rounded-md"
+                onClick={() => {
+                  setActiveNav('Home');
+                  setMobileMenuOpen(false);
+                }}
+              >
+                Home
+              </Link>
+              
+              {/* Profil Sekolah dengan submenu */}
+              <div>
+                <div 
+                  className="flex justify-between items-center px-3 py-2 text-base font-medium text-gray-700 hover:text-[#0E74BC] hover:bg-gray-50 rounded-md cursor-pointer"
+                  onClick={() => toggleMobileSubmenu('Profil Sekolah')}
+                >
+                  <span>Profil Sekolah</span>
+                  <svg 
+                    className={`w-4 h-4 transition-transform ${expandedMobileItems.includes('Profil Sekolah') ? 'transform rotate-180' : ''}`} 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+                
+                {expandedMobileItems.includes('Profil Sekolah') && (
+                  <div className="pl-6 space-y-1 mt-1">
+                    {navigationItems.find(item => item.label === 'Profil Sekolah')?.dropdown?.subMenu?.map((sub) => (
+                      <Link
+                        key={sub.label}
+                        href={sub.href}
+                        className="block px-3 py-2 text-sm font-medium text-gray-600 hover:text-[#0E74BC] hover:bg-gray-50 rounded-md"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <span className="mr-2 text-gray-500">›</span>
+                        {sub.label}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+              
+              {/* Program */}
+              <Link
+                href="/Pages/Extrakurikuler"
+                className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-[#0E74BC] hover:bg-gray-50 rounded-md"
+                onClick={() => {
+                  setActiveNav('Program');
+                  setMobileMenuOpen(false);
+                }}
+              >
+                Program
+              </Link>
+              
+              {/* Berita & Kegiatan */}
+              <Link
+                href="/Pages/Berita-Kegiatan"
+                className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-[#0E74BC] hover:bg-gray-50 rounded-md"
+                onClick={() => {
+                  setActiveNav('Berita & Kegiatan');
+                  setMobileMenuOpen(false);
+                }}
+              >
+                Berita & Kegiatan
+              </Link>
+              
+              {/* Alumni & Karier */}
+              <Link
+                href="/Pages/Alumni-Karier"
+                className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-[#0E74BC] hover:bg-gray-50 rounded-md"
+                onClick={() => {
+                  setActiveNav('Alumni & Karier');
+                  setMobileMenuOpen(false);
+                }}
+              >
+                Alumni & Karier
+              </Link>
+              
+              {/* eComplaint */}
+              <Link
+                href="/Pages/eComplaint"
+                className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-[#0E74BC] hover:bg-gray-50 rounded-md"
+                onClick={() => {
+                  setActiveNav('eComplaint');
+                  setMobileMenuOpen(false);
+                }}
+              >
+                eComplaint
+              </Link>
+              
+              {/* Presensi Online */}
+              <Link
+                href="/Pages/Presensi"
+                className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-[#0E74BC] hover:bg-gray-50 rounded-md"
+                onClick={() => {
+                  setActiveNav('Presensi Online');
+                  setMobileMenuOpen(false);
+                }}
+              >
+                Presensi Online
+              </Link>
+            </div>
+          </div>
+        </>
+      )}
     </header>
   );
 };
