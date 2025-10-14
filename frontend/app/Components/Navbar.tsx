@@ -29,19 +29,26 @@ const Header: React.FC = () => {
   const [showSearch, setShowSearch] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [expandedMobileItems, setExpandedMobileItems] = useState<string[]>([]);
-  const [isScrolled, setIsScrolled] = useState(false); // ⬅️ Tambah state scroll
+  const [scrolled, setScrolled] = useState(false);
 
   const pathname = usePathname(); // ⬅️ Deteksi halaman aktif
+const isHome = pathname === "/";
 
-  // Efek scroll: ubah warna background & teks
   useEffect(() => {
-    if (pathname !== "/") return; // ⬅️ Berlaku hanya di home
+    if (!isHome) return;
+
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50); // ubah jadi true kalau scroll > 50px
+      const heroHeight = 800; 
+      if (window.scrollY > heroHeight - 80) {
+        setScrolled(true);
+      } else {
+        setScrolled(false);
+      }
     };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [pathname]);
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [isHome]);
 
   const navigationItems: NavigationItem[] = [
     { label: 'Home', href: '/' },
@@ -110,16 +117,15 @@ const Header: React.FC = () => {
     );
   };
 
-  // 🔥 Ubah gaya header berdasarkan scroll dan halaman
-  const headerClass =
-    pathname === "/"
-      ? isScrolled
-        ? "bg-white text-black shadow-sm fixed w-full top-0 z-50 transition-all duration-300"
-        : "bg-transparent text-white fixed w-full top-0 z-50 transition-all duration-300"
-      : "bg-white text-black "; // halaman lain tetap putih
 
   return (
-    <header className={headerClass}>
+    <header className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${
+        isHome
+          ? scrolled
+            ? "bg-white shadow-sm border-b border-gray-200"
+            : "bg-transparent"
+          : "bg-white shadow-sm border-b border-gray-200"
+      }`}>
       <div className="max-w-9xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-30">
           {/* Logo */}
@@ -164,7 +170,7 @@ const Header: React.FC = () => {
                   <Link
                     href={item.href}
                     className={`relative px-3 py-2 text-sm font-bold transition-colors duration-300 
-                      ${pathname && !isScrolled ? "text-white hover:text-[#0E74BC]" : "text-gray-700 hover:text-[#0E74BC]"}
+                      ${isHome && !scrolled ? "text-white hover:text-[#0E74BC]" : "text-gray-700 hover:text-[#0E74BC]"}
                       before:absolute before:bottom-0 before:left-1/2 before:h-[3px] before:w-0 
                       before:bg-[#0E74BC] before:transition-all before:duration-300 before:transform before:-translate-x-1/2 
                       hover:before:w-full`}
