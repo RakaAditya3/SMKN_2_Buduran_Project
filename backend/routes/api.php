@@ -13,7 +13,7 @@ use App\Http\Controllers\PresensiController;
 use App\Http\Controllers\RecordController;
 use App\Http\Controllers\RfidLogController;
 use App\Http\Controllers\StudentController;
-
+use App\Http\Controllers\StudentShowcaseController;
 
 // === AUTH ===
 Route::post('/login', [AuthController::class, 'login']);
@@ -26,6 +26,8 @@ Route::get('company', [CompanyController::class, 'index']);
 Route::post('/complaints', [ComplaintController::class, 'store']);
 Route::get('/complaints/{ticket_number}', [ComplaintController::class, 'show']);
 Route::get("presensis", [PresensiController::class, 'index']);
+Route::get("student-showcase", [StudentShowcaseController::class, 'index']);
+Route::get('/showcases/{slug}', [StudentShowcaseController::class, 'show']);
 
 // ADMIN
 Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
@@ -48,6 +50,7 @@ Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
     Route::get('/rfid/check-scan/{uid}', [RfidLogController::class, 'checkScan']);
     Route::get("presensis", [PresensiController::class, 'index']);
     Route::post('/presensis/process', [PresensiController::class, 'processToday']);
+    Route::apiResource("student-showcase", StudentShowcaseController::class);
 });
 
 // STUDENT
