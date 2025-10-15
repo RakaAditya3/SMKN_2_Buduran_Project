@@ -129,14 +129,18 @@ export default function JurusanLPB() {
         </section>
 
         {/* Facilities */}
-        <section>
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold relative inline-block after:block after:w-16 after:h-1 after:bg-gradient-to-r after:from-pink-500 after:to-pink-500 after:mx-auto after:mt-2">
+        <section className="px-4 sm:px-6 lg:px-8 py-12">
+          <div className="text-center mb-10">
+            <h2 className="text-2xl sm:text-3xl font-bold relative inline-block after:block after:w-16 after:h-1 after:bg-gradient-to-r after:from-pink-500 after:to-pink-500 after:mx-auto after:mt-2">
               Fasilitas & Sarana
             </h2>
-            <p className="text-gray-600 mt-3">Laboratorium perbankan dengan peralatan bank sesungguhnya</p>
+            <p className="text-gray-600 mt-3 text-sm sm:text-base">
+              Laboratorium perbankan dengan peralatan bank sesungguhnya
+            </p>
           </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+          {/* Grid utama */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
             {[
               {icon:'🖥️',title:'PC/Laptop & Software Bank Mini',desc:'Komputer dengan aplikasi simulasi perbankan untuk praktik'},
               {icon:'🖨️',title:'Printer Passbook & Thermal',desc:'Printer khusus buku tabungan dan struk transaksi'},
@@ -145,32 +149,38 @@ export default function JurusanLPB() {
               {icon:'🗃️',title:'Paper Shredder & Lemari Arsip',desc:'Penghancur dokumen dan penyimpanan arsip'},
               {icon:'🏦',title:'Meja Teller & Customer Service',desc:'Furniture simulasi lingkungan kerja perbankan'},
             ].map((f,i)=>(
-              <div key={i} className="bg-white p-5 rounded-lg shadow flex gap-4 items-center border-l-4 border-pink-500 hover:-translate-y-1 transition">
-                <div className="text-3xl text-green-600">{f.icon}</div>
+              <div
+                key={i}
+                className="bg-white p-4 sm:p-5 rounded-xl shadow-md flex gap-4 items-start border-l-4 border-pink-500 
+                          hover:-translate-y-1 hover:shadow-lg transition-transform duration-200"
+              >
+                <div className="text-2xl sm:text-3xl text-green-600 flex-shrink-0">{f.icon}</div>
                 <div>
-                  <h4 className="font-semibold mb-1">{f.title}</h4>
-                  <p className="text-gray-600 text-sm">{f.desc}</p>
+                  <h4 className="font-semibold mb-1 text-sm sm:text-base">{f.title}</h4>
+                  <p className="text-gray-600 text-xs sm:text-sm">{f.desc}</p>
                 </div>
               </div>
             ))}
+          </div>
 
-            <div className="col-span-full flex justify-center gap-6">
-              <div className="bg-white p-5 rounded-lg shadow flex gap-4 items-center border-l-4 border-pink-500 flex-1 max-w-sm hover:-translate-y-1 transition">
-                <div className="text-3xl text-green-600">💰</div>
+          {/* Baris tambahan khusus (2 card center di desktop) */}
+          <div className="mt-8 flex flex-col sm:flex-row sm:justify-center lg:justify-center gap-6">
+            {[
+              {icon:'💰',title:'Cash Box & Kalkulator',desc:'Brankas mini dan kalkulator 12 digit profesional'},
+              {icon:'🪑',title:'Kursi Tunggu Nasabah',desc:'Area tunggu yang nyaman untuk simulasi pelayanan'},
+            ].map((f,i)=>(
+              <div
+                key={i}
+                className="bg-white p-4 sm:p-5 rounded-xl shadow-md flex gap-4 items-start border-l-4 border-pink-500 
+                          hover:-translate-y-1 hover:shadow-lg transition-transform duration-200 flex-1 sm:max-w-sm mx-auto sm:mx-0"
+              >
+                <div className="text-2xl sm:text-3xl text-green-600 flex-shrink-0">{f.icon}</div>
                 <div>
-                  <h4 className="font-semibold mb-1">Cash Box & Kalkulator</h4>
-                  <p className="text-gray-600 text-sm">Brankas mini dan kalkulator 12 digit profesional</p>
+                  <h4 className="font-semibold mb-1 text-sm sm:text-base">{f.title}</h4>
+                  <p className="text-gray-600 text-xs sm:text-sm">{f.desc}</p>
                 </div>
               </div>
-
-              <div className="bg-white p-5 rounded-lg shadow flex gap-4 items-center border-l-4 border-pink-500 flex-1 max-w-sm hover:-translate-y-1 transition">
-                <div className="text-3xl text-green-600">🪑</div>
-                <div>
-                  <h4 className="font-semibold mb-1">Kursi Tunggu Nasabah</h4>
-                  <p className="text-gray-600 text-sm">Area tunggu yang nyaman untuk simulasi pelayanan</p>
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
         </section>
 
