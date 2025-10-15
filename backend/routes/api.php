@@ -25,6 +25,7 @@ Route::get('news/{id}', [NewsController::class, 'show']);
 Route::get('company', [CompanyController::class, 'index']);
 Route::post('/complaints', [ComplaintController::class, 'store']);
 Route::get('/complaints/{ticket_number}', [ComplaintController::class, 'show']);
+Route::get("presensis", [PresensiController::class, 'index']);
 
 // ADMIN
 Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
