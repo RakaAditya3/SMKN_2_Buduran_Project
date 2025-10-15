@@ -112,7 +112,7 @@ const Footer: React.FC = () => {
             </div>
           </div>
 
-          {/* Location Map */}
+          {/* Map */}
           <div>
             <h4 className="text-lg font-bold mb-4 text-white">Peta Lokasi</h4>
             <div className="relative w-full h-48 rounded-lg overflow-hidden">
@@ -130,11 +130,11 @@ const Footer: React.FC = () => {
           </div>
         </div>
 
-        {/* Copyright */}
-        <div className="flex border-t border-gray-700 mt-8 pt-6 text-center items-center justify-between">
-          <img src="/images/Logo-Jagoan.png" alt="" className='w-70 h-auto' />
-          <p className="text-gray-400 text-sm">
-            SMKN 2 BUDURAN © 2025. All Rights Reserved.
+        {/* === COPYRIGHT SECTION === */}
+        <div className="flex flex-col md:flex-row items-center justify-between border-t border-gray-700 mt-12 pt-6 text-center md:text-left gap-4">
+          <img src="/images/Logo-Jagoan.png" alt="Logo Jagoan" className="w-36 h-auto" />
+          <p className="text-gray-400 text-sm order-last md:order-none">
+            © 2025 SMKN 2 BUDURAN. All Rights Reserved.
           </p>
         </div>
       </div>
