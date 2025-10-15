@@ -25,9 +25,7 @@ const EBookDashboard: React.FC = () => {
   dedupingInterval: 99999999,
 });
 
-
 const ebooks: EBook[] = ebooksResponse?.data || [];
-console.log(ebooks)
 
 const filteredBooks = ebooks.filter((book) =>
   book.title.toLowerCase().includes(searchQuery.toLowerCase())

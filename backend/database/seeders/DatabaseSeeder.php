@@ -21,11 +21,9 @@ class DatabaseSeeder extends Seeder
         $this->call([
             CompanySeeder::class,
             CategorySeeder::class,
-            ExtracurricularSeeder::class,
             AchievementSeeder::class,
             NewsSeeder::class,
-            AlumnySeeder::class,
-            EbooksSeeder::class,
+            EBooksSeeder::class,
             StudentSeeder::class,
             RecordSeeder::class,
         ]);

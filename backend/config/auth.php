@@ -12,7 +12,10 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
-        // Sanctum otomatis handle API
+        'student' => [
+            'driver' => 'sanctum',
+            'provider' => 'students',
+        ],
     ],
 
     'providers' => [
