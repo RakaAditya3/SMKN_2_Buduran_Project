@@ -134,18 +134,24 @@ export default function JurusanAK() {
             <h2 className="text-3xl font-bold relative inline-block after:block after:w-16 after:h-1 after:bg-gradient-to-r after:from-purple-800 after:to-purple-800 after:mx-auto after:mt-2">
               Fasilitas & Sarana
             </h2>
-            <p className="text-gray-600 mt-3">Fasilitas modern untuk mendukung pembelajaran praktik akuntansi</p>
+            <p className="text-gray-600 mt-3">
+              Fasilitas modern untuk mendukung pembelajaran praktik akuntansi
+            </p>
           </div>
+
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
-              {icon:'🖥️',title:'36 PC Built-in Ber AC',desc:'Komputer mumpuni dengan software MYOB Ver. 18 ED dan Accurate Ver. 5.0'},
-              {icon:'💻',title:'2 Laptop dengan Software',desc:'Laptop dengan aplikasi komputer akuntansi MYOB dan Accurate'},
-              {icon:'📽️',title:'2 LCD Projector',desc:'Proyektor untuk presentasi dan pembelajaran multimedia'},
-              {icon:'🎵',title:'Sound System Lengkap',desc:'Mikrofon, amplifier, dan salon untuk kebutuhan audio'},
-              {icon:'🖨️',title:'3 Printer Inkjet & 1 Laser',desc:'Perangkat cetak untuk kebutuhan praktik dan administrasi'},
-              {icon:'🪑',title:'40 Meja Kursi Praktek Manual',desc:'Desain khusus untuk praktik akuntansi manual yang ergonomis'},
-            ].map((f,i)=>(
-              <div key={i} className="bg-white p-5 rounded-lg shadow flex gap-4 items-center border-l-4 border-purple-800 hover:-translate-y-1 transition">
+              { icon: "🖥️", title: "36 PC Built-in Ber AC", desc: "Komputer mumpuni dengan software MYOB Ver. 18 ED dan Accurate Ver. 5.0" },
+              { icon: "💻", title: "2 Laptop dengan Software", desc: "Laptop dengan aplikasi komputer akuntansi MYOB dan Accurate" },
+              { icon: "📽️", title: "2 LCD Projector", desc: "Proyektor untuk presentasi dan pembelajaran multimedia" },
+              { icon: "🎵", title: "Sound System Lengkap", desc: "Mikrofon, amplifier, dan salon untuk kebutuhan audio" },
+              { icon: "🖨️", title: "3 Printer Inkjet & 1 Laser", desc: "Perangkat cetak untuk kebutuhan praktik dan administrasi" },
+              { icon: "🪑", title: "40 Meja Kursi Praktek Manual", desc: "Desain khusus untuk praktik akuntansi manual yang ergonomis" },
+            ].map((f, i) => (
+              <div
+                key={i}
+                className="bg-white p-5 rounded-lg shadow flex gap-4 items-center border-l-4 border-purple-800 hover:-translate-y-1 transition"
+              >
                 <div className="text-3xl text-green-600">{f.icon}</div>
                 <div>
                   <h4 className="font-semibold mb-1">{f.title}</h4>
@@ -154,20 +160,25 @@ export default function JurusanAK() {
               </div>
             ))}
 
-            <div className="col-span-full flex justify-center gap-6">
-              <div className="bg-white p-5 rounded-lg shadow flex gap-4 items-center border-l-4 border-purple-800 flex-1 max-w-sm hover:-translate-y-1 transition">
+            {/* Dua card terakhir - responsif */}
+            <div className="col-span-full flex flex-col sm:flex-row justify-center gap-6">
+              <div className="bg-white p-5 rounded-lg shadow flex gap-4 items-center border-l-4 border-purple-800 w-full sm:w-[350px] hover:-translate-y-1 transition">
                 <div className="text-3xl text-green-600">✏️</div>
                 <div>
                   <h4 className="font-semibold mb-1">Alat Tulis Praktek Lengkap</h4>
-                  <p className="text-gray-600 text-sm">Penggaris, perforator, staples, dan lembar kerja praktek</p>
+                  <p className="text-gray-600 text-sm">
+                    Penggaris, perforator, staples, dan lembar kerja praktek
+                  </p>
                 </div>
               </div>
 
-              <div className="bg-white p-5 rounded-lg shadow flex gap-4 items-center border-l-4 border-purple-800 flex-1 max-w-sm hover:-translate-y-1 transition">
+              <div className="bg-white p-5 rounded-lg shadow flex gap-4 items-center border-l-4 border-purple-800 w-full sm:w-[350px] hover:-translate-y-1 transition">
                 <div className="text-3xl text-green-600">🌐</div>
                 <div>
                   <h4 className="font-semibold mb-1">Akses Internet</h4>
-                  <p className="text-gray-600 text-sm">Koneksi internet untuk pembelajaran dan riset online</p>
+                  <p className="text-gray-600 text-sm">
+                    Koneksi internet untuk pembelajaran dan riset online
+                  </p>
                 </div>
               </div>
             </div>
