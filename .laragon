@@ -1,0 +1,2 @@
+DocumentRoot=SMKN_2_Buduran_Project/backend/public
+ServerName=backend.test

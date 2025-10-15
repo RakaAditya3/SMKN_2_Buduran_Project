@@ -24,7 +24,6 @@ class DatabaseSeeder extends Seeder
             ExtracurricularSeeder::class,
             AchievementSeeder::class,
             NewsSeeder::class,
-            AlumnySeeder::class,
             EbooksSeeder::class,
             StudentSeeder::class,
             RecordSeeder::class,

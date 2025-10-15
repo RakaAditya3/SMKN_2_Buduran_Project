@@ -1,7 +1,8 @@
 import axios from "axios";
 
+// Ganti baseURL sesuai Laragon Nginx
 const api = axios.create({
-  baseURL: "http://localhost:8000/api",
+  baseURL: "http://backend.test/api", // <-- sesuaikan domain / port Nginx
 });
 
 api.interceptors.request.use((config) => {
