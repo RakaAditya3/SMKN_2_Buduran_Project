@@ -13,18 +13,40 @@ class RecordController extends Controller
     /**
      * Display a listing of the resource.
      */
-public function index(Request $request): JsonResponse
-{
-    $student = Auth::guard('student')->user();
+    public function index(Request $request): JsonResponse
+    {
+        $student = Auth::guard('student')->user();
 
-    if (!$student) {
-        return response()->json([
-            'message' => 'Unauthorized'
-        ], 401);
+        if (!$student) {
+            return response()->json([
+                'message' => 'Unauthorized'
+            ], 401);
+        }
+
+        $query = Record::with('ebook')
+            ->where('student_id', $student->id);
+
+        if ($request->has('date') && $request->date) {
+            $date = $request->date;
+            $filterType = $request->get('filter_type', 'specific');
+
+            if ($filterType === 'before') {
+                $query->where('borrowed_at', '<=', $date . ' 23:59:59');
+            } else {
+                $query->whereDate('borrowed_at', $date);
+            }
+        }
+
+        $records = $query->orderBy('borrowed_at', 'desc')->get();
+
+        return response()->json($records);
     }
 
-    $query = Record::with('ebook')
-        ->where('student_id', $student->id);
+    public function indexAdmin(Request $request): JsonResponse
+{
+
+    $query = Record::with(['ebook', 'student']);
+
 
     if ($request->has('date') && $request->date) {
         $date = $request->date;
@@ -37,49 +59,56 @@ public function index(Request $request): JsonResponse
         }
     }
 
+    if ($request->has('status') && $request->status) {
+        $query->where('status', $request->status);
+    }
+
     $records = $query->orderBy('borrowed_at', 'desc')->get();
 
-    return response()->json($records);
-}
+    return response()->json([
+        'data' => $records
+    ]);
+    }
+
 
     /**
      * Store a newly created resource in storage.
      */
-public function store(Request $request): JsonResponse
-{
-    $student = Auth::guard('student')->user();
+    public function store(Request $request): JsonResponse
+    {
+        $student = Auth::guard('student')->user();
 
-    $request->validate([
-        'ebook_id' => 'required|exists:ebooks,id',
-        'borrowed_at' => 'required|date',
-        'returned_at' => 'nullable|date|after_or_equal:borrowed_at',
-    ]);
+        $request->validate([
+            'ebook_id' => 'required|exists:ebooks,id',
+            'borrowed_at' => 'required|date',
+            'returned_at' => 'nullable|date|after_or_equal:borrowed_at',
+        ]);
 
-    $borrowed = Carbon::parse($request->borrowed_at);
-    $returned = Carbon::parse($request->returned_at ?? $borrowed->copy()->addDays(7));
+        $borrowed = Carbon::parse($request->borrowed_at);
+        $returned = Carbon::parse($request->returned_at ?? $borrowed->copy()->addDays(7));
 
-    if ($borrowed->diffInDays($returned) > 7) {
+        if ($borrowed->diffInDays($returned) > 7) {
+            return response()->json([
+                'message' => 'Maksimal peminjaman adalah 7 hari'
+            ], 422);
+        }
+
+        $record = Record::create([
+            'student_id' => $student->id,
+            'ebook_id' => $request->ebook_id,
+            'borrowed_at' => $borrowed,
+            'returned_at' => $returned,
+            'status' => 'borrowed',
+        ]);
+
+
+        $record->load('ebook', 'student');
+
         return response()->json([
-            'message' => 'Maksimal peminjaman adalah 7 hari'
-        ], 422);
+            'message' => 'Record created successfully',
+            'record' => $record,
+        ], 201);
     }
-
-    $record = Record::create([
-        'student_id' => $student->id,
-        'ebook_id' => $request->ebook_id,
-        'borrowed_at' => $borrowed,
-        'returned_at' => $returned,
-        'status' => 'borrowed',
-    ]);
-
-
-    $record->load('ebook', 'student');
-
-    return response()->json([
-        'message' => 'Record created successfully',
-        'record' => $record,
-    ], 201);
-}
 
 
 
@@ -103,22 +132,33 @@ public function store(Request $request): JsonResponse
      * Update the status of a record.
      */
     public function updateStatus(Request $request, string $id): JsonResponse
-    {
-        $request->validate([
-            'status' => 'required|string|in:Dipinjam,Dikembalikan,Hilang',
-            'returned_at' => 'nullable|date',
-        ]);
+{
+    $request->validate([
+        'status' => 'required|string|in:Dipinjam,Dikembalikan,Hilang,borrowed,returned,lost',
+        'returned_at' => 'nullable|date',
+    ]);
 
-        $record = Record::findOrFail($id);
-        $record->status = $request->status;
-        $record->returned_at = $request->returned_at ?? null;
-        $record->save();
+    // Normalisasi status
+    $statusMap = [
+        'dipinjam' => 'borrowed',
+        'dikembalikan' => 'returned',
+        'hilang' => 'lost',
+    ];
 
-        return response()->json([
-            'message' => 'Status updated successfully',
-            'record' => $record->load('ebook'),
-        ]);
+    $status = strtolower($request->status);
+    $normalizedStatus = $statusMap[$status] ?? $status; // gunakan english lowercase
+
+    $record = Record::findOrFail($id);
+    $record->status = $normalizedStatus;
+    $record->returned_at = $request->returned_at ?? null;
+    $record->save();
+
+    return response()->json([
+        'message' => 'Status updated successfully',
+        'record' => $record->load('ebook'),
+    ]);
     }
+
 
     /**
      * Remove the specified resource from storage.

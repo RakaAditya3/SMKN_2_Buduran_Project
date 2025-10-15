@@ -39,7 +39,7 @@ const LoginPage: React.FC = () => {
 
       if (res.data.success) {
         if (res.data.token) {
-          localStorage.setItem('token', res.data.token);
+          localStorage.setItem('student_token', res.data.token);
           localStorage.setItem('user', JSON.stringify(res.data.user));
         }
 

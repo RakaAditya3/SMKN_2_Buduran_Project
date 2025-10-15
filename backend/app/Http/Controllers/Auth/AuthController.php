@@ -4,32 +4,35 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 
 class AuthController extends Controller
 {
-    public function login(Request $request)
-    {
-        $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required'],
-        ]);
+   public function login(Request $request)
+{
+    $request->validate([
+        'email' => ['required', 'email'],
+        'password' => ['required'],
+    ]);
 
-        if (Auth::attempt($request->only('email', 'password'))) {
-            $user = Auth::user();
-            $token = $user->createToken('auth-token')->plainTextToken;
+    $user = User::where('email', $request->email)->first();
 
-            return response()->json([
-                'token' => $token,
-                'user' => $user,
-            ]);
-        }
-
-        return response()->json([
-            'message' => 'Email atau Password Anda Salah !'
-        ], 401);
+    if (!$user || !Hash::check($request->password, $user->password)) {
+        return response()->json(['message' => 'Email atau password salah'], 401);
     }
+
+    // Hapus token lama
+    $user->tokens()->delete();
+
+    // Buat token baru untuk admin
+  $token = $user->createToken('admin_token')->plainTextToken;
+    return response()->json([
+        'token' => $token,
+        'user' => $user,
+    ]);
+}
+
 
     public function logout(Request $request)
     {

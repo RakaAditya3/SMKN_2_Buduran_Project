@@ -21,7 +21,7 @@ export default function ELibraryLayout({
 
   const handleExit = (e: React.MouseEvent) => {
     e.preventDefault();
-    localStorage.removeItem("token");
+    localStorage.removeItem("student_token");
     
     router.push("/");
   };

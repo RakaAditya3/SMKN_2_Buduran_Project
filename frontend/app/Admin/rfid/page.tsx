@@ -1,7 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { CheckCircle2, XCircle, Loader2, User, AlertTriangle } from "lucide-react";
+import { 
+  CheckCircle2, 
+  XCircle, 
+  Loader2, 
+  User, 
+  AlertTriangle, 
+  Send 
+} from "lucide-react";
 import api from "@/api/api";
 
 interface ScanResult {
@@ -14,21 +21,21 @@ interface ScanResult {
 export default function ScanPresensi() {
   const [scannedUIDs, setScannedUIDs] = useState<ScanResult[]>([]);
   const [loading, setLoading] = useState(false);
+  const [processing, setProcessing] = useState(false);
+  const [processResult, setProcessResult] = useState<any>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
+    if (inputRef.current) inputRef.current.focus();
   }, [scannedUIDs]);
 
+  // 🔹 Saat RFID discan
   const handleScan = async (uid: string) => {
     if (!uid) return;
     setLoading(true);
 
     try {
       await api.post("/admin/rfid-logs", { uid });
-
       const check = await api.get(`/admin/rfid/check-scan/${uid}`);
 
       setScannedUIDs((prev) => [
@@ -53,13 +60,11 @@ export default function ScanPresensi() {
       ]);
     } finally {
       setLoading(false);
-      if (inputRef.current) {
-        inputRef.current.focus();
-      }
+      if (inputRef.current) inputRef.current.focus();
     }
   };
 
-
+  // 🔹 Saat tekan Enter di input (scanner RFID)
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -69,10 +74,29 @@ export default function ScanPresensi() {
     }
   };
 
+  // 🔹 Kirim hasil scan ke tabel presensi
+  const handleProcessPresensi = async () => {
+    if (!confirm("Yakin ingin mengirim hasil scan ke presensi hari ini?")) return;
+    setProcessing(true);
+    setProcessResult(null);
+
+    try {
+      const res = await api.post("/admin/presensis/process");
+      setProcessResult(res.data);
+      alert("✅ " + res.data.message);
+    } catch (err) {
+      console.error(err);
+      alert("❌ Gagal mengirim data presensi!");
+    } finally {
+      setProcessing(false);
+    }
+  };
+
   return (
     <div className="max-w-3xl mx-auto py-10">
       <h1 className="text-3xl font-bold mb-6 text-center">Presensi Harian</h1>
 
+      {/* Hidden input untuk scanner */}
       <input
         ref={inputRef}
         type="text"
@@ -94,7 +118,7 @@ export default function ScanPresensi() {
           {scannedUIDs.map((item, idx) => (
             <li
               key={idx}
-              className={`p-4 rounded-lg flex items-center justify-between border
+              className={`p-4 rounded-lg flex items-center justify-between border transition
                 ${
                   item.status === "hadir"
                     ? "bg-green-50 border-green-200"
@@ -132,6 +156,44 @@ export default function ScanPresensi() {
           <p className="text-gray-500 text-center py-10">
             Belum ada kartu yang discan hari ini
           </p>
+        )}
+
+        {/* 🔹 Tombol Kirim ke Presensi */}
+        {scannedUIDs.length > 0 && (
+          <div className="mt-6 flex justify-end">
+            <button
+              onClick={handleProcessPresensi}
+              disabled={processing}
+              className={`px-6 py-3 rounded-lg text-white font-medium flex items-center gap-2 transition ${
+                processing
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-700"
+              }`}
+            >
+              {processing ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Memproses...
+                </>
+              ) : (
+                <>
+                  <Send className="w-5 h-5" />
+                  Kirim ke Presensi Hari Ini
+                </>
+              )}
+            </button>
+          </div>
+        )}
+
+        {/* 🔹 Hasil setelah dikirim */}
+        {processResult && (
+          <div className="mt-8 bg-gray-50 p-4 rounded-lg border">
+            <h3 className="font-semibold mb-2">Hasil Proses:</h3>
+            <p>Total siswa: {processResult.total_siswa}</p>
+            <p>Hadir: {processResult.hadir}</p>
+            <p>Tidak hadir: {processResult.tidak_hadir}</p>
+            <p className="text-green-600 mt-2">{processResult.message}</p>
+          </div>
         )}
       </div>
     </div>

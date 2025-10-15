@@ -9,6 +9,21 @@ use Illuminate\Support\Str;
 
 class ComplaintController extends Controller
 {
+    public function index()
+{
+    try {
+        $complaints = \App\Models\Complaint::orderBy('created_at', 'desc')->get();
+
+        return response()->json($complaints);
+    } catch (\Throwable $e) {
+        return response()->json([
+            'success' => false,
+            'error' => $e->getMessage(),
+            'trace' => $e->getFile() . ':' . $e->getLine(),
+        ], 500);
+    }
+}
+
 
     public function store(Request $request)
     {

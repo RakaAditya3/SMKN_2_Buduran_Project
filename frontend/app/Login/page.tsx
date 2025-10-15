@@ -3,40 +3,50 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import api from '@/api/api';
+import { useRouter } from "next/navigation";
+
 
 const LoginPage: React.FC = () => {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [keepLoggedIn, setKeepLoggedIn] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
     setSuccess("");
+    
 
-    try {
-      const res = await api.post("/login", {
-        email,
-        password,
-      });
+   try {
+  const res = await api.post("/login", { email, password });
+  console.log("Login response:", res.data);
 
-      localStorage.setItem("token", res.data.token);
+  const token =
+    res.data.token ||
+    res.data.access_token ||
+    res.data?.data?.token ||
+    res.data?.token?.token;
 
-      setSuccess("Login berhasil! Anda akan diarahkan...");
+  if (!token) throw new Error("Token tidak ditemukan di response");
 
-      setTimeout(() => {
-        window.location.href = "/Admin/Dashboard/Presensi";
-      }, 1000);
+ localStorage.setItem("token", token);
+console.log("Token tersimpan:", localStorage.getItem("token"));
 
-    } catch (err: any) {
-      setError("Login gagal, periksa Email dan Password Anda !");
-    } finally {
-      setLoading(false);
-    }
+  setSuccess("Login berhasil! Anda akan diarahkan...");
+  setTimeout(() => {
+    router.push("/Admin");
+  }, 1000);
+} catch (err) {
+  console.error("Login error:", err);
+  setError("Login gagal, periksa Email dan Password Anda!");
+}
+
   };
 
   return (

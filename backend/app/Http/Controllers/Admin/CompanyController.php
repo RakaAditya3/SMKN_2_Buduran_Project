@@ -23,25 +23,132 @@ class CompanyController extends Controller
 
     public function store(Request $request)
     {
-        $id = $request->input('id');
+        try {
+            $id = $request->input('id');
+
+            $rules = [
+                'name' => 'required|string|max:255',
+                'address' => 'required|string',
+                'website' => 'nullable|string',
+                'logo' => 'nullable|file|mimetypes:image/jpeg,image/png,image/jpg,image/webp,image/svg+xml|max:2048',
+            ];
+
+            $validated = $request->validate($rules);
+
+            $imageUrl = null;
+
+            // 🔹 Upload ke Supabase kalau ada file logo
+            if ($request->hasFile('logo')) {
+                $image = $request->file('logo');
+                $fileName = 'companies/' . \Str::random(40) . '.' . $image->getClientOriginalExtension();
+                $bucket = 'images';
+
+                $response = \Http::withToken(env('SUPABASE_KEY'))
+                    ->attach('file', fopen($image->getRealPath(), 'r'), $fileName)
+                    ->post(env('SUPABASE_URL') . "/storage/v1/object/$bucket/$fileName?upsert=true");
+
+                if ($response->failed()) {
+                    \Log::error('Supabase upload failed', [
+                        'status' => $response->status(),
+                        'body'   => $response->body(),
+                    ]);
+
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Upload logo gagal',
+                        'error'   => $response->body(),
+                    ], 500);
+                }
+
+                $imageUrl = rtrim(env('SUPABASE_URL'), '/') . "/storage/v1/object/public/$bucket/$fileName";
+                $validated['logo'] = $imageUrl;
+            }
+
+            if ($id) {
+                $company = $this->companyService->update($validated, $id);
+                $message = 'Perusahaan berhasil diperbarui.';
+            } else {
+
+                $company = $this->companyService->store($validated);
+                $message = 'Perusahaan berhasil ditambahkan.';
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'data'    => $company,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+                'trace' => $e->getFile() . ':' . $e->getLine(),
+            ], 500);
+        }
+    }
+
+    public function update(Request $request, $id)
+{
+    try {
         $rules = [
             'name' => 'required|string|max:255',
             'address' => 'required|string',
             'website' => 'nullable|string',
-            'logo' => 'nullable|string',
+            'logo' => 'nullable|image|max:2048',
         ];
-        $validatedData = $request->validate($rules);
 
-        if ($id) {
-            $company = $this->companyService->update($validatedData, $id);
-            $message = 'Perusahaan berhasil diperbarui.';
-        } else {
-            $company = $this->companyService->store($validatedData);
-            $message = 'Perusahaan berhasil ditambahkan.';
+        $validated = $request->validate($rules);
+
+        $company = \App\Models\Company::findOrFail($id);
+
+        $imageUrl = $company->logo; 
+
+        
+        if ($request->hasFile('logo')) {
+            $image = $request->file('logo');
+            $fileName = 'companies/' . \Str::random(40) . '.' . $image->getClientOriginalExtension();
+            $bucket = 'images';
+
+            $response = \Http::withToken(env('SUPABASE_KEY'))
+                ->attach('file', fopen($image->getRealPath(), 'r'), $fileName)
+                ->post(env('SUPABASE_URL') . "/storage/v1/object/$bucket/$fileName?upsert=true");
+
+            if ($response->failed()) {
+                \Log::error('Supabase upload failed', [
+                    'status' => $response->status(),
+                    'body'   => $response->body(),
+                ]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Upload logo gagal',
+                    'error'   => $response->body(),
+                ], 500);
+            }
+
+            $imageUrl = rtrim(env('SUPABASE_URL'), '/') . "/storage/v1/object/public/$bucket/$fileName";
         }
 
-        return response()->json(['success' => true, 'message' => $message, 'data' => $company]);
+        $company->update([
+            'name' => $validated['name'],
+            'address' => $validated['address'],
+            'website' => $validated['website'] ?? null,
+            'logo' => $imageUrl,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Perusahaan berhasil diperbarui.',
+            'data' => $company,
+        ]);
+    } catch (\Throwable $e) {
+        return response()->json([
+            'success' => false,
+            'error' => $e->getMessage(),
+            'trace' => $e->getFile() . ':' . $e->getLine(),
+        ], 500);
     }
+    }
+
 
     public function show($id)
     {

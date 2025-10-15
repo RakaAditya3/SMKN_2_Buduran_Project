@@ -1,53 +1,80 @@
 <?php
+
 namespace App\Http\Controllers;
 
-use App\Models\RfidLog;
-use App\Models\Student;
+use App\Http\Controllers\Controller;
 use App\Models\Presensi;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use App\Models\RfidLog;
+use App\Models\Student;
 
 class PresensiController extends Controller
 {
-    public function processToday()
+    public function index(Request $request)
     {
-        $today = Carbon::today();
+        try {
+            $kelas = $request->input('kelas');
+            $jurusan = $request->input('jurusan');
 
-        $scannedUids = RfidLog::whereDate('scanned_at', $today)
-            ->pluck('uid')
-            ->unique()
-            ->toArray();
+            $query = Presensi::with('student:id,nama,nisn,kelas,jurusan,no_absen')
+                ->when($kelas, fn($q) => $q->whereHas('student', fn($s) => $s->where('kelas', $kelas)))
+                ->when($jurusan, fn($q) => $q->whereHas('student', fn($s) => $s->where('jurusan', $jurusan)))
+                ->orderBy('date', 'desc');
 
-        $students = Student::all();
+            $presensis = $query->get()->map(function ($p) {
+                return [
+                    'id' => $p->id,
+                    'nama' => $p->student->nama ?? '-',
+                    'nisn' => $p->student->nisn ?? '-',
+                    'kelas' => $p->student->kelas ?? '-',
+                    'jurusan' => $p->student->jurusan ?? '-',
+                    'no_absen' => $p->student->no_absen ?? '-',
+                    'status' => $p->status,
+                    'date' => $p->date,
+                ];
+            });
 
-        foreach ($students as $student) {
-            $status = in_array($student->uid, $scannedUids) ? 'hadir' : 'tidak hadir';
-
-            Presensi::updateOrCreate(
-                ['student_id' => $student->id, 'date' => $today],
-                ['status' => $status]
-            );
+            return response()->json(['success' => true, 'data' => $presensis]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil data presensi',
+                'error' => $e->getMessage(),
+            ], 500);
         }
+    }
+    public function processToday()
+{
+    $today = Carbon::today();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Presensi hari ini berhasil diproses',
-        ]);
+    $scannedUids = RfidLog::whereDate('scanned_at', $today)
+        ->pluck('uid')
+        ->unique()
+        ->toArray();
+
+    $students = Student::all();
+    $hadir = 0;
+    $tidakHadir = 0;
+
+    foreach ($students as $student) {
+        $status = in_array($student->uid, $scannedUids) ? 'hadir' : 'tidak hadir';
+
+        Presensi::updateOrCreate(
+            ['student_id' => $student->id, 'date' => $today],
+            ['status' => $status]
+        );
+
+        $status === 'hadir' ? $hadir++ : $tidakHadir++;
     }
 
-    public function check($uid)
-    {
-        $student = Student::where('uid', $uid)->firstOrFail();
-        $today = Carbon::today();
+    return response()->json([
+        'success' => true,
+        'message' => 'Presensi hari ini berhasil diproses',
+        'total_siswa' => $students->count(),
+        'hadir' => $hadir,
+        'tidak_hadir' => $tidakHadir,
+    ]);
+}
 
-        $presensi = Presensi::where('student_id', $student->id)
-            ->where('date', $today)
-            ->first();
-
-        return response()->json([
-            'student' => $student->name,
-            'date' => $today->toDateString(),
-            'status' => $presensi->status ?? 'belum diproses',
-        ]);
-    }
 }
