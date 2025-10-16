@@ -19,11 +19,19 @@ class CompanyController extends Controller
         $this->companyService = $companyService;
     }
 
-    public function index(Request $request)
-    {
-        $companies = $this->companyService->search($request->all());
-        return response()->json($companies);
-    }
+   public function index(Request $request)
+{
+    $companies = \App\Models\Company::all()->map(function ($company) {
+        // Jika logo belum full URL, ubah ke absolute URL
+        if ($company->logo && !str_starts_with($company->logo, 'http')) {
+            $company->logo = url($company->logo);
+        }
+        return $company;
+    });
+
+    return response()->json($companies);
+}
+
 
     public function store(Request $request)
     {

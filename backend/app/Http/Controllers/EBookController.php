@@ -39,10 +39,20 @@ class EBookController extends Controller
     }
 
     public function index()
-    {
-        $ebooks = EBook::all();
-        return EBookResource::collection($ebooks);
-    }
+{
+    $ebooks = EBook::all()->map(function ($ebook) {
+        if ($ebook->thumbnail && !str_starts_with($ebook->thumbnail, 'http')) {
+            $ebook->thumbnail = url($ebook->thumbnail);
+        }
+        return $ebook;
+    });
+
+    return response()->json([
+        'success' => true,
+        'data' => $ebooks,
+    ]);
+}
+
 
     public function store(Request $request)
     {

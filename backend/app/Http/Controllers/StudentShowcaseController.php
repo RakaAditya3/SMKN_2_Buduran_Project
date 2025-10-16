@@ -11,15 +11,21 @@ use Illuminate\Validation\ValidationException;
 
 class StudentShowcaseController extends Controller
 {
-    public function index()
-    {
-        $showcases = StudentShowcase::latest()->get();
+  public function index()
+{
+    $showcases = StudentShowcase::latest()->get()->map(function ($showcase) {
+        if ($showcase->image && !str_starts_with($showcase->image, 'http')) {
+            $showcase->image = url($showcase->image);
+        }
+        return $showcase;
+    });
 
-        return response()->json([
-            'success' => true,
-            'data' => $showcases,
-        ]);
-    }
+    return response()->json([
+        'success' => true,
+        'data' => $showcases,
+    ]);
+}
+
 
     public function store(Request $request)
     {

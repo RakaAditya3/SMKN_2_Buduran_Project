@@ -20,10 +20,22 @@ class NewsController extends Controller
     }
 
     public function index(Request $request)
-    {
-        $news = $this->newsService->search($request->all());
-        return response()->json($news);
+{
+    $news = $this->newsService->search($request->all());
+
+    $news->transform(function ($item) {
+        if ($item->thumbnail && !str_starts_with($item->thumbnail, 'http')) {
+            $item->thumbnail = url($item->thumbnail);
+        }
+        return $item;
+    });
+
+    return response()->json([
+        'success' => true,
+        'data' => $news,
+    ]);
     }
+
 
     public function store(Request $request)
     {
