@@ -32,12 +32,10 @@ class StudentController extends Controller
             $validated = $request->validate($rules);
 
             if ($id) {
-                // 🔹 Update student
+            
                 $student = Student::findOrFail($id);
                 $student->update($validated);
                 $message = 'Siswa berhasil diperbarui.';
-            } else {
-                // 🔹 Tambah student baru (password default)
                 $validated['password'] = Hash::make('password123');
                 $student = Student::create($validated);
                 $message = 'Siswa berhasil ditambahkan.';

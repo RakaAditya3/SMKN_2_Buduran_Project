@@ -16,7 +16,7 @@ class RecordSeeder extends Seeder
         DB::table('records')->insert([
             [
                 'student_id'   => 1,
-                'ebook_id'    => 1, // Laskar Pelangi
+                'ebook_id'    => 1, 
                 'borrowed_at' => Carbon::now()->subDays(5),
                 'returned_at' => null,
                 'status'      => 'borrowed',
@@ -25,7 +25,7 @@ class RecordSeeder extends Seeder
             ],
             [
                 'student_id'   => 2,
-                'ebook_id'    => 2, // Bumi Manusia
+                'ebook_id'    => 2,
                 'borrowed_at' => Carbon::now()->subDays(10),
                 'returned_at' => Carbon::now()->subDays(2),
                 'status'      => 'returned',
@@ -34,7 +34,7 @@ class RecordSeeder extends Seeder
             ],
             [
                 'student_id'   => 3,
-                'ebook_id'    => 3, // Negeri 5 Menara
+                'ebook_id'    => 3,
                 'borrowed_at' => Carbon::now()->subDays(3),
                 'returned_at' => null,
                 'status'      => 'borrowed',
@@ -43,7 +43,7 @@ class RecordSeeder extends Seeder
             ],
             [
                 'student_id'   => 4,
-                'ebook_id'    => 4, // Sang Pemimpi
+                'ebook_id'    => 4,
                 'borrowed_at' => Carbon::now()->subDays(15),
                 'returned_at' => Carbon::now()->subDays(5),
                 'status'      => 'returned',

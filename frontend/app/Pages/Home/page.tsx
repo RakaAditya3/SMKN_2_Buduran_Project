@@ -515,7 +515,7 @@ const page = () => {
               <div className="p-2 sm:p-4 flex flex-col md:flex-row items-center justify-center">
                 <div className='w-full md:w-auto mb-4 md:mb-0 md:mr-4'>
                     <img
-                      src="https://kmzmzmrdwbaaibcgqowh.supabase.co/storage/v1/object/public/images/Images/kepsek.png"
+                      src="http://localhost:8000/storage/kepsek.png"
                       alt="Kepala Sekolah"
                       className="w-full md:w-fit h-[200px] sm:h-[300px] md:h-[330px] object-contain rounded-lg shadow mx-auto"
                     />
