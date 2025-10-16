@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { GraduationCap, Building2, ChevronLeft, ChevronRight } from 'lucide-react';
 import Footer from '@/app/Components/Footer';
 import Navbar from '@/app/Components/Navbar';
@@ -138,65 +138,79 @@ const ITEMS_PER_PAGE = 6
 
 // ✅ Komponen PartnerList — sudah support swipe di mobile
 function PartnerList() {
-  const [currentPage, setCurrentPage] = useState(1)
-  const { data, error, isLoading } = useSWR<Partner[]>("/api/company", fetcher)
+  const [currentPage, setCurrentPage] = useState(1);
+  const [isMobile, setIsMobile] = useState(false);
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const touchStartX = useRef<number | null>(null);
 
-  if (isLoading) return <div className="text-center py-12">Loading...</div>
-  if (error) return <div className="text-center py-12 text-red-500">Gagal memuat data mitra</div>
+  const { data, error, isLoading } = useSWR<Partner[]>("company", fetcher);
 
-  const partners = data || []
-  const totalPages = Math.ceil(partners.length / ITEMS_PER_PAGE)
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
-  const currentItems = partners.slice(startIndex, startIndex + ITEMS_PER_PAGE)
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  if (isLoading) return <div className="text-center py-12">Loading...</div>;
+  if (error) return <div className="text-center py-12 text-red-500">Gagal memuat data mitra</div>;
+
+  const partners = data || [];
+  const totalPages = Math.ceil(partners.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const currentItems = partners.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   const goToPage = (page: number) => {
-    if (page >= 1 && page <= totalPages) setCurrentPage(page)
-  }
+    if (page >= 1 && page <= totalPages) setCurrentPage(page);
+  };
 
-  // ✅ Swipe detection hanya aktif di mobile
-  useEffect(() => {
-    const container = document.getElementById("mitra-container")
-    if (!container) return
+  // Swipe gesture untuk mobile
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
 
-    let touchStartX = 0
-    let touchEndX = 0
-
-    const handleTouchStart = (e: TouchEvent) => {
-      touchStartX = e.touches[0].clientX
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const diff = e.changedTouches[0].clientX - touchStartX.current;
+    if (Math.abs(diff) > 50) {
+      if (diff < 0) goToPage(currentPage + 1);
+      else goToPage(currentPage - 1);
     }
-
-    const handleTouchEnd = (e: TouchEvent) => {
-      touchEndX = e.changedTouches[0].clientX
-      const swipeDistance = touchStartX - touchEndX
-      if (Math.abs(swipeDistance) < 50) return // abaikan geseran kecil
-
-      if (swipeDistance > 0 && currentPage < totalPages) {
-        goToPage(currentPage + 1) // geser kiri = next
-      } else if (swipeDistance < 0 && currentPage > 1) {
-        goToPage(currentPage - 1) // geser kanan = prev
-      }
-    }
-
-    container.addEventListener("touchstart", handleTouchStart)
-    container.addEventListener("touchend", handleTouchEnd)
-
-    return () => {
-      container.removeEventListener("touchstart", handleTouchStart)
-      container.removeEventListener("touchend", handleTouchEnd)
-    }
-  }, [currentPage, totalPages])
+    touchStartX.current = null;
+  };
 
   return (
-    <div className="relative max-w-7xl mx-auto px-4 py-12" id="mitra-container">
+    <div className="relative max-w-7xl mx-auto px-4 py-12">
       <h2 className="text-3xl font-bold text-center mb-10">Hubungan Mitra</h2>
 
-      <div className="relative">
-        {/* Grid daftar mitra */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {currentItems.map((partner) => (
+      <div
+        className={`relative ${isMobile ? "overflow-hidden" : ""}`}
+        ref={carouselRef}
+        onTouchStart={isMobile ? handleTouchStart : undefined}
+        onTouchEnd={isMobile ? handleTouchEnd : undefined}
+      >
+        {/* GRID DESKTOP / SLIDER MOBILE */}
+        <div
+          className={`grid transition-transform duration-500 ${
+            isMobile
+              ? "grid-cols-1 w-full"
+              : "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6"
+          }`}
+          style={
+            isMobile
+              ? {
+                  transform: `translateX(-${(currentPage - 1) * 100}%)`,
+                  display: "flex",
+                }
+              : {}
+          }
+        >
+          {(isMobile ? partners : currentItems).map((partner) => (
             <div
               key={partner.id}
-              className="bg-white rounded-2xl shadow-md hover:shadow-xl hover:scale-[1.02] transition-all p-6 flex flex-col text-center"
+              className={`bg-white rounded-2xl shadow-md hover:shadow-xl hover:scale-[1.02] transition-all p-6 flex flex-col text-center ${
+                isMobile ? "min-w-full" : ""
+              }`}
             >
               <img
                 src={partner.logo}
@@ -216,20 +230,33 @@ function PartnerList() {
           ))}
         </div>
 
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex justify-center items-center mt-8 space-x-3 select-none">
-            {/* Tombol kiri — hanya tampil di desktop */}
+        {/* Pagination hanya untuk desktop */}
+        {!isMobile && totalPages > 1 && (
+          <div className="flex justify-center items-center mt-8 space-x-3">
+            {/* Tombol kiri */}
             <button
               onClick={() => goToPage(currentPage - 1)}
               disabled={currentPage === 1}
-              className={`hidden sm:block p-2 rounded-full border transition ${
+              className={`p-2 rounded-full border transition ${
                 currentPage === 1
                   ? "opacity-40 cursor-not-allowed"
                   : "hover:bg-gray-200"
               }`}
             >
-              <ChevronLeft className="w-5 h-5" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-5 h-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
             </button>
 
             {/* Bulatan halaman */}
@@ -247,28 +274,36 @@ function PartnerList() {
               ))}
             </div>
 
-            {/* Tombol kanan — hanya tampil di desktop */}
+            {/* Tombol kanan */}
             <button
               onClick={() => goToPage(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className={`hidden sm:block p-2 rounded-full border transition ${
+              className={`p-2 rounded-full border transition ${
                 currentPage === totalPages
                   ? "opacity-40 cursor-not-allowed"
                   : "hover:bg-gray-200"
               }`}
             >
-              <ChevronRight className="w-5 h-5" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-5 h-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
             </button>
           </div>
         )}
-
-        {/* Info swipe untuk mobile */}
-        <p className="text-center text-gray-400 text-sm mt-3 sm:hidden">
-          Geser kiri / kanan untuk melihat mitra lainnya →
-        </p>
       </div>
     </div>
-  )
+  );
 }
 
 export default function AlumniKarierPage() {
