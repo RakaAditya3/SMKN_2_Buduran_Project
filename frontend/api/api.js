@@ -1,18 +1,20 @@
 import axios from "axios";
 
-// Ganti baseURL sesuai Laragon Nginx
 const api = axios.create({
-  baseURL: "http://backend.test/api", // <-- sesuaikan domain / port Nginx
+baseURL: "http://localhost:8000/api",
 });
 
 api.interceptors.request.use((config) => {
-  if (typeof window !== "undefined") {
-    const token = localStorage.getItem("token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-  }
-  return config;
+if (typeof window !== "undefined") {
+const token = localStorage.getItem("token");
+    const student_token = localStorage.getItem("student_token");
+if (token) {
+config.headers.Authorization = `Bearer ${token}`;
+    } else if (student_token) {
+      config.headers.Authorization = `Bearer ${student_token}`;
+}
+}
+return config;
 });
 
 export default api;
