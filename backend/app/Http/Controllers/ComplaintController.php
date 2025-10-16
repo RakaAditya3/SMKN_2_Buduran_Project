@@ -5,26 +5,37 @@ namespace App\Http\Controllers;
 use App\Models\Complaint;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Cache; // ✅ Tambah untuk Redis cache
 use Illuminate\Support\Str;
 
 class ComplaintController extends Controller
 {
+    /**
+     * Menampilkan daftar pengaduan (cached selama 10 menit)
+     */
     public function index()
-{
-    try {
-        $complaints = \App\Models\Complaint::orderBy('created_at', 'desc')->get();
+    {
+        try {
+            // ✅ Gunakan cache dengan prefix unik agar tidak tabrakan
+            $cacheKey = 'complaints_list';
 
-        return response()->json($complaints);
-    } catch (\Throwable $e) {
-        return response()->json([
-            'success' => false,
-            'error' => $e->getMessage(),
-            'trace' => $e->getFile() . ':' . $e->getLine(),
-        ], 500);
+            $complaints = Cache::remember($cacheKey, 600, function () {
+                return Complaint::orderBy('created_at', 'desc')->get();
+            });
+
+            return response()->json($complaints);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+                'trace' => $e->getFile() . ':' . $e->getLine(),
+            ], 500);
+        }
     }
-}
 
-
+    /**
+     * Menyimpan pengaduan baru
+     */
     public function store(Request $request)
     {
         $request->validate([
@@ -40,10 +51,16 @@ class ComplaintController extends Controller
             'ticket_number' => $ticketNumber,
         ]);
 
-        Mail::raw("Terima kasih sudah mengirim pengaduan.\n\nNomor Ticket Anda: {$ticketNumber}\nStatus: Ditinjau", function ($message) use ($complaint) {
-            $message->to($complaint->email)
-                    ->subject('Pengaduan Anda Sedang Diproses');
-        });
+        // ✅ Hapus cache agar daftar diperbarui otomatis
+        Cache::forget('complaints_list');
+
+        Mail::raw(
+            "Terima kasih sudah mengirim pengaduan.\n\nNomor Ticket Anda: {$ticketNumber}\nStatus: Ditinjau",
+            function ($message) use ($complaint) {
+                $message->to($complaint->email)
+                        ->subject('Pengaduan Anda Sedang Diproses');
+            }
+        );
 
         return response()->json([
             'success' => true,
@@ -51,6 +68,9 @@ class ComplaintController extends Controller
         ]);
     }
 
+    /**
+     * Menampilkan detail pengaduan berdasarkan ticket_number (tanpa cache agar real-time)
+     */
     public function show($ticketNumber)
     {
         $complaint = Complaint::where('ticket_number', $ticketNumber)->first();
@@ -62,6 +82,9 @@ class ComplaintController extends Controller
         return response()->json($complaint);
     }
 
+    /**
+     * Memperbarui status/admin note pengaduan (flush cache agar daftar segar)
+     */
     public function update(Request $request, $id)
     {
         $complaint = Complaint::findOrFail($id);
@@ -70,7 +93,10 @@ class ComplaintController extends Controller
             'status'     => $request->status ?? $complaint->status,
             'admin_note' => $request->admin_note ?? $complaint->admin_note,
         ]);
-        
+
+        // ✅ Hapus cache list agar daftar diperbarui
+        Cache::forget('complaints_list');
+
         $message = "Status pengaduan Anda dengan Ticket {$complaint->ticket_number} telah diperbarui.\n\n";
         $message .= "Status: {$complaint->status}\n";
         if ($complaint->admin_note) {

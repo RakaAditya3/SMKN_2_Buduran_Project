@@ -6,6 +6,7 @@ use App\Models\StudentShowcase;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -13,12 +14,35 @@ class StudentShowcaseController extends Controller
 {
     public function index()
     {
-        $showcases = StudentShowcase::latest()->get();
+        try {
+            // Gunakan Redis cache selama 1 jam (3600 detik)
+            $cacheKey = 'showcases_list';
 
-        return response()->json([
-            'success' => true,
-            'data' => $showcases,
-        ]);
+            $showcases = Cache::remember($cacheKey, 3600, function () {
+                return StudentShowcase::latest()->get();
+            });
+
+            return response()->json([
+                'success' => true,
+                'data' => $showcases,
+                'cached' => true,
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('🔥 Showcase index cache error', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
+
+            // fallback kalau cache gagal
+            $showcases = StudentShowcase::latest()->get();
+
+            return response()->json([
+                'success' => true,
+                'data' => $showcases,
+                'cached' => false,
+            ]);
+        }
     }
 
     public function store(Request $request)
@@ -49,9 +73,7 @@ class StudentShowcaseController extends Controller
             if ($request->hasFile('image')) {
                 $image = $request->file('image');
                 $fileName = 'showcase_' . Str::random(40) . '.' . $image->getClientOriginalExtension();
-
                 $image->storeAs('public/showcase', $fileName);
-
                 $imageUrl = asset('storage/showcase/' . $fileName);
             }
 
@@ -67,6 +89,9 @@ class StudentShowcaseController extends Controller
                 'project_link'   => $validated['project_link'] ?? null,
                 'status'         => $validated['status'] ?? 'published',
             ]);
+
+            // Hapus cache lama supaya data baru langsung muncul
+            Cache::forget('showcases_list');
 
             return response()->json([
                 'success' => true,
@@ -138,6 +163,9 @@ class StudentShowcaseController extends Controller
 
             $showcase->update($validated);
 
+            // Hapus cache agar data baru muncul
+            Cache::forget('showcases_list');
+
             return response()->json([
                 'success' => true,
                 'message' => '✅ Showcase berhasil diperbarui.',
@@ -169,6 +197,9 @@ class StudentShowcaseController extends Controller
             }
 
             $showcase->delete();
+
+            // Hapus cache agar data baru muncul
+            Cache::forget('showcases_list');
 
             return response()->json([
                 'success' => true,

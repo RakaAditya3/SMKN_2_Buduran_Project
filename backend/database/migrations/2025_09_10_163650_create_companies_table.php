@@ -10,13 +10,17 @@ return new class extends Migration
     {
         Schema::create('companies', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('address');
-            $table->string('website')->nullable();
+            $table->string('name')->index(); // 🔍 sering dicari (filter, search)
+            $table->string('address')->index(); // 🔍 sering dipakai di filter
+            $table->string('website')->nullable()->index(); // 🔍 bisa digunakan untuk filter/pencarian
             $table->string('logo')->nullable();
             $table->timestamps();
+
+            // ✅ Gabungan index opsional untuk mempercepat multi-filter (name + address)
+            $table->index(['name', 'address'], 'idx_name_address');
         });
     }
+
     public function down(): void
     {
         Schema::dropIfExists('companies');

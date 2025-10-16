@@ -10,16 +10,23 @@ return new class extends Migration
     {
         Schema::create('news', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
+            $table->string('title')->index(); // 🔹 untuk pencarian cepat by title (LIKE)
             $table->text('description');
-            $table->string('slug')->unique();
-            $table->dateTime('published_at');
-            $table->foreignId('category_id')->constrained('categories');
-            $table->string('thumbnail');
+            $table->string('slug')->unique(); // 🔹 slug unik dan otomatis terindeks
+            $table->dateTime('published_at')->index(); // 🔹 untuk sorting/filter
+            $table->foreignId('category_id')
+                  ->constrained('categories')
+                  ->cascadeOnDelete()
+                  ->index(); // 🔹 untuk filter by kategori
+            $table->string('thumbnail')->nullable();
             $table->longText('content');
             $table->timestamps();
+
+            // 🔹 Kombinasi index untuk pencarian/filter gabungan
+            $table->index(['category_id', 'published_at']);
         });
     }
+
     public function down(): void
     {
         Schema::dropIfExists('news');

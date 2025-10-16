@@ -17,7 +17,14 @@ return new class extends Migration
             $table->foreignId('ebook_id')->constrained()->onDelete('cascade');
             $table->timestamp('borrowed_at');
             $table->timestamp('returned_at')->nullable();
+            $table->string('status')->default('borrowed'); // status tambahan
             $table->timestamps();
+
+            // 🧠 INDEXING UNTUK OPTIMALISASI QUERY
+            $table->index('student_id');   // sering digunakan untuk filter siswa
+            $table->index('ebook_id');     // filter per eBook
+            $table->index('borrowed_at');  // pencarian berdasarkan tanggal
+            $table->index('status');       // filter status peminjaman
         });
     }
 

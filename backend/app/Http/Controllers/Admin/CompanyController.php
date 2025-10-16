@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 
 class CompanyController extends Controller
 {
@@ -19,12 +20,23 @@ class CompanyController extends Controller
         $this->companyService = $companyService;
     }
 
+    /**
+     * Tampilkan daftar perusahaan dengan cache 1–3 hari
+     */
     public function index(Request $request)
     {
-        $companies = $this->companyService->search($request->all());
+        $cacheKey = 'company:index:' . md5(json_encode($request->all()));
+
+        $companies = Cache::remember($cacheKey, now()->addDays(2), function () use ($request) {
+            return $this->companyService->search($request->all());
+        });
+
         return response()->json($companies);
     }
 
+    /**
+     * Tambah atau update perusahaan
+     */
     public function store(Request $request)
     {
         try {
@@ -38,18 +50,12 @@ class CompanyController extends Controller
             ];
 
             $validated = $request->validate($rules);
-
             $imageUrl = null;
-
 
             if ($request->hasFile('logo')) {
                 $image = $request->file('logo');
                 $fileName = 'company_' . Str::random(40) . '.' . $image->getClientOriginalExtension();
-
-
                 $image->storeAs('public/companies', $fileName);
-
-           
                 $imageUrl = asset('storage/companies/' . $fileName);
                 $validated['logo'] = $imageUrl;
             }
@@ -62,13 +68,16 @@ class CompanyController extends Controller
                 $message = 'Perusahaan berhasil ditambahkan.';
             }
 
+            // Hapus cache lama agar data baru terbaca
+            Cache::flush();
+
             return response()->json([
                 'success' => true,
                 'message' => $message,
                 'data'    => $company,
             ]);
         } catch (\Throwable $e) {
-            \Log::error('🔥 Company store error', [
+            Log::error('🔥 Company store error', [
                 'message' => $e->getMessage(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
@@ -81,6 +90,9 @@ class CompanyController extends Controller
         }
     }
 
+    /**
+     * Update perusahaan
+     */
     public function update(Request $request, $id)
     {
         try {
@@ -96,9 +108,7 @@ class CompanyController extends Controller
             $company = Company::findOrFail($id);
             $imageUrl = $company->logo;
 
-        
             if ($request->hasFile('logo')) {
- 
                 if ($company->logo && str_contains($company->logo, '/storage/companies/')) {
                     $oldPath = str_replace(asset('storage/'), '', $company->logo);
                     Storage::delete('public/' . $oldPath);
@@ -106,7 +116,6 @@ class CompanyController extends Controller
 
                 $image = $request->file('logo');
                 $fileName = 'company_' . Str::random(40) . '.' . $image->getClientOriginalExtension();
-
                 $image->storeAs('public/companies', $fileName);
                 $imageUrl = asset('storage/companies/' . $fileName);
             }
@@ -118,13 +127,17 @@ class CompanyController extends Controller
                 'logo'    => $imageUrl,
             ]);
 
+            // Bersihkan cache agar data baru langsung terpakai
+            Cache::forget("company:show:{$id}");
+            Cache::flush();
+
             return response()->json([
                 'success' => true,
                 'message' => '✅ Perusahaan berhasil diperbarui.',
                 'data'    => $company,
             ]);
         } catch (\Throwable $e) {
-            \Log::error('🔥 Company update error', [
+            Log::error('🔥 Company update error', [
                 'message' => $e->getMessage(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
@@ -137,15 +150,27 @@ class CompanyController extends Controller
         }
     }
 
+    /**
+     * Detail perusahaan (cache 1–3 hari)
+     */
     public function show($id)
     {
-        $company = $this->companyService->find($id);
+        $cacheKey = "company:show:{$id}";
+
+        $company = Cache::remember($cacheKey, now()->addDays(2), function () use ($id) {
+            return $this->companyService->find($id);
+        });
+
         if (!$company) {
             return response()->json(['error' => 'Perusahaan tidak ditemukan.'], 404);
         }
+
         return response()->json($company);
     }
 
+    /**
+     * Hapus perusahaan
+     */
     public function destroy($id)
     {
         try {
@@ -158,12 +183,16 @@ class CompanyController extends Controller
 
             $this->companyService->delete($id);
 
+            // Bersihkan cache terkait
+            Cache::forget("company:show:{$id}");
+            Cache::flush();
+
             return response()->json([
                 'success' => true,
                 'message' => '🗑️ Perusahaan berhasil dihapus.',
             ]);
         } catch (\Throwable $e) {
-            \Log::error('🔥 Company delete error', [
+            Log::error('🔥 Company delete error', [
                 'message' => $e->getMessage(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),

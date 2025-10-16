@@ -10,9 +10,11 @@ use App\Http\Resources\EBookResource;
 use Illuminate\Support\Facades\Log;
 use App\Models\Student;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Cache;
 
 class EBookController extends Controller
 {
+    // === Login siswa ===
     public function login(Request $request)
     {
         $request->validate([
@@ -26,6 +28,7 @@ class EBookController extends Controller
             return response()->json(['success' => false, 'message' => 'NISN atau Password salah'], 401);
         }
 
+        // Reset token sebelumnya
         $student->tokens()->delete();
 
         $token = $student->createToken('student_token', ['student'])->plainTextToken;
@@ -38,9 +41,21 @@ class EBookController extends Controller
         ]);
     }
 
-    public function index()
+    // === Optimasi Cache Redis (TTL: 1 jam) ===
+    public function index(Request $request)
     {
-        $ebooks = EBook::all();
+        $category = $request->query('category'); // filter kategori jika ada
+        $cacheKey = 'ebooks_list_' . ($category ?? 'all');
+
+        // Gunakan tag 'ebooks' agar tidak bentrok dengan cache lain
+        $ebooks = Cache::tags('ebooks')->remember($cacheKey, 3600, function () use ($category) {
+            $query = EBook::query();
+            if ($category) {
+                $query->where('category', $category);
+            }
+            return $query->get();
+        });
+
         return EBookResource::collection($ebooks);
     }
 
@@ -53,7 +68,6 @@ class EBookController extends Controller
         ]);
 
         $imageUrl = null;
-
 
         if ($request->hasFile('image')) {
             $image = $request->file('image');
@@ -70,16 +84,24 @@ class EBookController extends Controller
             'image_path'  => $imageUrl,
         ]);
 
+        // Bersihkan cache hanya yang bertag 'ebooks'
+        Cache::tags('ebooks')->flush();
+
         return response()->json([
             'success' => true,
-            'message' => 'EBook uploaded successfully',
+            'message' => '✅ EBook berhasil diunggah.',
             'ebook'   => $ebook,
         ], 201);
     }
 
     public function show($id)
     {
-        $ebook = EBook::findOrFail($id);
+        $cacheKey = 'ebook_detail_' . $id;
+
+        // Cache detail eBook 1 jam, tag khusus 'ebooks'
+        $ebook = Cache::tags('ebooks')->remember($cacheKey, 3600, function () use ($id) {
+            return EBook::findOrFail($id);
+        });
 
         return response()->json([
             'data' => $ebook
@@ -118,9 +140,12 @@ class EBookController extends Controller
                 'image_path'  => $imageUrl,
             ]);
 
+            // Bersihkan cache hanya tag 'ebooks'
+            Cache::tags('ebooks')->flush();
+
             return response()->json([
                 'success' => true,
-                'message' => 'EBook berhasil diperbarui.',
+                'message' => '✅ EBook berhasil diperbarui.',
                 'data'    => $ebook,
             ]);
         } catch (\Throwable $e) {
@@ -145,9 +170,12 @@ class EBookController extends Controller
 
             $ebook->delete();
 
+            // Bersihkan cache hanya tag 'ebooks'
+            Cache::tags('ebooks')->flush();
+
             return response()->json([
                 'success' => true,
-                'message' => 'EBook berhasil dihapus.',
+                'message' => '🗑️ EBook berhasil dihapus.',
             ]);
         } catch (\Throwable $e) {
             Log::error('EBook delete error', ['error' => $e->getMessage()]);

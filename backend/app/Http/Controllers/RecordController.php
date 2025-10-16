@@ -6,12 +6,13 @@ use App\Models\Record;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redis;
 use Carbon\Carbon;
 
 class RecordController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * 🧾 Menampilkan daftar record untuk student login.
      */
     public function index(Request $request): JsonResponse
     {
@@ -26,6 +27,7 @@ class RecordController extends Controller
         $query = Record::with('ebook')
             ->where('student_id', $student->id);
 
+        // Filter tanggal
         if ($request->has('date') && $request->date) {
             $date = $request->date;
             $filterType = $request->get('filter_type', 'specific');
@@ -42,37 +44,40 @@ class RecordController extends Controller
         return response()->json($records);
     }
 
+    /**
+     * 🧾 Menampilkan semua record (admin).
+     */
     public function indexAdmin(Request $request): JsonResponse
-{
+    {
+        $query = Record::with(['ebook', 'student']);
 
-    $query = Record::with(['ebook', 'student']);
+        // Filter tanggal
+        if ($request->has('date') && $request->date) {
+            $date = $request->date;
+            $filterType = $request->get('filter_type', 'specific');
 
-
-    if ($request->has('date') && $request->date) {
-        $date = $request->date;
-        $filterType = $request->get('filter_type', 'specific');
-
-        if ($filterType === 'before') {
-            $query->where('borrowed_at', '<=', $date . ' 23:59:59');
-        } else {
-            $query->whereDate('borrowed_at', $date);
+            if ($filterType === 'before') {
+                $query->where('borrowed_at', '<=', $date . ' 23:59:59');
+            } else {
+                $query->whereDate('borrowed_at', $date);
+            }
         }
+
+        // Filter status
+        if ($request->has('status') && $request->status) {
+            $query->where('status', $request->status);
+        }
+
+        $records = $query->orderBy('borrowed_at', 'desc')->get();
+
+        return response()->json([
+            'data' => $records
+        ]);
     }
-
-    if ($request->has('status') && $request->status) {
-        $query->where('status', $request->status);
-    }
-
-    $records = $query->orderBy('borrowed_at', 'desc')->get();
-
-    return response()->json([
-        'data' => $records
-    ]);
-    }
-
 
     /**
-     * Store a newly created resource in storage.
+     * 💾 Simpan transaksi baru (peminjaman eBook).
+     * Gunakan Redis Stream sebagai antrian realtime.
      */
     public function store(Request $request): JsonResponse
     {
@@ -93,6 +98,7 @@ class RecordController extends Controller
             ], 422);
         }
 
+        // Simpan ke database
         $record = Record::create([
             'student_id' => $student->id,
             'ebook_id' => $request->ebook_id,
@@ -101,8 +107,29 @@ class RecordController extends Controller
             'status' => 'borrowed',
         ]);
 
-
         $record->load('ebook', 'student');
+
+        // ================================================================
+        // 🚀 OPTIMALISASI: SIMPAN LOG TRANSAKSI KE REDIS STREAM
+        // ================================================================
+        // Gunakan key khusus agar tidak bentrok dengan cache news/ebook
+        $streamKey = 'stream:records';
+
+        // Tambahkan data transaksi ke Redis Stream
+        Redis::xadd($streamKey, '*', [
+            'record_id' => $record->id,
+            'student_id' => $student->id,
+            'student_name' => $record->student->name ?? '-',
+            'ebook_id' => $record->ebook_id,
+            'ebook_title' => $record->ebook->title ?? '-',
+            'status' => 'borrowed',
+            'borrowed_at' => $borrowed->toDateTimeString(),
+            'returned_at' => $returned->toDateTimeString(),
+        ]);
+
+        // Batasi agar hanya menyimpan 1000 transaksi terakhir
+        Redis::xtrim($streamKey, 1000);
+        // ================================================================
 
         return response()->json([
             'message' => 'Record created successfully',
@@ -110,61 +137,48 @@ class RecordController extends Controller
         ], 201);
     }
 
-
-
     /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the status of a record.
+     * 📦 Update status peminjaman (dikembalikan, hilang, dsb).
      */
     public function updateStatus(Request $request, string $id): JsonResponse
-{
-    $request->validate([
-        'status' => 'required|string|in:Dipinjam,Dikembalikan,Hilang,borrowed,returned,lost',
-        'returned_at' => 'nullable|date',
-    ]);
-
-    // Normalisasi status
-    $statusMap = [
-        'dipinjam' => 'borrowed',
-        'dikembalikan' => 'returned',
-        'hilang' => 'lost',
-    ];
-
-    $status = strtolower($request->status);
-    $normalizedStatus = $statusMap[$status] ?? $status; // gunakan english lowercase
-
-    $record = Record::findOrFail($id);
-    $record->status = $normalizedStatus;
-    $record->returned_at = $request->returned_at ?? null;
-    $record->save();
-
-    return response()->json([
-        'message' => 'Status updated successfully',
-        'record' => $record->load('ebook'),
-    ]);
-    }
-
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
     {
-        //
+        $request->validate([
+            'status' => 'required|string|in:Dipinjam,Dikembalikan,Hilang,borrowed,returned,lost',
+            'returned_at' => 'nullable|date',
+        ]);
+
+        // Normalisasi status (indo → english)
+        $statusMap = [
+            'dipinjam' => 'borrowed',
+            'dikembalikan' => 'returned',
+            'hilang' => 'lost',
+        ];
+
+        $status = strtolower($request->status);
+        $normalizedStatus = $statusMap[$status] ?? $status;
+
+        $record = Record::findOrFail($id);
+        $record->status = $normalizedStatus;
+        $record->returned_at = $request->returned_at ?? null;
+        $record->save();
+
+        // ================================================================
+        // 🌀 Tambahkan log perubahan status ke Redis Stream juga
+        // ================================================================
+        $streamKey = 'stream:records';
+        Redis::xadd($streamKey, '*', [
+            'record_id' => $record->id,
+            'student_id' => $record->student_id,
+            'ebook_id' => $record->ebook_id,
+            'status' => $normalizedStatus,
+            'updated_at' => now()->toDateTimeString(),
+        ]);
+        Redis::xtrim($streamKey, 1000);
+        // ================================================================
+
+        return response()->json([
+            'message' => 'Status updated successfully',
+            'record' => $record->load('ebook'),
+        ]);
     }
 }
