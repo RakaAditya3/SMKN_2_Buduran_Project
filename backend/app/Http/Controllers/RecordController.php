@@ -3,28 +3,48 @@
 namespace App\Http\Controllers;
 
 use App\Models\Record;
+use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Laravel\Sanctum\PersonalAccessToken;
 use Carbon\Carbon;
 
 class RecordController extends Controller
 {
+    private function getAuthenticatedStudent(Request $request)
+    {
+        try {
+            $authHeader = $request->header('Authorization');
+
+            if (!$authHeader || !str_starts_with($authHeader, 'Bearer ')) {
+                return null;
+            }
+
+            $token = trim(str_replace('Bearer', '', $authHeader));
+            $accessToken = PersonalAccessToken::findToken($token);
+
+            if (!$accessToken) return null;
+
+            return $accessToken->tokenable;
+        } catch (\Throwable $e) {
+            Log::error('Token parsing error', ['error' => $e->getMessage()]);
+            return null;
+        }
+    }
+
     /**
-     * Display a listing of the resource.
+     * Tampilkan semua record milik student
      */
     public function index(Request $request): JsonResponse
     {
-        $student = Auth::guard('student')->user();
+        $student = $this->getAuthenticatedStudent($request);
 
         if (!$student) {
-            return response()->json([
-                'message' => 'Unauthorized'
-            ], 401);
+            return response()->json([], 401); // 🔹 kembalikan array kosong agar frontend aman
         }
 
-        $query = Record::with('ebook')
-            ->where('student_id', $student->id);
+        $query = Record::with('ebook')->where('student_id', $student->id);
 
         if ($request->has('date') && $request->date) {
             $date = $request->date;
@@ -39,44 +59,48 @@ class RecordController extends Controller
 
         $records = $query->orderBy('borrowed_at', 'desc')->get();
 
+        // 🔥 RETURN LANGSUNG ARRAY, bukan object wrapper
         return response()->json($records);
     }
 
+    /**
+     * Admin: tampilkan semua record
+     */
     public function indexAdmin(Request $request): JsonResponse
-{
+    {
+        $query = Record::with(['ebook', 'student']);
 
-    $query = Record::with(['ebook', 'student']);
+        if ($request->has('date') && $request->date) {
+            $date = $request->date;
+            $filterType = $request->get('filter_type', 'specific');
 
-
-    if ($request->has('date') && $request->date) {
-        $date = $request->date;
-        $filterType = $request->get('filter_type', 'specific');
-
-        if ($filterType === 'before') {
-            $query->where('borrowed_at', '<=', $date . ' 23:59:59');
-        } else {
-            $query->whereDate('borrowed_at', $date);
+            if ($filterType === 'before') {
+                $query->where('borrowed_at', '<=', $date . ' 23:59:59');
+            } else {
+                $query->whereDate('borrowed_at', $date);
+            }
         }
+
+        if ($request->has('status') && $request->status) {
+            $query->where('status', $request->status);
+        }
+
+        $records = $query->orderBy('borrowed_at', 'desc')->get();
+
+        // 🔥 return array langsung
+        return response()->json($records);
     }
-
-    if ($request->has('status') && $request->status) {
-        $query->where('status', $request->status);
-    }
-
-    $records = $query->orderBy('borrowed_at', 'desc')->get();
-
-    return response()->json([
-        'data' => $records
-    ]);
-    }
-
 
     /**
-     * Store a newly created resource in storage.
+     * Tambah record baru
      */
     public function store(Request $request): JsonResponse
     {
-        $student = Auth::guard('student')->user();
+        $student = $this->getAuthenticatedStudent($request);
+
+        if (!$student) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
 
         $request->validate([
             'ebook_id' => 'required|exists:ebooks,id',
@@ -88,9 +112,7 @@ class RecordController extends Controller
         $returned = Carbon::parse($request->returned_at ?? $borrowed->copy()->addDays(7));
 
         if ($borrowed->diffInDays($returned) > 7) {
-            return response()->json([
-                'message' => 'Maksimal peminjaman adalah 7 hari'
-            ], 422);
+            return response()->json(['message' => 'Maksimal peminjaman 7 hari'], 422);
         }
 
         $record = Record::create([
@@ -101,70 +123,33 @@ class RecordController extends Controller
             'status' => 'borrowed',
         ]);
 
-
-        $record->load('ebook', 'student');
-
-        return response()->json([
-            'message' => 'Record created successfully',
-            'record' => $record,
-        ], 201);
-    }
-
-
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
+        return response()->json($record, 201);
     }
 
     /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the status of a record.
+     * Update status
      */
     public function updateStatus(Request $request, string $id): JsonResponse
-{
-    $request->validate([
-        'status' => 'required|string|in:Dipinjam,Dikembalikan,Hilang,borrowed,returned,lost',
-        'returned_at' => 'nullable|date',
-    ]);
-
-    // Normalisasi status
-    $statusMap = [
-        'dipinjam' => 'borrowed',
-        'dikembalikan' => 'returned',
-        'hilang' => 'lost',
-    ];
-
-    $status = strtolower($request->status);
-    $normalizedStatus = $statusMap[$status] ?? $status; // gunakan english lowercase
-
-    $record = Record::findOrFail($id);
-    $record->status = $normalizedStatus;
-    $record->returned_at = $request->returned_at ?? null;
-    $record->save();
-
-    return response()->json([
-        'message' => 'Status updated successfully',
-        'record' => $record->load('ebook'),
-    ]);
-    }
-
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
     {
-        //
+        $request->validate([
+            'status' => 'required|string|in:Dipinjam,Dikembalikan,Hilang,borrowed,returned,lost',
+            'returned_at' => 'nullable|date',
+        ]);
+
+        $statusMap = [
+            'dipinjam' => 'borrowed',
+            'dikembalikan' => 'returned',
+            'hilang' => 'lost',
+        ];
+
+        $status = strtolower($request->status);
+        $normalizedStatus = $statusMap[$status] ?? $status;
+
+        $record = Record::findOrFail($id);
+        $record->status = $normalizedStatus;
+        $record->returned_at = $request->returned_at ?? null;
+        $record->save();
+
+        return response()->json($record);
     }
 }
