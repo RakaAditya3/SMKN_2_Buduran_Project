@@ -4,42 +4,39 @@ namespace App\Http\Controllers;
 
 use App\Models\EBook;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Http\Resources\EBookResource;
 use Illuminate\Support\Facades\Log;
 use App\Models\Student;
 use Illuminate\Support\Facades\Hash;
 
-
 class EBookController extends Controller
 {
+    public function login(Request $request)
+    {
+        $request->validate([
+            'nisn' => 'required|string',
+            'password' => 'required|string',
+        ]);
 
-   public function login(Request $request)
-{
-    $request->validate([
-        'nisn' => 'required|string',
-        'password' => 'required|string',
-    ]);
+        $student = Student::where('nisn', $request->nisn)->first();
 
-    $student = Student::where('nisn', $request->nisn)->first();
+        if (!$student || !Hash::check($request->password, $student->password)) {
+            return response()->json(['success' => false, 'message' => 'NISN atau Password salah'], 401);
+        }
 
-    if (!$student || !Hash::check($request->password, $student->password)) {
-        return response()->json(['success' => false, 'message' => 'NISN atau Password salah'], 401);
+        $student->tokens()->delete();
+
+        $token = $student->createToken('student_token', ['student'])->plainTextToken;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Login berhasil',
+            'token' => $token,
+            'user' => $student,
+        ]);
     }
-
-    $student->tokens()->delete();
-
-    // 🔥 tambahkan ability student
-    $token = $student->createToken('student_token', ['student'])->plainTextToken;
-
-    return response()->json([
-        'success' => true,
-        'message' => 'Login berhasil',
-        'token' => $token,
-        'user' => $student,
-    ]);
-}
 
     public function index()
     {
@@ -57,28 +54,14 @@ class EBookController extends Controller
 
         $imageUrl = null;
 
+
         if ($request->hasFile('image')) {
-            $image    = $request->file('image');
+            $image = $request->file('image');
             $fileName = 'ebooks/' . Str::random(40) . '.' . $image->getClientOriginalExtension();
-            $bucket   = 'images';
 
-            $response = Http::withToken(env('SUPABASE_KEY'))
-                ->attach('file', fopen($image->getRealPath(), 'r'), $fileName)
-                ->post(env('SUPABASE_URL') . "/storage/v1/object/$bucket/$fileName?upsert=true");
+            $path = $image->storeAs('public/ebooks', basename($fileName));
 
-            if ($response->failed()) {
-                Log::error('Supabase upload failed (store)', [
-                    'status' => $response->status(),
-                    'body' => $response->body(),
-                ]);
-
-                return response()->json([
-                    'message' => 'Upload gagal',
-                    'error' => $response->body()
-                ], 500);
-            }
-
-            $imageUrl = rtrim(env('SUPABASE_URL'), '/') . "/storage/v1/object/public/$bucket/$fileName";
+            $imageUrl = asset('storage/ebooks/' . basename($fileName));
         }
 
         $ebook = EBook::create([
@@ -103,7 +86,6 @@ class EBookController extends Controller
         ]);
     }
 
-
     public function update(Request $request, $id)
     {
         try {
@@ -117,30 +99,17 @@ class EBookController extends Controller
 
             $imageUrl = $ebook->image_path;
 
-
             if ($request->hasFile('image')) {
-                $image    = $request->file('image');
+                $image = $request->file('image');
                 $fileName = 'ebooks/' . Str::random(40) . '.' . $image->getClientOriginalExtension();
-                $bucket   = 'images';
 
-                $response = Http::withToken(env('SUPABASE_KEY'))
-                    ->attach('file', fopen($image->getRealPath(), 'r'), $fileName)
-                    ->post(env('SUPABASE_URL') . "/storage/v1/object/$bucket/$fileName?upsert=true");
-
-                if ($response->failed()) {
-                    Log::error('Supabase upload failed (update)', [
-                        'status' => $response->status(),
-                        'body' => $response->body(),
-                    ]);
-
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Upload gambar gagal',
-                        'error' => $response->body(),
-                    ], 500);
+                if ($ebook->image_path && str_contains($ebook->image_path, '/storage/ebooks/')) {
+                    $oldFile = str_replace(asset('storage/'), '', $ebook->image_path);
+                    Storage::delete('public/' . $oldFile);
                 }
 
-                $imageUrl = rtrim(env('SUPABASE_URL'), '/') . "/storage/v1/object/public/$bucket/$fileName";
+                $path = $image->storeAs('public/ebooks', basename($fileName));
+                $imageUrl = asset('storage/ebooks/' . basename($fileName));
             }
 
             $ebook->update([
@@ -163,11 +132,16 @@ class EBookController extends Controller
         }
     }
 
-
     public function destroy($id)
     {
         try {
             $ebook = EBook::findOrFail($id);
+
+            // Hapus file dari storage jika ada
+            if ($ebook->image_path && str_contains($ebook->image_path, '/storage/ebooks/')) {
+                $filePath = str_replace(asset('storage/'), '', $ebook->image_path);
+                Storage::delete('public/' . $filePath);
+            }
 
             $ebook->delete();
 
