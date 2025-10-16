@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import * as motion from "motion/react-client"
 import { usePathname } from 'next/navigation'; // ⬅️ Tambah ini
@@ -23,16 +23,280 @@ interface NavigationItem {
   };
 }
 
+interface SearchItem {
+  title: string;
+  href: string;
+  category: string;
+  description: string;
+  tags?: string[];
+}
+
+const SEARCH_ITEMS: SearchItem[] = [
+  {
+    title: 'Sambutan Kepala Sekolah',
+    href: '/Pages/Profile/Kepsek',
+    category: 'Profil',
+    description: 'Pengantar resmi dari pimpinan SMKN 2 Buduran tentang arah kebijakan sekolah.',
+    tags: ['profile', 'kepsek'],
+  },
+  {
+    title: 'Sejarah & Perkembangan Sekolah',
+    href: '/Pages/Profile/Sejarah',
+    category: 'Profil',
+    description: 'Kilas balik perjalanan SMKN 2 Buduran hingga menjadi sekolah rujukan.',
+    tags: ['sejarah'],
+  },
+  {
+    title: 'Visi dan Misi',
+    href: '/Pages/Profile/Visi-Misi',
+    category: 'Profil',
+    description: 'Nilai dan tujuan utama yang menjadi pedoman kegiatan belajar.',
+    tags: ['visi', 'misi'],
+  },
+  {
+    title: 'Program Rekayasa Perangkat Lunak',
+    href: '/Pages/Jurusan/RPL',
+    category: 'Program Keahlian',
+    description: 'Spesialisasi pengembangan aplikasi, sistem informasi, dan praktik industri TI.',
+    tags: ['rpl', 'software'],
+  },
+  {
+    title: 'Program Desain Komunikasi Visual',
+    href: '/Pages/Jurusan/DKV',
+    category: 'Program Keahlian',
+    description: 'Fokus pada desain grafis, multimedia, dan komunikasi visual kreatif.',
+    tags: ['dkv', 'desain'],
+  },
+  {
+    title: 'Program Bisnis Digital',
+    href: '/Pages/Jurusan/BD',
+    category: 'Program Keahlian',
+    description: 'Pelajari pemasaran digital, e-commerce, dan strategi bisnis modern.',
+    tags: ['bisnis'],
+  },
+  {
+    title: 'Ekstrakurikuler Basket',
+    href: '/Pages/Extrakurikuler/basket',
+    category: 'Ekstrakurikuler',
+    description: 'Pembinaan olahraga basket dengan jadwal latihan dan kompetisi rutin.',
+    tags: ['ekskul', 'olahraga'],
+  },
+  {
+    title: 'Ekstrakurikuler Robotik',
+    href: '/Pages/Extrakurikuler/robotik',
+    category: 'Ekstrakurikuler',
+    description: 'Komunitas inovasi robotika untuk siswa yang gemar teknologi.',
+    tags: ['robotik'],
+  },
+  {
+    title: 'Berita & Kegiatan',
+    href: '/Pages/Berita-Kegiatan',
+    category: 'Informasi',
+    description: 'Update aktivitas terbaru, liputan acara, dan agenda sekolah.',
+    tags: ['berita', 'kegiatan'],
+  },
+  {
+    title: 'Portal Alumni & Karier',
+    href: '/Pages/Alumni-Karier',
+    category: 'Layanan',
+    description: 'Fasilitasi jejaring alumni dan informasi peluang karier.',
+    tags: ['alumni'],
+  },
+  {
+    title: 'Layanan eComplaint',
+    href: '/Pages/eComplaint',
+    category: 'Layanan',
+    description: 'Saluran resmi untuk menyampaikan keluhan atau masukan.',
+    tags: ['complaint'],
+  },
+  {
+    title: 'Presensi Online',
+    href: '/Pages/Presensi',
+    category: 'Layanan',
+    description: 'Akses presensi online untuk siswa dan tenaga pendidik.',
+    tags: ['presensi'],
+  },
+  {
+    title: 'Login eLibrary',
+    href: '/Login-eLibrary',
+    category: 'Layanan',
+    description: 'Masuk ke perpustakaan digital untuk membaca koleksi e-book.',
+    tags: ['ebook', 'library'],
+  },
+];
+
+const POPULAR_SEARCHES = ['Visi Misi', 'Program RPL', 'Ekstrakurikuler', 'Alumni', 'Presensi'];
+
 const Header: React.FC = () => {
   const [activeNav, setActiveNav] = useState<string>('Home');
   const [hoveredMenu, setHoveredMenu] = useState<string | null>(null);
   const [showSearch, setShowSearch] = useState(false);
+  const [showMobileSearch, setShowMobileSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [expandedMobileItems, setExpandedMobileItems] = useState<string[]>([]);
   const [scrolled, setScrolled] = useState(false);
 
+  const desktopSearchRef = useRef<HTMLDivElement | null>(null);
+  const desktopSearchButtonRef = useRef<HTMLButtonElement | null>(null);
+  const desktopInputRef = useRef<HTMLInputElement | null>(null);
+  const mobileInputRef = useRef<HTMLInputElement | null>(null);
+
   const pathname = usePathname(); // ⬅️ Deteksi halaman aktif
-const isHome = pathname === "/";
+  const isHome = pathname === "/";
+
+  const filteredResults = useMemo(() => {
+    const normalized = searchQuery.trim().toLowerCase();
+    if (!normalized) {
+      return SEARCH_ITEMS.slice(0, 6);
+    }
+
+    const keywords = normalized.split(/\s+/).filter(Boolean);
+
+    const scored = SEARCH_ITEMS
+      .map((item) => {
+        const haystack = [
+          item.title,
+          item.description,
+          item.category,
+          ...(item.tags ?? []),
+        ]
+          .join(' ')
+          .toLowerCase();
+
+        if (!keywords.every((keyword) => haystack.includes(keyword))) {
+          return null;
+        }
+
+        const score = keywords.reduce((acc, keyword) => {
+          let value = 0;
+          if (item.title.toLowerCase().includes(keyword)) value += 2;
+          if (item.category.toLowerCase().includes(keyword)) value += 1;
+          if ((item.tags ?? []).some((tag) => tag.toLowerCase().includes(keyword))) value += 1;
+          if (item.description.toLowerCase().includes(keyword)) value += 0.5;
+          return acc + value;
+        }, 0);
+
+        return { item, score: score || 0.5 };
+      })
+      .filter((entry): entry is { item: SearchItem; score: number } => Boolean(entry));
+
+    return scored
+      .sort((a, b) => b.score - a.score)
+      .map((entry) => entry.item)
+      .slice(0, 8);
+  }, [searchQuery]);
+
+  const hasResults = filteredResults.length > 0;
+  const resultsTitle = searchQuery.trim() ? 'Hasil pencarian' : 'Rekomendasi untukmu';
+
+  const closeSearchPanels = useCallback(() => {
+    setShowSearch(false);
+    setShowMobileSearch(false);
+    setSearchQuery('');
+  }, []);
+
+  const handleResultSelect = () => {
+    closeSearchPanels();
+    setMobileMenuOpen(false);
+  };
+
+  const handlePopularClick = (term: string) => {
+    setSearchQuery(term);
+    if (showSearch) {
+      window.setTimeout(() => desktopInputRef.current?.focus(), 10);
+    }
+    if (showMobileSearch) {
+      window.setTimeout(() => mobileInputRef.current?.focus(), 10);
+    }
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery('');
+    if (showSearch) {
+      window.setTimeout(() => desktopInputRef.current?.focus(), 10);
+    }
+    if (showMobileSearch) {
+      window.setTimeout(() => mobileInputRef.current?.focus(), 10);
+    }
+  };
+
+  const handleDesktopSearchToggle = () => {
+    setShowSearch((prev) => {
+      const next = !prev;
+      setSearchQuery('');
+      if (next) {
+        setShowMobileSearch(false);
+      }
+      return next;
+    });
+  };
+
+  const handleMobileSearchOpen = () => {
+    setShowSearch(false);
+    setMobileMenuOpen(false);
+    setSearchQuery('');
+    setShowMobileSearch((prev) => !prev);
+  };
+  useEffect(() => {
+    closeSearchPanels();
+  }, [pathname, closeSearchPanels]);
+
+  useEffect(() => {
+    if (!showSearch) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+      if (
+        desktopSearchRef.current?.contains(target) ||
+        desktopSearchButtonRef.current?.contains(target)
+      ) {
+        return;
+      }
+      closeSearchPanels();
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showSearch, closeSearchPanels]);
+
+  useEffect(() => {
+    if (!showSearch) return;
+    const timeout = window.setTimeout(() => desktopInputRef.current?.focus(), 50);
+    return () => window.clearTimeout(timeout);
+  }, [showSearch]);
+
+  useEffect(() => {
+    if (!showMobileSearch) return;
+    const timeout = window.setTimeout(() => mobileInputRef.current?.focus(), 50);
+    return () => window.clearTimeout(timeout);
+  }, [showMobileSearch]);
+
+  useEffect(() => {
+    const original = typeof document !== 'undefined' ? document.body.style.overflow : '';
+    if (showMobileSearch && typeof document !== 'undefined') {
+      document.body.style.overflow = 'hidden';
+    }
+
+    return () => {
+      if (typeof document !== 'undefined') {
+        document.body.style.overflow = original;
+      }
+    };
+  }, [showMobileSearch]);
+
+  useEffect(() => {
+    if (!showSearch && !showMobileSearch) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        closeSearchPanels();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [showSearch, showMobileSearch, closeSearchPanels]);
 
   useEffect(() => {
     if (!isHome) return;
@@ -137,10 +401,31 @@ const isHome = pathname === "/";
             />
           </div>
 
-          {/* Mobile menu button - Moved to right side */}
-          <div className="md:hidden flex items-center">
+          {/* Mobile actions */}
+          <div className="md:hidden flex items-center gap-2">
+            <button
+              onClick={handleMobileSearchOpen}
+              aria-label="Buka pencarian"
+              className="p-2 transition-colors hover:text-[#0E74BC]"
+            >
+              <svg
+                className="h-6 w-6"
+                fill="none"
+                stroke={
+                  showMobileSearch
+                    ? '#0E74BC'
+                    : !scrolled && isHome
+                      ? 'white'
+                      : '#0F172A'
+                }
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </button>
             <button 
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label={mobileMenuOpen ? 'Tutup menu utama' : 'Buka menu utama'}
               className="p-2 hover:text-blue-600 transition-colors"
             >
               {mobileMenuOpen ? (
@@ -322,32 +607,99 @@ const isHome = pathname === "/";
             {/* Search Icon - Desktop only */}
             <div className="hidden md:block relative">
               <button
-                onClick={() => setShowSearch((prev) => !prev)}
-                className="p-2 text-white hover:text-blue-600 transition-colors"
+                ref={desktopSearchButtonRef}
+                onClick={handleDesktopSearchToggle}
+                aria-label={showSearch ? 'Tutup pencarian' : 'Buka pencarian'}
+                className="p-2 transition-colors hover:text-[#0E74BC]"
               >
-                <svg className="w-5 h-5" fill="none" stroke={!scrolled && isHome ? "white" : "black"} viewBox="0 0 24 24">
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke={
+                    showSearch
+                      ? '#0E74BC'
+                      : !scrolled && isHome
+                        ? 'white'
+                        : '#0F172A'
+                  }
+                  viewBox="0 0 24 24"
+                >
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </button>
 
-              {/* Dropdown Search */}
               {showSearch && (
-                <div className="absolute right-0 mt-12 w-150 h-15 bg-white border border-gray-200 rounded-full p-2 z-50 animate-fadeIn shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
-                  <div className="flex items-center space-x-2 mt-2">
-                    <svg
-                      className="w-6 h-6 text-gray-400"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
+                <div
+                  ref={desktopSearchRef}
+                  className="absolute right-0 mt-5 w-[24rem] rounded-2xl border border-gray-200 bg-white p-4 shadow-[0_18px_48px_-28px_rgba(14,116,188,0.35)] z-50"
+                >
+                  <div className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white px-3 py-2 transition-colors focus-within:border-[#0E74BC]">
+                    <svg className="h-5 w-5 text-gray-400" fill="none" stroke="#0F172A" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                     <input
+                      ref={desktopInputRef}
                       type="text"
-                      placeholder="Search"
-                      autoFocus
-                      className="w-full bg-transparent focus:outline-none text-gray-700 text-xl ml-5"
+                      value={searchQuery}
+                      onChange={(event) => setSearchQuery(event.target.value)}
+                      placeholder="Cari informasi di SMKN 2 Buduran"
+                      className="w-full bg-transparent text-sm font-medium text-slate-900 placeholder:text-gray-400 focus:outline-none"
                     />
+                    {searchQuery && (
+                      <button
+                        type="button"
+                        onClick={handleClearSearch}
+                        aria-label="Bersihkan pencarian"
+                        className="rounded-full p-1 text-gray-400 transition-colors hover:text-slate-600"
+                      >
+                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="mt-4">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-500">Pencarian populer</p>
+                    <div className="mt-2 flex gap-2 overflow-x-auto pb-1">
+                      {POPULAR_SEARCHES.map((term) => (
+                        <button
+                          key={term}
+                          type="button"
+                          onClick={() => handlePopularClick(term)}
+                          className="whitespace-nowrap rounded-full border border-gray-200 px-3 py-1 text-xs font-medium text-slate-600 transition-colors hover:border-[#0E74BC] hover:text-[#0E74BC]"
+                        >
+                          {term}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="mt-4 border-t border-gray-100 pt-4">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-500">{resultsTitle}</p>
+                    <div className="mt-2 max-h-60 overflow-y-auto pr-1 search-scroll">
+                      {hasResults ? (
+                        <ul className="space-y-1.5">
+                          {filteredResults.map((item) => (
+                            <li key={item.title}>
+                              <Link
+                                href={item.href}
+                                onClick={handleResultSelect}
+                                className="block rounded-xl px-3 py-2 transition-colors hover:bg-[#0E74BC]/10"
+                              >
+                                <p className="text-sm font-semibold text-slate-900">{item.title}</p>
+                                <p className="mt-1 text-xs text-slate-600 line-clamp-2">{item.description}</p>
+                                <span className="mt-1 block text-xs font-medium text-[#0E74BC]">{item.category}</span>
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50 px-3 py-6 text-center text-sm text-gray-500">
+                          Tidak ditemukan hasil untuk <span className="font-semibold text-slate-700">"{searchQuery}"</span>.
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               )}
@@ -355,6 +707,94 @@ const isHome = pathname === "/";
         </div>
       </div>
       
+      {showMobileSearch && (
+        <div className="fixed inset-0 z-[60] flex flex-col bg-white">
+          <div className="flex items-center justify-between px-4 pt-6 pb-4 shadow-sm">
+            <p className="text-sm font-semibold text-slate-900">Pencarian</p>
+            <button
+              type="button"
+              onClick={closeSearchPanels}
+              aria-label="Tutup pencarian"
+              className="rounded-full p-2 text-gray-400 transition-colors hover:text-slate-700"
+            >
+              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <div className="px-4 pb-4">
+            <div className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white px-3 py-2 transition-colors focus-within:border-[#0E74BC]">
+              <svg className="h-5 w-5 text-gray-400" fill="none" stroke="#0F172A" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input
+                ref={mobileInputRef}
+                type="text"
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
+                placeholder="Cari informasi di SMKN 2 Buduran"
+                className="w-full bg-transparent text-sm font-medium text-slate-900 placeholder:text-gray-400 focus:outline-none"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={handleClearSearch}
+                  aria-label="Bersihkan pencarian"
+                  className="rounded-full p-1 text-gray-400 transition-colors hover:text-slate-600"
+                >
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div className="flex-1 overflow-y-auto px-4 pb-8 search-scroll">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-500">Pencarian populer</p>
+              <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+                {POPULAR_SEARCHES.map((term) => (
+                  <button
+                    key={term}
+                    type="button"
+                    onClick={() => handlePopularClick(term)}
+                    className="whitespace-nowrap rounded-full border border-gray-200 px-3 py-1 text-xs font-medium text-slate-600 transition-colors hover:border-[#0E74BC] hover:text-[#0E74BC]"
+                  >
+                    {term}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-6">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-500">{resultsTitle}</p>
+              <div className="mt-3 space-y-1.5">
+                {hasResults ? (
+                  filteredResults.map((item) => (
+                    <Link
+                      key={item.title}
+                      href={item.href}
+                      onClick={handleResultSelect}
+                      className="block rounded-xl bg-white px-4 py-3 transition-colors hover:bg-[#0E74BC]/10"
+                    >
+                      <p className="text-sm font-semibold text-slate-900">{item.title}</p>
+                      <p className="mt-1 text-xs text-slate-600 line-clamp-2">{item.description}</p>
+                      <span className="mt-1 block text-xs font-medium text-[#0E74BC]">{item.category}</span>
+                    </Link>
+                  ))
+                ) : (
+                  <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 px-4 py-6 text-center text-sm text-gray-500">
+                    Tidak ditemukan hasil untuk <span className="font-semibold text-slate-700">"{searchQuery}"</span>.
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Mobile menu */}
       {mobileMenuOpen && (
         <>

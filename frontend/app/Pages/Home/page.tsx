@@ -8,6 +8,7 @@ import dynamic from "next/dynamic";
 import { useState, useEffect } from 'react';
 import useSWR from 'swr';
 import { fetcher } from '@/lib/fetcher';
+import { resolvePublicImageUrl } from '@/lib/publicAsset';
 import InfiniteCarousel from '@/app/Components/InfinityCarousel';
 
 const CountUp = dynamic(() => import("react-countup"), { ssr: false });
@@ -375,7 +376,7 @@ const HomeSection = () => {
         >
           {item.thumbnail && (
             <Image
-              src={item.thumbnail}
+              src={resolvePublicImageUrl(item.thumbnail)}
               alt={item.title}
               width={400}
               height={250}
@@ -418,7 +419,7 @@ const HomeSection = () => {
         >
           {item.thumbnail && (
             <Image
-              src={item.thumbnail}
+              src={resolvePublicImageUrl(item.thumbnail)}
               alt={item.title}
               width={400}
               height={250}
