@@ -146,7 +146,7 @@ import "swiper/css/pagination";
 function PartnerList() {
   const [isMobile, setIsMobile] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const { data, error, isLoading } = useSWR<Partner[]>("company", fetcher);
+  const { data, error, isLoading } = useSWR<Partner[]>("/company", fetcher);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);

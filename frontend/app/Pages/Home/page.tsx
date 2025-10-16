@@ -65,7 +65,6 @@ const ProgramsCarousel: React.FC = () => {
     { title: 'Bisnis Digital', description: 'Belajar pemasaran digital, e-commerce, analisis data, dan strategi bisnis modern.', color: 'bg-blue-500', href: '/Pages/Jurusan/BD' },
   ]
 
-  // ✅ Deteksi apakah layar mobile
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 640)
     checkMobile()

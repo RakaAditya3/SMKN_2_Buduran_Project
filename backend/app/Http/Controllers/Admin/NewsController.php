@@ -30,10 +30,7 @@ class NewsController extends Controller
         return $item;
     });
 
-    return response()->json([
-        'success' => true,
-        'data' => $news,
-    ]);
+   return response()->json($news);
     }
 
 
