@@ -157,27 +157,100 @@ export function PartnerList() {
       <h2 className="text-3xl font-bold text-center mb-10">Hubungan Mitra</h2>
 
       <div className="relative">
+        {/* Grid daftar mitra */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6">
           {currentItems.map((partner) => (
-            <div key={partner.id} className="bg-white rounded-2xl shadow-md hover:shadow-xl hover:scale-[1.02] transition-all p-6 flex flex-col text-center">
-              <img src={partner.logo} alt={partner.name} className="h-16 object-contain mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">{partner.name}</h3>
-              <p className="text-sm text-gray-600 mb-4 line-clamp-3">{partner.address}</p>
-              <button className="mt-auto px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition">Hubungi</button>
+            <div
+              key={partner.id}
+              className="bg-white rounded-2xl shadow-md hover:shadow-xl hover:scale-[1.02] transition-all p-6 flex flex-col text-center"
+            >
+              <img
+                src={partner.logo}
+                alt={partner.name}
+                className="h-16 object-contain mx-auto mb-4"
+              />
+              <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                {partner.name}
+              </h3>
+              <p className="text-sm text-gray-600 mb-4 line-clamp-3">
+                {partner.address}
+              </p>
+              <button className="mt-auto px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition">
+                Hubungi
+              </button>
             </div>
           ))}
         </div>
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex justify-center items-center mt-8 space-x-2">
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <button
-                key={page}
-                onClick={() => goToPage(page)}
-                className={`w-3 h-3 rounded-full transition-transform ${currentPage === page ? 'bg-blue-600 scale-110' : 'bg-gray-300 hover:bg-gray-400'}`}
-              />
-            ))}
+          <div className="flex justify-center items-center mt-8 space-x-3">
+            {/* Tombol kiri */}
+            <button
+              onClick={() => goToPage(currentPage - 1)}
+              disabled={currentPage === 1}
+              className={`p-2 rounded-full border transition ${
+                currentPage === 1
+                  ? "opacity-40 cursor-not-allowed"
+                  : "hover:bg-gray-200"
+              }`}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-5 h-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+            </button>
+
+            {/* Bulatan halaman */}
+            <div className="flex space-x-2">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <button
+                  key={page}
+                  onClick={() => goToPage(page)}
+                  className={`w-3 h-3 rounded-full transition-transform ${
+                    currentPage === page
+                      ? "bg-blue-600 scale-110"
+                      : "bg-gray-300 hover:bg-gray-400"
+                  }`}
+                />
+              ))}
+            </div>
+
+            {/* Tombol kanan */}
+            <button
+              onClick={() => goToPage(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className={`p-2 rounded-full border transition ${
+                currentPage === totalPages
+                  ? "opacity-40 cursor-not-allowed"
+                  : "hover:bg-gray-200"
+              }`}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-5 h-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </button>
           </div>
         )}
       </div>
