@@ -1,12 +1,13 @@
 'use client'
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { GraduationCap, Building2, ChevronLeft, ChevronRight } from 'lucide-react';
 import Footer from '@/app/Components/Footer';
 import Navbar from '@/app/Components/Navbar';
-import Image from 'next/image';
 import useSWR from "swr";
 import { fetcher } from "@/lib/fetcher";
+import "swiper/css";
+import "swiper/css/pagination";
 
 interface AlumniData {
   id: number;
@@ -128,20 +129,31 @@ function AlumniCarousel({
 }
 
 interface Partner {
-  id: number;
-  name: string;
-  logo: string;
-  address: string;
+  id: number
+  name: string
+  address: string
+  logo: string
 }
 
-const ITEMS_PER_PAGE = 6;
+const ITEMS_PER_PAGE = 6
 
-export function PartnerList() {
+// ✅ Komponen PartnerList — sudah support swipe di mobile
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Pagination } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/pagination";
+
+function PartnerList() {
+  const [isMobile, setIsMobile] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const { data, error, isLoading } = useSWR<Partner[]>("company", fetcher);
 
-  if (isLoading) return <div className="text-center py-12">Loading...</div>;
-  if (error) return <div className="text-center py-12 text-red-500">Gagal memuat data mitra</div>;
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   const partners = data || [];
   const totalPages = Math.ceil(partners.length / ITEMS_PER_PAGE);
@@ -156,107 +168,123 @@ export function PartnerList() {
     <div className="relative max-w-7xl mx-auto px-4 py-12">
       <h2 className="text-3xl font-bold text-center mb-10">Hubungan Mitra</h2>
 
-      <div className="relative">
-        {/* Grid daftar mitra */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6">
-          {currentItems.map((partner) => (
-            <div
-              key={partner.id}
-              className="bg-white rounded-2xl shadow-md hover:shadow-xl hover:scale-[1.02] transition-all p-6 flex flex-col text-center"
-            >
-              <img
-                src={partner.logo}
-                alt={partner.name}
-                className="h-16 object-contain mx-auto mb-4"
-              />
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                {partner.name}
-              </h3>
-              <p className="text-sm text-gray-600 mb-4 line-clamp-3">
-                {partner.address}
-              </p>
-              <button className="mt-auto px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition">
-                Hubungi
+      {isLoading ? (
+        <div className="text-center py-12 text-gray-600">Loading...</div>
+      ) : error ? (
+        <div className="text-center py-12 text-red-500">
+          Gagal memuat data mitra
+        </div>
+      ) : isMobile ? (
+        // 🌀 MOBILE (Swiper)
+        <Swiper
+          modules={[Pagination]}
+          pagination={{
+            clickable: true,
+            el: ".custom-pagination",
+          }}
+          spaceBetween={16}
+          slidesPerView={1}
+          className="!pb-10"
+        >
+          {partners.map((partner) => (
+            <SwiperSlide key={partner.id}>
+              <div className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all p-8 text-center">
+                <img
+                  src={partner.logo}
+                  alt={partner.name}
+                  className="h-20 object-contain mx-auto mb-4"
+                />
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                  {partner.name}
+                </h3>
+                <p className="text-sm text-gray-600 mb-6">{partner.address}</p>
+                <button className="px-5 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition">
+                  Hubungi
+                </button>
+              </div>
+            </SwiperSlide>
+          ))}
+
+          {/* ✅ Custom pagination bullet — disembunyikan di mobile */}
+          <div className="custom-pagination hidden" />
+        </Swiper>
+      ) : (
+        // 💻 DESKTOP GRID
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            {currentItems.map((partner) => (
+              <div
+                key={partner.id}
+                className="bg-white rounded-2xl shadow-md hover:shadow-xl hover:scale-[1.02] transition-all p-6 flex flex-col text-center"
+              >
+                <img
+                  src={partner.logo}
+                  alt={partner.name}
+                  className="h-16 object-contain mx-auto mb-4"
+                />
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                  {partner.name}
+                </h3>
+                <p className="text-sm text-gray-600 mb-4 line-clamp-3">
+                  {partner.address}
+                </p>
+                <button className="mt-auto px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition">
+                  Hubungi
+                </button>
+              </div>
+            ))}
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex justify-center items-center mt-8 space-x-3">
+              <button
+                onClick={() => goToPage(currentPage - 1)}
+                disabled={currentPage === 1}
+                className={`p-2 rounded-full border transition ${
+                  currentPage === 1
+                    ? "opacity-40 cursor-not-allowed"
+                    : "hover:bg-gray-200"
+                }`}
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+
+              <div className="flex space-x-2">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (page) => (
+                    <button
+                      key={page}
+                      onClick={() => goToPage(page)}
+                      className={`w-3 h-3 rounded-full transition-transform ${
+                        currentPage === page
+                          ? "bg-blue-600 scale-110"
+                          : "bg-gray-300 hover:bg-gray-400"
+                      }`}
+                    />
+                  )
+                )}
+              </div>
+
+              <button
+                onClick={() => goToPage(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className={`p-2 rounded-full border transition ${
+                  currentPage === totalPages
+                    ? "opacity-40 cursor-not-allowed"
+                    : "hover:bg-gray-200"
+                }`}
+              >
+                <ChevronRight className="w-5 h-5" />
               </button>
             </div>
-          ))}
-        </div>
-
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex justify-center items-center mt-8 space-x-3">
-            {/* Tombol kiri */}
-            <button
-              onClick={() => goToPage(currentPage - 1)}
-              disabled={currentPage === 1}
-              className={`p-2 rounded-full border transition ${
-                currentPage === 1
-                  ? "opacity-40 cursor-not-allowed"
-                  : "hover:bg-gray-200"
-              }`}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="w-5 h-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
-            </button>
-
-            {/* Bulatan halaman */}
-            <div className="flex space-x-2">
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                <button
-                  key={page}
-                  onClick={() => goToPage(page)}
-                  className={`w-3 h-3 rounded-full transition-transform ${
-                    currentPage === page
-                      ? "bg-blue-600 scale-110"
-                      : "bg-gray-300 hover:bg-gray-400"
-                  }`}
-                />
-              ))}
-            </div>
-
-            {/* Tombol kanan */}
-            <button
-              onClick={() => goToPage(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className={`p-2 rounded-full border transition ${
-                currentPage === totalPages
-                  ? "opacity-40 cursor-not-allowed"
-                  : "hover:bg-gray-200"
-              }`}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="w-5 h-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
-            </button>
-          </div>
-        )}
-      </div>
+          )}
+        </>
+      )}
     </div>
   );
 }
+
 
 export default function AlumniKarierPage() {
   return (
