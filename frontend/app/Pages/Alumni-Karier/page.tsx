@@ -6,6 +6,7 @@ import Footer from '@/app/Components/Footer';
 import Navbar from '@/app/Components/Navbar';
 import Image from 'next/image';
 import useSWR from "swr";
+import { fetcher } from "@/lib/fetcher";
 
 interface AlumniData {
   id: number;
@@ -134,7 +135,6 @@ interface Partner {
 }
 
 const ITEMS_PER_PAGE = 6
-const fetcher = (url: string) => fetch(url).then((res) => res.json())
 
 // ✅ Komponen PartnerList — sudah support swipe di mobile
 function PartnerList() {
