@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\StudentShowcase;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -48,39 +48,17 @@ class StudentShowcaseController extends Controller
 
             if ($request->hasFile('image')) {
                 $image = $request->file('image');
-                $fileName = 'showcase/' . Str::random(40) . '.' . $image->getClientOriginalExtension();
-                $bucket = 'images';
+                $fileName = 'showcase_' . Str::random(40) . '.' . $image->getClientOriginalExtension();
 
-                $response = Http::withOptions([
-                        'verify' => false,
-                        'timeout' => 60,
-                        'connect_timeout' => 15,
-                    ])
-                    ->withToken(env('SUPABASE_KEY'))
-                    ->attach('file', fopen($image->getRealPath(), 'r'), $fileName)
-                    ->post(rtrim(env('SUPABASE_URL'), '/') . "/storage/v1/object/$bucket/$fileName?upsert=true");
+                $image->storeAs('public/showcase', $fileName);
 
-                if ($response->failed()) {
-                    Log::error('❌ Supabase upload failed (Student Showcase)', [
-                        'status' => $response->status(),
-                        'body' => $response->body(),
-                    ]);
-
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Upload gambar gagal ke Supabase',
-                        'error' => $response->body(),
-                    ], 500);
-                }
-
-                $imageUrl = rtrim(env('SUPABASE_URL'), '/') .
-                    "/storage/v1/object/public/$bucket/$fileName";
+                $imageUrl = asset('storage/showcase/' . $fileName);
             }
 
             $showcase = StudentShowcase::create([
                 'student_name'   => $validated['student_name'],
-                'student_class'  => $validated['student_class'] ?? null,
-                'student_major'  => $validated['student_major'] ?? null,
+                'student_class'  => $validated['student_class'],
+                'student_major'  => $validated['student_major'],
                 'contact_number' => $validated['contact_number'],
                 'title'          => $validated['title'],
                 'slug'           => Str::slug($validated['title'] . '-' . Str::random(5)),
@@ -95,7 +73,6 @@ class StudentShowcaseController extends Controller
                 'message' => '✅ Showcase berhasil ditambahkan.',
                 'data'    => $showcase,
             ], 201);
-
         } catch (\Throwable $e) {
             Log::error('🔥 Showcase store error', [
                 'message' => $e->getMessage(),
@@ -147,34 +124,16 @@ class StudentShowcaseController extends Controller
 
         try {
             if ($request->hasFile('image')) {
-                $image = $request->file('image');
-                $fileName = 'showcase/' . Str::random(40) . '.' . $image->getClientOriginalExtension();
-                $bucket = 'images';
-
-                $response = Http::withOptions([
-                        'verify' => false,
-                        'timeout' => 60,
-                        'connect_timeout' => 15,
-                    ])
-                    ->withToken(env('SUPABASE_KEY'))
-                    ->attach('file', fopen($image->getRealPath(), 'r'), $fileName)
-                    ->post(rtrim(env('SUPABASE_URL'), '/') . "/storage/v1/object/$bucket/$fileName?upsert=true");
-
-                if ($response->failed()) {
-                    Log::error('❌ Supabase upload failed (Student Showcase update)', [
-                        'status' => $response->status(),
-                        'body' => $response->body(),
-                    ]);
-
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Upload gambar gagal ke Supabase',
-                        'error' => $response->body(),
-                    ], 500);
+                if ($showcase->image_url && str_contains($showcase->image_url, '/storage/showcase/')) {
+                    $oldFile = str_replace(asset('storage/'), '', $showcase->image_url);
+                    Storage::delete('public/' . $oldFile);
                 }
 
-                $validated['image_url'] = rtrim(env('SUPABASE_URL'), '/') .
-                    "/storage/v1/object/public/$bucket/$fileName";
+                $image = $request->file('image');
+                $fileName = 'showcase_' . Str::random(40) . '.' . $image->getClientOriginalExtension();
+                $image->storeAs('public/showcase', $fileName);
+
+                $validated['image_url'] = asset('storage/showcase/' . $fileName);
             }
 
             $showcase->update($validated);
@@ -182,9 +141,8 @@ class StudentShowcaseController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => '✅ Showcase berhasil diperbarui.',
-                'data' => $showcase,
+                'data'    => $showcase,
             ]);
-
         } catch (\Throwable $e) {
             Log::error('🔥 Showcase update error', [
                 'message' => $e->getMessage(),
@@ -202,12 +160,32 @@ class StudentShowcaseController extends Controller
 
     public function destroy($id)
     {
-        $showcase = StudentShowcase::findOrFail($id);
-        $showcase->delete();
+        try {
+            $showcase = StudentShowcase::findOrFail($id);
 
-        return response()->json([
-            'success' => true,
-            'message' => '🗑️ Showcase berhasil dihapus.',
-        ]);
+            if ($showcase->image_url && str_contains($showcase->image_url, '/storage/showcase/')) {
+                $filePath = str_replace(asset('storage/'), '', $showcase->image_url);
+                Storage::delete('public/' . $filePath);
+            }
+
+            $showcase->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => '🗑️ Showcase berhasil dihapus.',
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('🔥 Showcase delete error', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat menghapus showcase.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 }
