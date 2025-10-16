@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import api from "@/api/api";
 import Image from "next/image";
 import { ArrowLeft, MessageCircle, Link2 } from "lucide-react";
+import { resolveLocalProxyImage } from "@/lib/resolveImageUrl";
 
 interface ShowcaseDetail {
   id: number;
@@ -28,6 +29,7 @@ export default function ShowcaseDetailPage() {
 
   useEffect(() => {
     if (!slug) return;
+
     const fetchData = async () => {
       try {
         const res = await api.get(`/showcases/${slug}`);
@@ -38,6 +40,7 @@ export default function ShowcaseDetailPage() {
         setLoading(false);
       }
     };
+
     fetchData();
   }, [slug]);
 
@@ -76,9 +79,10 @@ export default function ShowcaseDetailPage() {
         {data.image_url && (
           <div className="relative w-full h-80">
             <Image
-              src={data.image_url}
+              src={resolveLocalProxyImage(data.image_url)}
               alt={data.title}
               fill
+              unoptimized
               className="object-cover"
               priority
             />

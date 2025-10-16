@@ -98,6 +98,10 @@ class StudentShowcaseController extends Controller
     {
         $showcase = StudentShowcase::where('slug', $slug)->firstOrFail();
 
+        if ($showcase->image_url && !str_starts_with($showcase->image_url, 'http')) {
+            $showcase->image_url = url($showcase->image_url);
+        }
+
         return response()->json([
             'success' => true,
             'data' => $showcase,

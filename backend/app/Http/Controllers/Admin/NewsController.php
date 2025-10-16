@@ -43,21 +43,34 @@ class NewsController extends Controller
                 'slug'         => 'required|string|unique:news,slug',
                 'published_at' => 'required|date',
                 'category_id'  => 'required|exists:categories,id',
-                'thumbnail'    => 'nullable|image|max:2048',
+                'thumbnail'    => 'required|image|max:2048',
                 'content'      => 'required|string',
             ]);
 
             $imageUrl = null;
 
-            if ($request->hasFile('thumbnail')) {
-                $image = $request->file('thumbnail');
-                $fileName = 'news_' . Str::random(40) . '.' . $image->getClientOriginalExtension();
+          if ($request->hasFile('thumbnail')) {
+    $image = $request->file('thumbnail');
+    $fileName = 'news_' . Str::random(40) . '.' . $image->getClientOriginalExtension();
 
-    
-                $image->storeAs('public/news', $fileName);
+    // Pastikan folder ada
+    Storage::makeDirectory('public/news');
 
-                $imageUrl = asset('storage/news/' . $fileName);
-            }
+    // Simpan ke storage/app/public/news
+    $image->storeAs('public/news', $fileName);
+    Log::info('UPLOAD DEBUG', [
+    'hasFile' => $request->hasFile('thumbnail'),
+    'real_path' => $request->file('thumbnail')->getRealPath(),
+    'stored_to' => $image->storeAs('public/news', $fileName),
+    'path_exists' => Storage::exists('public/news/' . $fileName),
+    'full_path' => Storage::path('public/news/' . $fileName),
+]);
+
+
+    // Simpan path relatif saja ke database
+    $imageUrl = '/storage/news/' . $fileName;
+}
+
 
             $news = News::create([
                 'title'        => $validated['title'],
@@ -121,7 +134,8 @@ class NewsController extends Controller
             $fileName = 'news_' . Str::random(40) . '.' . $image->getClientOriginalExtension();
 
             $image->storeAs('public/news', $fileName);
-            $imageUrl = asset('storage/news/' . $fileName);
+           $imageUrl = '/storage/news/' . $fileName;
+
         }
 
         $news->update([

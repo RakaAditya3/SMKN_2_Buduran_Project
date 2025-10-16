@@ -6,7 +6,6 @@ import { Search, Sparkles, BookOpenCheck, Clock3 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { fetcher } from '@/lib/fetcher';
-import { resolveSupabaseImageUrl } from '@/lib/supabasePath';
 
 interface EBook {
   id: number;
@@ -33,6 +32,15 @@ const EBookDashboard: React.FC = () => {
     if (!query) return ebooks;
     return ebooks.filter((book) => book.title.toLowerCase().includes(query));
   }, [ebooks, searchQuery]);
+
+  function resolveLocalImageUrl(path?: string | null) {
+  if (!path) return "/images/default-ebook.jpg";
+
+  if (path.startsWith("http")) return path;
+
+  return `http://localhost:8000/storage/ebooks/${path.replace(/^\/?storage\/ebooks\/?/, "")}`;
+}
+
 
   return (
     <div className="space-y-6">
@@ -117,7 +125,7 @@ const EBookDashboard: React.FC = () => {
                 >
                   <div className="relative h-40 w-full overflow-hidden">
                     <Image
-                      src={resolveSupabaseImageUrl(book.image_url ?? book.image_path ?? null)}
+                      src={resolveLocalImageUrl(book.image_path ?? book.image_url ?? null)}
                       alt={book.title}
                       fill
                       sizes="(max-width: 768px) 100vw, 50vw"

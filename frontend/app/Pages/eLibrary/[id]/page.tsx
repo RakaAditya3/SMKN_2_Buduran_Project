@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation';
 import dayjs from 'dayjs';
 import { Calendar, CalendarCheck, Loader2, NotebookPen } from 'lucide-react';
 import api from '@/api/api';
-import { resolveSupabaseImageUrl } from '@/lib/supabasePath';
+import { resolveLocalProxyImage } from "@/lib/resolveImageUrl";
 
 interface Ebook {
   id: number;
@@ -113,14 +113,12 @@ const EbookDetail: React.FC = () => {
     );
   }
 
-  const coverSrc = resolveSupabaseImageUrl(ebook.image_url ?? ebook.image_path ?? null);
-
   return (
     <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
       <div className="relative overflow-hidden rounded-3xl bg-white shadow-xl shadow-slate-900/5">
         <div className="relative h-72 w-full overflow-hidden bg-slate-100">
           <img
-            src={coverSrc}
+           src={resolveLocalProxyImage(ebook.image_path ?? ebook.image_url ?? null)}
             alt={ebook.title}
             loading="lazy"
             crossOrigin="anonymous"

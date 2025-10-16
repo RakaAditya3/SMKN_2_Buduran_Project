@@ -39,19 +39,21 @@ class EBookController extends Controller
     }
 
     public function index()
-{
-    $ebooks = EBook::all()->map(function ($ebook) {
-        if ($ebook->thumbnail && !str_starts_with($ebook->thumbnail, 'http')) {
-            $ebook->thumbnail = url($ebook->thumbnail);
-        }
-        return $ebook;
-    });
+    {
+        $ebooks = EBook::all()->map(function ($ebook) {
+            if ($ebook->image_path && !str_starts_with($ebook->image_path, 'http')) {
+                $ebook->image_path = url('storage/ebooks/' . basename($ebook->image_path));
+            }
+            return $ebook;
+        });
 
-    return response()->json([
-        'success' => true,
-        'data' => $ebooks,
-    ]);
-}
+        return response()->json([
+            'success' => true,
+            'data' => $ebooks,
+        ]);
+    }
+
+
 
 
     public function store(Request $request)
@@ -87,14 +89,19 @@ class EBookController extends Controller
         ], 201);
     }
 
-    public function show($id)
-    {
-        $ebook = EBook::findOrFail($id);
+  public function show($id)
+{
+    $ebook = EBook::findOrFail($id);
 
-        return response()->json([
-            'data' => $ebook
-        ]);
+    if ($ebook->image_path && !str_starts_with($ebook->image_path, 'http')) {
+        $ebook->image_path = url('storage/ebooks/' . basename($ebook->image_path));
     }
+
+    return response()->json([
+        'success' => true,
+        'data' => $ebook,
+    ]);
+}
 
     public function update(Request $request, $id)
     {
