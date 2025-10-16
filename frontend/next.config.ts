@@ -1,6 +1,6 @@
 const nextConfig = {
   images: {
-    domains: ["kmzmzmrdwbaaibcgqowh.supabase.co"],
+    domains: ["localhost"],
   },
 };
 
