@@ -33,6 +33,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     { href: "/Admin/categories", label: "Categories", icon: Folder },
     { href: "/Admin/ebooks", label: "E-Books", icon: BookOpen },
     { href: "/Admin/record", label: "Records E-Books", icon: History  },
+    { href: "/Admin/studentShowcase", label: "Records E-Books", icon: History  },
     { href: "/Admin/complaints", label: "Complaints", icon: MessageSquare },
     { href: "/Admin/rfid", label: "RFID Scanner", icon: ScanLine },
     { href: "/Admin/presensi", label: "Presensi", icon: CalendarCheck },

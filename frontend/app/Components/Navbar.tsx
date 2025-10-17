@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import * as motion from "motion/react-client"
-import { usePathname } from 'next/navigation'; // ⬅️ Tambah ini
+import { usePathname } from 'next/navigation';
 
 interface NavigationItem {
   label: string;

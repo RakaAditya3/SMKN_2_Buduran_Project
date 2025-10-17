@@ -19,19 +19,18 @@ class CompanyController extends Controller
         $this->companyService = $companyService;
     }
 
-   public function index(Request $request)
-{
-    $companies = \App\Models\Company::all()->map(function ($company) {
-        // Jika logo belum full URL, ubah ke absolute URL
-        if ($company->logo && !str_starts_with($company->logo, 'http')) {
-            $company->logo = url($company->logo);
-        }
-        return $company;
-    });
+    public function index(Request $request)
+    {
+        $companies = Company::all()->map(function ($company) {
+            // Pastikan logo tampil absolute URL saat dikirim ke FE
+            if ($company->logo && !str_starts_with($company->logo, 'http')) {
+                $company->logo = url($company->logo);
+            }
+            return $company;
+        });
 
-    return response()->json($companies);
-}
-
+       return response()->json($companies);
+    }
 
     public function store(Request $request)
     {
@@ -49,25 +48,27 @@ class CompanyController extends Controller
 
             $imageUrl = null;
 
-
             if ($request->hasFile('logo')) {
                 $image = $request->file('logo');
                 $fileName = 'company_' . Str::random(40) . '.' . $image->getClientOriginalExtension();
 
+                // Pastikan folder ada
+                Storage::makeDirectory('public/company');
 
-                $image->storeAs('public/companies', $fileName);
+                // Simpan file
+                $image->storeAs('public/company', $fileName);
 
-           
-                $imageUrl = asset('storage/companies/' . $fileName);
+                // Simpan path relatif saja ke DB (bukan URL penuh)
+                $imageUrl = '/storage/company/' . $fileName;
                 $validated['logo'] = $imageUrl;
             }
 
             if ($id) {
                 $company = $this->companyService->update($validated, $id);
-                $message = 'Perusahaan berhasil diperbarui.';
+                $message = '🏢 Perusahaan berhasil diperbarui.';
             } else {
                 $company = $this->companyService->store($validated);
-                $message = 'Perusahaan berhasil ditambahkan.';
+                $message = '🏢 Perusahaan berhasil ditambahkan.';
             }
 
             return response()->json([
@@ -76,15 +77,15 @@ class CompanyController extends Controller
                 'data'    => $company,
             ]);
         } catch (\Throwable $e) {
-            \Log::error('🔥 Company store error', [
+            Log::error('🔥 Company store error', [
                 'message' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
+                'file'    => $e->getFile(),
+                'line'    => $e->getLine(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'error' => $e->getMessage(),
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }
@@ -104,19 +105,21 @@ class CompanyController extends Controller
             $company = Company::findOrFail($id);
             $imageUrl = $company->logo;
 
-        
             if ($request->hasFile('logo')) {
- 
+                // Hapus logo lama
                 if ($company->logo && str_contains($company->logo, '/storage/companies/')) {
-                    $oldPath = str_replace(asset('storage/'), '', $company->logo);
+                    $oldPath = str_replace('/storage/', '', $company->logo);
                     Storage::delete('public/' . $oldPath);
                 }
 
                 $image = $request->file('logo');
                 $fileName = 'company_' . Str::random(40) . '.' . $image->getClientOriginalExtension();
 
+                Storage::makeDirectory('public/companies');
                 $image->storeAs('public/companies', $fileName);
-                $imageUrl = asset('storage/companies/' . $fileName);
+
+                // Simpan path relatif
+                $imageUrl = '/storage/companies/' . $fileName;
             }
 
             $company->update([
@@ -132,15 +135,15 @@ class CompanyController extends Controller
                 'data'    => $company,
             ]);
         } catch (\Throwable $e) {
-            \Log::error('🔥 Company update error', [
+            Log::error('🔥 Company update error', [
                 'message' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
+                'file'    => $e->getFile(),
+                'line'    => $e->getLine(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'error' => $e->getMessage(),
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }
@@ -151,7 +154,16 @@ class CompanyController extends Controller
         if (!$company) {
             return response()->json(['error' => 'Perusahaan tidak ditemukan.'], 404);
         }
-        return response()->json($company);
+
+        // Pastikan logo jadi absolute URL
+        if ($company->logo && !str_starts_with($company->logo, 'http')) {
+            $company->logo = url($company->logo);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $company,
+        ]);
     }
 
     public function destroy($id)
@@ -160,7 +172,7 @@ class CompanyController extends Controller
             $company = Company::findOrFail($id);
 
             if ($company->logo && str_contains($company->logo, '/storage/companies/')) {
-                $filePath = str_replace(asset('storage/'), '', $company->logo);
+                $filePath = str_replace('/storage/', '', $company->logo);
                 Storage::delete('public/' . $filePath);
             }
 
@@ -171,15 +183,15 @@ class CompanyController extends Controller
                 'message' => '🗑️ Perusahaan berhasil dihapus.',
             ]);
         } catch (\Throwable $e) {
-            \Log::error('🔥 Company delete error', [
+            Log::error('🔥 Company delete error', [
                 'message' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
+                'file'    => $e->getFile(),
+                'line'    => $e->getLine(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'error' => $e->getMessage(),
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }

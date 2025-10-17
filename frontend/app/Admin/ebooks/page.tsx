@@ -8,7 +8,8 @@ interface EBook {
   id?: number;
   title: string;
   description: string;
-  image_url?: string;
+  image_path?: string | null;
+  image_url?: string | null;
 }
 
 export default function EbooksPage() {
@@ -19,11 +20,21 @@ export default function EbooksPage() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
 
+  // 🔹 Resolve URL gambar agar selalu benar
+  function resolveLocalImageUrl(path?: string | null): string {
+    if (!path) return "/images/default-ebook.jpg";
+    if (path.startsWith("http")) return path;
+
+    return `http://localhost:8000/storage/ebooks/${path.replace(/^\/?storage\/ebooks\/?/, "")}`;
+  }
+
   // Fetch all ebooks
   const fetchEbooks = async () => {
     try {
       const res = await api.get("/admin/ebooks");
-      setEbooks(res.data.data || res.data);
+      // Ambil array data, entah di res.data.data atau res.data
+      const data = Array.isArray(res.data) ? res.data : res.data.data;
+      setEbooks(data || []);
     } catch (err) {
       console.error("❌ Gagal memuat daftar eBook:", err);
     }
@@ -66,14 +77,11 @@ export default function EbooksPage() {
       let res;
 
       if (editingId) {
-        // ⚡ Gunakan _method override agar Laravel anggap PUT
         formData.append("_method", "PUT");
-
         res = await api.post(`/admin/ebooks/${editingId}`, formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
       } else {
-        // Create baru
         res = await api.post("/admin/ebooks", formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
@@ -91,13 +99,13 @@ export default function EbooksPage() {
   };
 
   // Edit
-    const handleEdit = (ebook: EBook) => {
+  const handleEdit = (ebook: EBook) => {
     setEditingId(ebook.id!);
     setForm({
       title: ebook.title,
       description: ebook.description,
     });
-    setPreview(ebook.image_url || null);
+    setPreview(resolveLocalImageUrl(ebook.image_url ?? ebook.image_path ?? null));
     setImage(null);
   };
 
@@ -120,7 +128,7 @@ export default function EbooksPage() {
     <div className="p-6">
       <h1 className="text-3xl font-semibold mb-2">E-Book Management</h1>
       <p className="text-gray-500 mb-8">
-        Manage digital books and upload cover images directly to Supabase.
+        Manage digital books and upload cover images directly.
       </p>
 
       {/* FORM */}
@@ -243,9 +251,9 @@ export default function EbooksPage() {
             {ebooks.map((ebook) => (
               <tr key={ebook.id} className="border-b hover:bg-gray-50">
                 <td className="p-2">
-                  {ebook.image_url ? (
+                  {ebook.image_path || ebook.image_url ? (
                     <img
-                      src={ebook.image_url}
+                      src={resolveLocalImageUrl(ebook.image_path ?? ebook.image_url ?? null)}
                       alt={ebook.title}
                       className="w-14 h-20 object-cover rounded border"
                     />
