@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import api from "@/api/api";
+import React, { useState } from "react";
+import useSWR from "swr";
 import { Loader2, Filter, FileDown } from "lucide-react";
+import api from "@/api/api";
 
 interface Presensi {
   id: number;
@@ -15,29 +16,24 @@ interface Presensi {
   date: string;
 }
 
-export default function PresensiPage() {
-  const [presensis, setPresensis] = useState<Presensi[]>([]);
-  const [kelas, setKelas] = useState("");
-  const [jurusan, setJurusan] = useState("");
-  const [loading, setLoading] = useState(false);
+const fetcher = (url: string) => api.get(url).then((res) => res.data.data || res.data);
 
-  const fetchPresensi = async () => {
-    setLoading(true);
-    try {
-      const res = await api.get("/presensis", {
-        params: { kelas, jurusan },
-      });
-    setPresensis(Array.isArray(res.data) ? res.data : res.data.data || []);
-    } catch (err) {
-      console.error("❌ Gagal memuat presensi:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+export default function AdminPresensiPage() {
+  const [kelas, setKelas] = useState("Semua Kelas");
+  const [jurusan, setJurusan] = useState("Semua Jurusan");
 
-  useEffect(() => {
-    fetchPresensi();
-  }, [kelas, jurusan]);
+  // 🔹 Query dinamis agar refetch otomatis
+  const query = new URLSearchParams();
+  if (kelas !== "Semua Kelas") query.append("kelas", kelas);
+  if (jurusan !== "Semua Jurusan") query.append("jurusan", jurusan);
+
+  const { data, error, isLoading } = useSWR<Presensi[]>(
+    `/admin/presensis?${query.toString()}`,
+    fetcher,
+    { revalidateOnFocus: true }
+  );
+
+  const presensis = data ?? [];
 
   const exportToCSV = () => {
     const header = ["Nama", "NISN", "Kelas", "Jurusan", "No Absen", "Status", "Tanggal"];
@@ -57,7 +53,7 @@ export default function PresensiPage() {
 
     const link = document.createElement("a");
     link.href = encodeURI(csvContent);
-    link.download = `presensi_${kelas || "all"}_${jurusan || "all"}.csv`;
+    link.download = `presensi_${kelas}_${jurusan}.csv`;
     link.click();
   };
 
@@ -65,7 +61,7 @@ export default function PresensiPage() {
     <div className="p-6 space-y-6">
       <h1 className="text-3xl font-semibold mb-2">Presensi Siswa</h1>
       <p className="text-gray-500 mb-4">
-        Lihat daftar kehadiran berdasarkan kelas dan jurusan. Data dapat diunduh ke CSV/Excel.
+        Lihat daftar kehadiran berdasarkan kelas dan jurusan. Data dapat diunduh ke CSV.
       </p>
 
       {/* FILTER BAR */}
@@ -81,10 +77,10 @@ export default function PresensiPage() {
             onChange={(e) => setKelas(e.target.value)}
             className="border rounded-lg px-3 py-2 text-sm"
           >
-            <option value="">Semua Kelas</option>
-            <option value="X">Kelas X</option>
-            <option value="XI">Kelas XI</option>
-            <option value="XII">Kelas XII</option>
+            <option>Semua Kelas</option>
+            <option>X</option>
+            <option>XI</option>
+            <option>XII</option>
           </select>
 
           <select
@@ -92,13 +88,13 @@ export default function PresensiPage() {
             onChange={(e) => setJurusan(e.target.value)}
             className="border rounded-lg px-3 py-2 text-sm"
           >
-            <option value="">Semua Jurusan</option>
-            <option value="RPL">RPL</option>
-            <option value="BD">BD</option>
-            <option value="LPB">LPB</option>
-            <option value="MP">MP</option>
-            <option value="DKV">DKV</option>
-            <option value="AK">AK</option>
+            <option>Semua Jurusan</option>
+            <option>RPL</option>
+            <option>DKV</option>
+            <option>LPB</option>
+            <option>BD</option>
+            <option>AK</option>
+            <option>MP</option>
           </select>
 
           <button
@@ -114,10 +110,14 @@ export default function PresensiPage() {
       <div className="bg-white rounded-xl shadow-sm border p-6">
         <h2 className="text-lg font-semibold mb-4">Daftar Kehadiran</h2>
 
-        {loading ? (
+        {isLoading ? (
           <div className="flex justify-center py-10">
             <Loader2 className="animate-spin text-gray-500" size={28} />
           </div>
+        ) : error ? (
+          <p className="text-center text-red-500 py-8">
+            ❌ Gagal memuat data presensi.
+          </p>
         ) : presensis.length === 0 ? (
           <p className="text-center text-gray-500 py-8">Tidak ada data presensi.</p>
         ) : (
