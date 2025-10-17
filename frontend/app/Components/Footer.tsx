@@ -44,7 +44,7 @@ const Footer: React.FC = () => {
                 </Link>
               </li>
               <li>
-                <Link href="/Pages/eLibrary" className="text-gray-300 hover:text-white transition-colors duration-200">
+                <Link href="/Login-eLibrary" className="text-gray-300 hover:text-white transition-colors duration-200">
                   eLibrary
                 </Link>
               </li>
@@ -56,6 +56,11 @@ const Footer: React.FC = () => {
               <li>
                 <Link href="/Pages/eComplaint" className="text-gray-300 hover:text-white transition-colors duration-200">
                   eComplaint
+                </Link>
+              </li>
+              <li>
+                <Link href="/Pages/Student-Showcase" className="text-gray-300 hover:text-white transition-colors duration-200">
+                  Student Showcase
                 </Link>
               </li>
             </ul>

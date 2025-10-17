@@ -9,7 +9,7 @@ interface NavigationItem {
   label: string;
   href: string;
   dropdown?: {
-    layout: "profil" | "program" | "berita";
+    layout: "profil" | "program" | "berita" | "fitur";
     image?: string;
     images?: string[];
     description?: string;
@@ -367,8 +367,21 @@ const Header: React.FC = () => {
       href: "/Pages/Berita-Kegiatan",
     },
     { label: 'Alumni & Karier', href: '/Pages/Alumni-Karier' },
-    { label: 'eComplaint', href: '/Pages/eComplaint' },
-    { label: 'Presensi Online', href: '/Pages/Presensi' },
+    {
+      label: 'Fitur Online',
+      href: '/',
+      dropdown: {
+        layout: 'fitur', // gunakan layout profil agar tampilan dropdown-nya mirip
+        image: '/images/dummyImage.jpg',
+        description: 'Akses layanan digital SMKN 2 Buduran secara cepat dan efisien.',
+        subMenu: [
+          { label: 'Presensi Online', href: '/Pages/Presensi' },
+          { label: 'eComplaint', href: '/Pages/eComplaint' },
+          { label: 'eLibrary', href: '/Login-eLibrary' },
+          { label: 'Showcase Student', href: '/Pages/Student-Showcase' },
+        ],
+      },
+    },
   ];
 
   const currentItem = navigationItems.find((item) => item.label === hoveredMenu);
@@ -468,141 +481,159 @@ const Header: React.FC = () => {
             </nav>
 
             {/* Dropdown */}
-            {hoveredMenu && currentItem?.dropdown && (
-              
-<div className="absolute left-[-170px] top-full w-[1200px] z-50">
-  {/* Bridge untuk hilangkan gap hover */}
-  <div className="absolute -top-2 left-0 w-full h-3 bg-transparent"></div>
+{hoveredMenu && currentItem?.dropdown && (
+  <div className={`absolute top-full z-50 ${
+    currentItem.dropdown.layout === "fitur" 
+      ? "right-[-60px]" 
+      : "left-[-190px] w-[1130px]"
+  }`}>
+    {/* Bridge untuk hilangkan gap hover */}
+    <div className="absolute -top-2 left-0 w-full h-3 bg-transparent"></div>
 
-  <div className="mt-3 bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
-    <div className="max-w-7xl mx-auto p-6">
-      {/* LAYOUT PROFIL */}
-      {currentItem.dropdown.layout === "profil" && (
-        <div className="grid grid-cols-3 gap-6">
-          {/* Kolom kiri: Gambar */}
-          <div className="flex justify-center">
-            <img
-              src={currentItem.dropdown.image!}
-              alt={currentItem.label}
-              className="w-80 rounded-md shadow-md object-cover"
-            />
-          </div>
-
-          {/* Kolom tengah: Deskripsi */}
-          <div className="flex flex-col justify-center border-l border-r border-gray-300 px-6">
-            <p className="text-gray-700 mb-4 leading-relaxed text-sm">
-              {currentItem.dropdown.description}
-            </p>
+    <div className={`${
+      currentItem.dropdown.layout === "fitur" 
+        ? "mt-3 bg-white rounded-lg shadow-lg py-3 px-4 min-w-[220px]" 
+        : "mt-3 bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]"
+    }`}>
+      {currentItem.dropdown.layout === "fitur" ? (
+        /* LAYOUT FITUR - Sederhana */
+        <div className="flex flex-col space-y-2">
+          {currentItem.dropdown.subMenu?.map((sub) => (
             <Link
-              href={currentItem.href}
-              className="inline-block bg-[#0E74BC] text-white px-4 py-2 rounded-md font-semibold hover:bg-blue-700 transition-colors"
+              key={sub.label}
+              href={sub.href}
+              className="relative px-3 py-2 text-sm font-bold text-gray-700 transition-colors duration-300
+                      hover:text-[#0E74BC]
+                      before:absolute before:bottom-0 before:left-1/2 before:h-[3px] before:w-0 
+                      before:bg-[#0E74BC] before:transition-all before:duration-300 before:transform before:-translate-x-1/2 
+                      hover:before:w-full"
             >
-              Lihat Selengkapnya
+              <span className="mr-2 text-gray-400">›</span>
+              {sub.label}
             </Link>
-          </div>
-
-          {/* Kolom kanan: Submenu */}
-          <div className="flex flex-col justify-center space-y-3 px-2">
-            {currentItem.dropdown.subMenu?.map((sub) => (
-              <Link
-                key={sub.label}
-                href={sub.href}
-                className="relative px-3 py-2 text-sm font-bold text-gray-700 transition-colors duration-300
-             hover:text-[#0E74BC]
-             before:absolute before:bottom-0 before:left-1/2 before:h-[3px] before:w-0 
-             before:bg-[#0E74BC] before:transition-all before:duration-300 before:transform before:-translate-x-1/2 
-             hover:before:w-full"
-              >
-                <span className="mr-2 text-gray-500">›</span>
-                {sub.label}
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* LAYOUT PROGRAM */}
-      {currentItem.dropdown.layout === "program" && (
-<div className="grid grid-cols-3 gap-6">
-  {/* Kolom kiri: subMenu */}
-  <div className="flex flex-col justify-center space-y-3 px-2">
-    {currentItem.dropdown.subMenu?.map((sub) => (
-      <Link
-        key={sub.label}
-        href={sub.href}
-        className="relative px-3 py-2 text-sm font-bold text-gray-700 transition-colors duration-300
-             hover:text-[#0E74BC]
-             before:absolute before:bottom-0 before:left-1/2 before:h-[3px] before:w-0 
-             before:bg-[#0E74BC] before:transition-all before:duration-300 before:transform before:-translate-x-1/2 
-             hover:before:w-full"
-      >
-        <span className="mr-2 text-gray-500">›</span>
-        {sub.label}
-      </Link>
-    ))}
-  </div>
-
-  {/* Kolom tengah: subMenus */}
-  <div className="columns-2 space-y-2 px-2 border-l border-r border-gray-300">
-  {currentItem.dropdown.subMenus?.map((sub) => (
-    <Link
-      key={sub.label}
-      href={sub.href}
-      className="block break-inside-avoid relative px-3 py-2 text-sm font-bold text-gray-700 transition-colors duration-300
-             hover:text-[#0E74BC]
-             before:absolute before:bottom-0 before:left-1/2 before:h-[3px] before:w-0 
-             before:bg-[#0E74BC] before:transition-all before:duration-300 before:transform before:-translate-x-1/2 
-             hover:before:w-full"
-    >
-      <span className="mr-2 text-gray-500">›</span>
-      {sub.label}
-    </Link>
-  ))}
-</div>
-
-  {/* Kolom kanan: gambar */}
-<div className="flex flex-col justify-center items-center">
-  <img
-    src={currentItem.dropdown.image!}
-    alt={currentItem.label}
-    className="w-full h-40 rounded-md shadow-md object-cover"
-  />
-  <p className="text-gray-700 text-sm mt-3">{currentItem.dropdown.description}</p>
-</div>
-</div>
-
-
-      )}
-
-      {/* LAYOUT BERITA */}
-      {currentItem.dropdown.layout === "berita" && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {currentItem.dropdown.items?.map((news, idx) => (
-            <div
-              key={idx}
-              className="flex flex-col items-center text-center space-y-3"
-            >
-              <img
-                src={news.image}
-                alt={`Berita ${idx + 1}`}
-                className="w-full h-40 object-cover rounded-md shadow-md"
-              />
-              <p className="text-gray-700 text-sm">{news.description}</p>
-              <Link
-                href={news.href}
-                className="inline-block bg-[#0E74BC] text-white px-3 py-1.5 rounded-md text-sm font-semibold hover:bg-blue-700 transition-colors"
-              >
-                Lihat Selengkapnya
-              </Link>
-            </div>
           ))}
+        </div>
+      ) : (
+        <div className="max-w-7xl mx-auto p-6">
+          {/* LAYOUT PROFIL */}
+          {currentItem.dropdown.layout === "profil" && (
+            <div className="grid grid-cols-3 gap-6">
+              {/* Kolom kiri: Gambar */}
+              <div className="flex justify-center">
+                <img
+                  src={currentItem.dropdown.image!}
+                  alt={currentItem.label}
+                  className="w-80 rounded-md shadow-md object-cover"
+                />
+              </div>
+
+              {/* Kolom tengah: Deskripsi */}
+              <div className="flex flex-col justify-center border-l border-r border-gray-300 px-6">
+                <p className="text-gray-700 mb-4 leading-relaxed text-sm">
+                  {currentItem.dropdown.description}
+                </p>
+              </div>
+
+              {/* Kolom kanan: Submenu */}
+              <div className="flex flex-col justify-center space-y-3 px-2">
+                {currentItem.dropdown.subMenu?.map((sub) => (
+                  <Link
+                    key={sub.label}
+                    href={sub.href}
+                    className="relative px-3 py-2 text-sm font-bold text-gray-700 transition-colors duration-300
+                      hover:text-[#0E74BC]
+                      before:absolute before:bottom-0 before:left-1/2 before:h-[3px] before:w-0 
+                      before:bg-[#0E74BC] before:transition-all before:duration-300 before:transform before:-translate-x-1/2 
+                      hover:before:w-full"
+                  >
+                    <span className="mr-2 text-gray-500">›</span>
+                    {sub.label}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* LAYOUT PROGRAM */}
+          {currentItem.dropdown.layout === "program" && (
+            <div className="grid grid-cols-3 gap-6">
+              {/* Kolom kiri: subMenu */}
+              <div className="flex flex-col justify-center space-y-3 px-2">
+                {currentItem.dropdown.subMenu?.map((sub) => (
+                  <Link
+                    key={sub.label}
+                    href={sub.href}
+                    className="relative px-3 py-2 text-sm font-bold text-gray-700 transition-colors duration-300
+                      hover:text-[#0E74BC]
+                      before:absolute before:bottom-0 before:left-1/2 before:h-[3px] before:w-0 
+                      before:bg-[#0E74BC] before:transition-all before:duration-300 before:transform before:-translate-x-1/2 
+                      hover:before:w-full"
+                  >
+                    <span className="mr-2 text-gray-500">›</span>
+                    {sub.label}
+                  </Link>
+                ))}
+              </div>
+
+              {/* Kolom tengah: subMenus */}
+              <div className="columns-2 space-y-2 px-2 border-l border-r border-gray-300">
+                {currentItem.dropdown.subMenus?.map((sub) => (
+                  <Link
+                    key={sub.label}
+                    href={sub.href}
+                    className="block break-inside-avoid relative px-3 py-2 text-sm font-bold text-gray-700 transition-colors duration-300
+                      hover:text-[#0E74BC]
+                      before:absolute before:bottom-0 before:left-1/2 before:h-[3px] before:w-0 
+                      before:bg-[#0E74BC] before:transition-all before:duration-300 before:transform before:-translate-x-1/2 
+                      hover:before:w-full"
+                  >
+                    <span className="mr-2 text-gray-500">›</span>
+                    {sub.label}
+                  </Link>
+                ))}
+              </div>
+
+              {/* Kolom kanan: gambar */}
+              <div className="flex flex-col justify-center items-center">
+                <img
+                  src={currentItem.dropdown.image!}
+                  alt={currentItem.label}
+                  className="w-full h-40 rounded-md shadow-md object-cover"
+                />
+                <p className="text-gray-700 text-sm mt-3">{currentItem.dropdown.description}</p>
+              </div>
+            </div>
+          )}
+
+          {/* LAYOUT BERITA */}
+          {currentItem.dropdown.layout === "berita" && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {currentItem.dropdown.items?.map((news, idx) => (
+                <div
+                  key={idx}
+                  className="flex flex-col items-center text-center space-y-3"
+                >
+                  <img
+                    src={news.image}
+                    alt={`Berita ${idx + 1}`}
+                    className="w-full h-40 object-cover rounded-md shadow-md"
+                  />
+                  <p className="text-gray-700 text-sm">{news.description}</p>
+                  <Link
+                    href={news.href}
+                    className="inline-block bg-[#0E74BC] text-white px-3 py-1.5 rounded-md text-sm font-semibold hover:bg-blue-700 transition-colors"
+                  >
+                    Lihat Selengkapnya
+                  </Link>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
   </div>
-</div>
-
-            )}
+)}
           </div>
             {/* Search Icon - Desktop only */}
             <div className="hidden md:block relative">
