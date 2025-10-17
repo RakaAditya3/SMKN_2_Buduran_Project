@@ -18,7 +18,7 @@ type Presensi = {
   date: string;
 };
 
-const fetcher = (url: string) => api.get(url).then((res) => res.data.data);
+const fetcher = (url: string) => api.get(url).then((res) => res.data);
 
 export default function PresensiPage() {
   const [kelas, setKelas] = useState("Semua Kelas");
