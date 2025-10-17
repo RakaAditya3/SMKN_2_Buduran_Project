@@ -110,11 +110,6 @@ export default function RecordsPage() {
               {records.map((rec) => (
                 <tr key={rec.id} className="border-b hover:bg-gray-50">
                   <td className="p-2 flex items-center gap-3">
-                    <img
-                    src={resolveLocalProxyImage(rec.ebook?.image_path)}
-                    alt={rec.ebook?.title}
-                    className="w-10 h-12 object-cover rounded border"
-                  />
                     <div>
                       <p className="font-medium">{rec.ebook?.title}</p>
                       <p className="text-xs text-gray-500">
