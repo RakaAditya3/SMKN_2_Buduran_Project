@@ -6,7 +6,7 @@ const InfiniteCarousel: React.FC = () => {
     '/images/LogoJagoan-1.png',
     '/images/komdigi.png',
     '/images/maspion.png',
-    '/images/1000sd.png',
+    '/images/Logo-Garuda.png',
     '/images/LogoJagoan-1.png',
     '/images/komdigi.png',
     '/images/maspion.png',
