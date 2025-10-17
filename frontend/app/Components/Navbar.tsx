@@ -923,6 +923,30 @@ const Header: React.FC = () => {
               >
                 Presensi Online
               </Link>
+              
+              {/* Library */}
+              <Link
+                href="/Login-eLibrary"
+                className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-[#0E74BC] hover:bg-gray-50 rounded-md"
+                onClick={() => {
+                  setActiveNav('eLibrary');
+                  setMobileMenuOpen(false);
+                }}
+              >
+                eLibrary
+              </Link>
+              
+              {/* Showcase */}
+              <Link
+                href="/Pages/Student-Showcase"
+                className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-[#0E74BC] hover:bg-gray-50 rounded-md"
+                onClick={() => {
+                  setActiveNav('Student Showcase');
+                  setMobileMenuOpen(false);
+                }}
+              >
+                Student Showcase
+              </Link>
             </div>
           </div>
         </>
