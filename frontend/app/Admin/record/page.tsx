@@ -3,6 +3,7 @@
 import { useEffect, useState, FormEvent } from "react";
 import api from "@/api/api";
 import { Loader2, Edit3, CheckCircle2 } from "lucide-react";
+import { resolveLocalProxyImage } from "@/lib/resolveImageUrl";
 
 interface RecordType {
   id: number;
@@ -74,11 +75,6 @@ export default function RecordsPage() {
       setSaving(false);
     }
   };
-  const resolveImageUrl = (path?: string) => {
-  if (!path) return "https://via.placeholder.com/40x50";
-  if (path.startsWith("http")) return path;
-  return `${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"}${path}`;
-};
 
   return (
     <div className="p-6">
@@ -115,11 +111,10 @@ export default function RecordsPage() {
                 <tr key={rec.id} className="border-b hover:bg-gray-50">
                   <td className="p-2 flex items-center gap-3">
                     <img
-                      src={resolveImageUrl(rec.ebook?.image_path)}
-                      
-                      alt={rec.ebook?.title}
-                      className="w-10 h-12 object-cover rounded border"
-                    />
+                    src={resolveLocalProxyImage(rec.ebook?.image_path)}
+                    alt={rec.ebook?.title}
+                    className="w-10 h-12 object-cover rounded border"
+                  />
                     <div>
                       <p className="font-medium">{rec.ebook?.title}</p>
                       <p className="text-xs text-gray-500">
