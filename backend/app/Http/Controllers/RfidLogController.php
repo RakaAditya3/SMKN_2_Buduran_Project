@@ -10,31 +10,28 @@ use Illuminate\Http\Request;
 class RfidLogController extends Controller
 {
 
-    public function store(Request $request)
-    {
-        $uid = strtoupper(trim($request->uid));
+   public function store(Request $request)
+{
+    $uid = strval(trim($request->uid));
 
+    RfidLog::create([
+        'uid' => $uid,
+        'scanned_at' => now(),
+    ]);
 
-        RfidLog::create([
-            'uid' => $uid,
-            'scanned_at' => Carbon::now(),
-        ]);
+    $student = Student::where('uid', $uid)->first();
 
-        $student = Student::where('uid', $uid)->first();
-
-        Cache::put(
-            "scan:{$uid}",
-            $student?->nama ?? null,
-            now()->addMinutes(2)
-        );
-
-        return response()->json([
-            'uid' => $uid,
-            'message' => 'UID ditemukan',      
-            'student' => $student?->nama,       
-            'status' => 'cached'
-        ]);
+    if ($student) {
+        Cache::put("scan:{$uid}", $student->nama, now()->addMinutes(2));
     }
+
+    return response()->json([
+        'uid' => $uid,
+        'student' => $student?->nama,
+        'status' => $student ? 'cached' : 'unknown',
+    ]);
+}
+
 
     public function checkScan($uid)
     {
