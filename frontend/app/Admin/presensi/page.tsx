@@ -24,7 +24,7 @@ export default function PresensiPage() {
   const fetchPresensi = async () => {
     setLoading(true);
     try {
-      const res = await api.get("/admin/presensis", {
+      const res = await api.get("/presensis", {
         params: { kelas, jurusan },
       });
       setPresensis(res.data.data || []);

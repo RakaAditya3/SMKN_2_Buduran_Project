@@ -30,48 +30,34 @@ export default function ScanPresensi() {
   }, [scannedUIDs]);
 
   // 🔹 Saat RFID discan
-  const handleScan = async (uid: string) => {
-    if (!uid) return;
-    setLoading(true);
+ const handleScan = async (uid: string) => {
+  if (!uid) return;
+  setLoading(true);
 
-    try {
-      // Simpan log scan ke backend
-      await api.post("/admin/rfid-logs", { uid });
+  try {
 
-      // Periksa cache
-      const check = await api.get("/admin/rfid/check-scan/${uid}");
-      const data = check.data;
+    await api.post("/admin/rfid-logs", { uid: String(uid).trim() });
 
-      setScannedUIDs((prev) => [
-        {
-          uid,
-          nama: data.student || "UID tidak dikenal",
-          status:
-            data.status === "cached"
-              ? "hadir"
-              : data.status === "expired"
-              ? "unknown"
-              : "error",
-          time: new Date().toLocaleTimeString(),
-        },
-        ...prev,
-      ]);
-    } catch (err: any) {
-      console.error("❌ Error handleScan:", err);
-      setScannedUIDs((prev) => [
-        {
-          uid,
-          nama: "⚠ Error kirim/cek server",
-          status: "error",
-          time: new Date().toLocaleTimeString(),
-        },
-        ...prev,
-      ]);
-    } finally {
-      setLoading(false);
-      inputRef.current?.focus();
-    }
-  };
+    const check = await api.get(`/admin/rfid/check-scan/${uid}`);
+    const data = check.data;
+
+    setScannedUIDs((prev) => [
+      {
+        uid,
+        nama: data.student || "UID tidak dikenal",
+        status: data.status === "cached" ? "hadir" : "unknown",
+        time: new Date().toLocaleTimeString(),
+      },
+      ...prev,
+    ]);
+  } catch (err) {
+    console.error("❌ Error handleScan:", err);
+  } finally {
+    setLoading(false);
+    inputRef.current?.focus();
+  }
+};
+
 
   // 🔹 Saat tekan Enter di input (scanner RFID)
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
