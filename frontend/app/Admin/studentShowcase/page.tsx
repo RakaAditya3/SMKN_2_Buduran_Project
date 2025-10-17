@@ -84,7 +84,7 @@ export default function ShowcasePage() {
       let res;
       if (editingId) {
         formData.append("_method", "PUT");
-        res = await api.post(`/student-showcase/${editingId}`, formData, {
+       res = await api.post(`/admin/student-showcase/${editingId}`, formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
       } else {
@@ -123,7 +123,7 @@ export default function ShowcasePage() {
   // Hapus data
   const handleDelete = async (id: number) => {
     if (!confirm("Yakin ingin menghapus showcase ini?")) return;
-    await api.delete(`/student-showcase/${id}`);
+   await api.delete(`/admin/student-showcase/${id}`);
     fetchShowcases();
   };
 
