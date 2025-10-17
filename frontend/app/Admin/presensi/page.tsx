@@ -24,10 +24,10 @@ export default function PresensiPage() {
   const fetchPresensi = async () => {
     setLoading(true);
     try {
-      const res = await api.get("/presensis", {
+      const res = await api.get("/admin/presensis", {
         params: { kelas, jurusan },
       });
-      setPresensis(res.data.data || []);
+    setPresensis(Array.isArray(res.data) ? res.data : res.data.data || []);
     } catch (err) {
       console.error("❌ Gagal memuat presensi:", err);
     } finally {
