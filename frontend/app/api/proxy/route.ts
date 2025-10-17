@@ -20,7 +20,7 @@ export async function GET(request: Request) {
     // Jika gagal ambil
     if (!res.ok) {
       return NextResponse.json(
-        { error: Failed to fetch: ${res.statusText} },
+        { error: "Failed to fetch: ${res.statusText}" },
         { status: res.status }
       );
     }
