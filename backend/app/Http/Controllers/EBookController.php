@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\EBook;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 use App\Models\Student;
@@ -40,25 +41,38 @@ class EBookController extends Controller
     }
 
     /**
-     * Ambil semua eBook
+     * Ambil semua eBook (dengan cache Redis selama 1 jam)
      */
     public function index()
     {
-        $ebooks = EBook::all()->map(function ($ebook) {
-            if ($ebook->image_path && !str_starts_with($ebook->image_path, 'http')) {
-                $ebook->image_path = url($ebook->image_path);
-            }
-            return $ebook;
-        });
+        try {
+            // ✅ Gunakan cache key unik agar tidak bentrok
+            $cacheKey = 'ebooks_all';
 
-        return response()->json([
-            'success' => true,
-            'data' => $ebooks,
-        ]);
+            $ebooks = Cache::remember($cacheKey, 3600, function () {
+                return EBook::all()->map(function ($ebook) {
+                    if ($ebook->image_path && !str_starts_with($ebook->image_path, 'http')) {
+                        $ebook->image_path = url($ebook->image_path);
+                    }
+                    return $ebook;
+                });
+            });
+
+            return response()->json([
+                'success' => true,
+                'data' => $ebooks,
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('EBook index cache error', ['error' => $e->getMessage()]);
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**
-     * Tambah eBook baru
+     * Tambah eBook baru (flush cache agar data segar)
      */
     public function store(Request $request)
     {
@@ -74,13 +88,9 @@ class EBookController extends Controller
             $image = $request->file('image');
             $fileName = 'ebook_' . Str::random(40) . '.' . $image->getClientOriginalExtension();
 
-            // pastikan folder ada
             Storage::makeDirectory('public/ebooks');
-
-            // simpan ke storage/app/public/ebooks
             $image->storeAs('public/ebooks', $fileName);
 
-            // hanya simpan path relatif di DB (bukan asset/url)
             $imagePath = '/storage/ebooks/' . $fileName;
         }
 
@@ -90,6 +100,9 @@ class EBookController extends Controller
             'image_path'  => $imagePath,
         ]);
 
+        // ✅ Hapus cache agar data eBook diindex() di-refresh
+        Cache::forget('ebooks_all');
+
         return response()->json([
             'success' => true,
             'message' => 'EBook berhasil ditambahkan.',
@@ -98,13 +111,12 @@ class EBookController extends Controller
     }
 
     /**
-     * Detail eBook berdasarkan ID
+     * Detail eBook berdasarkan ID (tanpa cache agar data selalu real-time)
      */
     public function show($id)
     {
         $ebook = EBook::findOrFail($id);
 
-        // ubah path ke URL penuh agar frontend bisa langsung tampil
         if ($ebook->image_path && !str_starts_with($ebook->image_path, 'http')) {
             $ebook->image_path = url($ebook->image_path);
         }
@@ -116,7 +128,7 @@ class EBookController extends Controller
     }
 
     /**
-     * Update eBook
+     * Update eBook (flush cache setelah update)
      */
     public function update(Request $request, $id)
     {
@@ -132,7 +144,6 @@ class EBookController extends Controller
             $imagePath = $ebook->image_path;
 
             if ($request->hasFile('image')) {
-                // hapus gambar lama
                 if ($ebook->image_path && str_contains($ebook->image_path, '/storage/ebooks/')) {
                     $oldPath = str_replace('/storage/', '', $ebook->image_path);
                     Storage::delete('public/' . $oldPath);
@@ -144,7 +155,6 @@ class EBookController extends Controller
                 Storage::makeDirectory('public/ebooks');
                 $image->storeAs('public/ebooks', $fileName);
 
-                // simpan path relatif saja
                 $imagePath = '/storage/ebooks/' . $fileName;
             }
 
@@ -153,6 +163,9 @@ class EBookController extends Controller
                 'description' => $request->description,
                 'image_path'  => $imagePath,
             ]);
+
+            // ✅ Flush cache agar data diindex() segar
+            Cache::forget('ebooks_all');
 
             return response()->json([
                 'success' => true,
@@ -169,20 +182,22 @@ class EBookController extends Controller
     }
 
     /**
-     * Hapus eBook
+     * Hapus eBook (flush cache setelah delete)
      */
     public function destroy($id)
     {
         try {
             $ebook = EBook::findOrFail($id);
 
-            // hapus file lama
             if ($ebook->image_path && str_contains($ebook->image_path, '/storage/ebooks/')) {
                 $filePath = str_replace('/storage/', '', $ebook->image_path);
                 Storage::delete('public/' . $filePath);
             }
 
             $ebook->delete();
+
+            // ✅ Flush cache agar data diindex() segar
+            Cache::forget('ebooks_all');
 
             return response()->json([
                 'success' => true,

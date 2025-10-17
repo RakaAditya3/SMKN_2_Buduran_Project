@@ -7,11 +7,15 @@ use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Redis; // ✅ Tambah Redis Stream
 use Laravel\Sanctum\PersonalAccessToken;
 use Carbon\Carbon;
 
 class RecordController extends Controller
 {
+    /**
+     * 🔐 Ambil student yang login via token Sanctum (versi kamu)
+     */
     private function getAuthenticatedStudent(Request $request)
     {
         try {
@@ -34,14 +38,14 @@ class RecordController extends Controller
     }
 
     /**
-     * Tampilkan semua record milik student
+     * 🎓 Tampilkan semua record milik student login
      */
     public function index(Request $request): JsonResponse
     {
         $student = $this->getAuthenticatedStudent($request);
 
         if (!$student) {
-            return response()->json([], 401); // 🔹 kembalikan array kosong agar frontend aman
+            return response()->json([], 401);
         }
 
         $query = Record::with('ebook')->where('student_id', $student->id);
@@ -59,12 +63,11 @@ class RecordController extends Controller
 
         $records = $query->orderBy('borrowed_at', 'desc')->get();
 
-        // 🔥 RETURN LANGSUNG ARRAY, bukan object wrapper
         return response()->json($records);
     }
 
     /**
-     * Admin: tampilkan semua record
+     * 🧑‍💼 Admin: tampilkan semua record
      */
     public function indexAdmin(Request $request): JsonResponse
     {
@@ -87,12 +90,11 @@ class RecordController extends Controller
 
         $records = $query->orderBy('borrowed_at', 'desc')->get();
 
-        // 🔥 return array langsung
         return response()->json($records);
     }
 
     /**
-     * Tambah record baru
+     * 💾 Tambah record baru (peminjaman eBook) + log ke Redis Stream
      */
     public function store(Request $request): JsonResponse
     {
@@ -116,18 +118,41 @@ class RecordController extends Controller
         }
 
         $record = Record::create([
-            'student_id' => $student->id,
-            'ebook_id' => $request->ebook_id,
+            'student_id'  => $student->id,
+            'ebook_id'    => $request->ebook_id,
             'borrowed_at' => $borrowed,
             'returned_at' => $returned,
-            'status' => 'borrowed',
+            'status'      => 'borrowed',
         ]);
+
+        $record->load('ebook', 'student');
+
+        // ================================================================
+        // 🚀 Tambahkan log ke Redis Stream (Realtime Monitor)
+        // ================================================================
+        try {
+            $streamKey = 'stream:records';
+            Redis::xadd($streamKey, '*', [
+                'record_id'     => (string)$record->id,
+                'student_id'    => (string)$student->id,
+                'student_name'  => $record->student->nama ?? '-',
+                'ebook_id'      => (string)$record->ebook_id,
+                'ebook_title'   => $record->ebook->title ?? '-',
+                'status'        => 'borrowed',
+                'borrowed_at'   => $borrowed->toDateTimeString(),
+                'returned_at'   => $returned->toDateTimeString(),
+            ]);
+            Redis::xtrim($streamKey, 1000);
+        } catch (\Throwable $e) {
+            Log::warning('Redis XADD record gagal', ['error' => $e->getMessage()]);
+        }
+        // ================================================================
 
         return response()->json($record, 201);
     }
 
     /**
-     * Update status
+     * 🔄 Update status peminjaman + simpan ke Redis Stream
      */
     public function updateStatus(Request $request, string $id): JsonResponse
     {
@@ -137,9 +162,9 @@ class RecordController extends Controller
         ]);
 
         $statusMap = [
-            'dipinjam' => 'borrowed',
+            'dipinjam'     => 'borrowed',
             'dikembalikan' => 'returned',
-            'hilang' => 'lost',
+            'hilang'       => 'lost',
         ];
 
         $status = strtolower($request->status);
@@ -149,6 +174,24 @@ class RecordController extends Controller
         $record->status = $normalizedStatus;
         $record->returned_at = $request->returned_at ?? null;
         $record->save();
+
+        // ================================================================
+        // 🌀 Log ke Redis Stream untuk pemantauan realtime
+        // ================================================================
+        try {
+            $streamKey = 'stream:records';
+            Redis::xadd($streamKey, '*', [
+                'record_id'   => (string)$record->id,
+                'student_id'  => (string)$record->student_id,
+                'ebook_id'    => (string)$record->ebook_id,
+                'status'      => $normalizedStatus,
+                'updated_at'  => now()->toDateTimeString(),
+            ]);
+            Redis::xtrim($streamKey, 1000);
+        } catch (\Throwable $e) {
+            Log::warning('Redis XADD update record gagal', ['error' => $e->getMessage()]);
+        }
+        // ================================================================
 
         return response()->json($record);
     }

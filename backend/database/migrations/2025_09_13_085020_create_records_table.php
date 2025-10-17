@@ -17,7 +17,14 @@ return new class extends Migration
             $table->foreignId('ebook_id')->constrained()->onDelete('cascade');
             $table->timestamp('borrowed_at');
             $table->timestamp('returned_at')->nullable();
+            $table->string('status')->default('borrowed');
             $table->timestamps();
+
+
+            $table->index('student_id');  
+            $table->index('ebook_id');     
+            $table->index('borrowed_at'); 
+            $table->index('status');      
         });
     }
 

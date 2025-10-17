@@ -10,16 +10,22 @@ return new class extends Migration
     {
         Schema::create('news', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
+            $table->string('title')->index();
             $table->text('description');
             $table->string('slug')->unique();
-            $table->dateTime('published_at');
-            $table->foreignId('category_id')->constrained('categories');
-            $table->string('thumbnail');
+            $table->dateTime('published_at')->index(); 
+            $table->foreignId('category_id')
+                  ->constrained('categories')
+                  ->cascadeOnDelete()
+                  ->index(); 
+            $table->string('thumbnail')->nullable();
             $table->longText('content');
             $table->timestamps();
+
+            $table->index(['category_id', 'published_at']);
         });
     }
+
     public function down(): void
     {
         Schema::dropIfExists('news');

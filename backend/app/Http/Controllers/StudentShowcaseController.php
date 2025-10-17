@@ -6,27 +6,57 @@ use App\Models\StudentShowcase;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class StudentShowcaseController extends Controller
 {
-  public function index()
-{
-    $showcases = StudentShowcase::latest()->get()->map(function ($showcase) {
-        if ($showcase->image && !str_starts_with($showcase->image, 'http')) {
-            $showcase->image = url($showcase->image);
+    /**
+     * 📄 Tampilkan semua showcase (cached selama 1 jam)
+     */
+    public function index()
+    {
+        try {
+            $cacheKey = 'showcases_list';
+
+            // 🔹 Cache selama 1 jam
+            $showcases = Cache::remember($cacheKey, 3600, function () {
+                return StudentShowcase::latest()->get()->map(function ($showcase) {
+                    if ($showcase->image_url && !str_starts_with($showcase->image_url, 'http')) {
+                        $showcase->image_url = url($showcase->image_url);
+                    }
+                    return $showcase;
+                });
+            });
+
+            return response()->json([
+                'success' => true,
+                'cached' => true,
+                'data' => $showcases,
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('🔥 Showcase index cache error', ['error' => $e->getMessage()]);
+
+            // fallback jika Redis bermasalah
+            $showcases = StudentShowcase::latest()->get()->map(function ($showcase) {
+                if ($showcase->image_url && !str_starts_with($showcase->image_url, 'http')) {
+                    $showcase->image_url = url($showcase->image_url);
+                }
+                return $showcase;
+            });
+
+            return response()->json([
+                'success' => true,
+                'cached' => false,
+                'data' => $showcases,
+            ]);
         }
-        return $showcase;
-    });
+    }
 
-    return response()->json([
-        'success' => true,
-        'data' => $showcases,
-    ]);
-}
-
-
+    /**
+     * 💾 Tambah showcase baru
+     */
     public function store(Request $request)
     {
         try {
@@ -52,15 +82,15 @@ class StudentShowcaseController extends Controller
         try {
             $imageUrl = null;
 
+            // 🔹 Upload gambar showcase
             if ($request->hasFile('image')) {
                 $image = $request->file('image');
                 $fileName = 'showcase_' . Str::random(40) . '.' . $image->getClientOriginalExtension();
-
                 $image->storeAs('public/showcase', $fileName);
-
                 $imageUrl = asset('storage/showcase/' . $fileName);
             }
 
+            // 🔹 Simpan ke database
             $showcase = StudentShowcase::create([
                 'student_name'   => $validated['student_name'],
                 'student_class'  => $validated['student_class'],
@@ -74,17 +104,16 @@ class StudentShowcaseController extends Controller
                 'status'         => $validated['status'] ?? 'published',
             ]);
 
+            // 🔹 Hapus cache agar data baru langsung muncul
+            Cache::forget('showcases_list');
+
             return response()->json([
                 'success' => true,
                 'message' => '✅ Showcase berhasil ditambahkan.',
                 'data'    => $showcase,
             ], 201);
         } catch (\Throwable $e) {
-            Log::error('🔥 Showcase store error', [
-                'message' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-            ]);
+            Log::error('🔥 Showcase store error', ['error' => $e->getMessage()]);
 
             return response()->json([
                 'success' => false,
@@ -94,6 +123,9 @@ class StudentShowcaseController extends Controller
         }
     }
 
+    /**
+     * 🔎 Tampilkan detail showcase via slug
+     */
     public function show($slug)
     {
         $showcase = StudentShowcase::where('slug', $slug)->firstOrFail();
@@ -108,6 +140,9 @@ class StudentShowcaseController extends Controller
         ]);
     }
 
+    /**
+     * ✏️ Update showcase
+     */
     public function update(Request $request, $id)
     {
         $showcase = StudentShowcase::findOrFail($id);
@@ -133,6 +168,7 @@ class StudentShowcaseController extends Controller
         }
 
         try {
+            // 🔹 Update gambar jika dikirim ulang
             if ($request->hasFile('image')) {
                 if ($showcase->image_url && str_contains($showcase->image_url, '/storage/showcase/')) {
                     $oldFile = str_replace(asset('storage/'), '', $showcase->image_url);
@@ -148,17 +184,16 @@ class StudentShowcaseController extends Controller
 
             $showcase->update($validated);
 
+            // 🔹 Hapus cache agar data baru langsung muncul
+            Cache::forget('showcases_list');
+
             return response()->json([
                 'success' => true,
                 'message' => '✅ Showcase berhasil diperbarui.',
                 'data'    => $showcase,
             ]);
         } catch (\Throwable $e) {
-            Log::error('🔥 Showcase update error', [
-                'message' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-            ]);
+            Log::error('🔥 Showcase update error', ['error' => $e->getMessage()]);
 
             return response()->json([
                 'success' => false,
@@ -168,11 +203,15 @@ class StudentShowcaseController extends Controller
         }
     }
 
+    /**
+     * 🗑️ Hapus showcase
+     */
     public function destroy($id)
     {
         try {
             $showcase = StudentShowcase::findOrFail($id);
 
+            // 🔹 Hapus gambar lama
             if ($showcase->image_url && str_contains($showcase->image_url, '/storage/showcase/')) {
                 $filePath = str_replace(asset('storage/'), '', $showcase->image_url);
                 Storage::delete('public/' . $filePath);
@@ -180,16 +219,15 @@ class StudentShowcaseController extends Controller
 
             $showcase->delete();
 
+            // 🔹 Hapus cache agar daftar terbaru langsung diambil dari DB
+            Cache::forget('showcases_list');
+
             return response()->json([
                 'success' => true,
                 'message' => '🗑️ Showcase berhasil dihapus.',
             ]);
         } catch (\Throwable $e) {
-            Log::error('🔥 Showcase delete error', [
-                'message' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-            ]);
+            Log::error('🔥 Showcase delete error', ['error' => $e->getMessage()]);
 
             return response()->json([
                 'success' => false,

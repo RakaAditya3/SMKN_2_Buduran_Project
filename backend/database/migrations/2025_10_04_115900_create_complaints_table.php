@@ -13,12 +13,15 @@ return new class extends Migration
     {
         Schema::create('complaints', function (Blueprint $table) {
             $table->id();
-            $table->string('email');
+            $table->string('email')->index(); 
             $table->text('message');
-            $table->string('ticket_number', 10)->unique();
-            $table->enum('status', ['Ditinjau', 'Diproses', 'Selesai'])->default('Ditinjau');
+            $table->string('ticket_number', 10)->unique(); 
+            $table->enum('status', ['Ditinjau', 'Diproses', 'Selesai'])->default('Ditinjau')->index(); 
             $table->text('admin_note')->nullable();
             $table->timestamps();
+
+
+            $table->index('created_at');
         });
     }
 

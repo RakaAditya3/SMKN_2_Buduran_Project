@@ -11,12 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-       Schema::create('rfid_logs', function (Blueprint $table) {
-    $table->id();
-    $table->string('uid');
-    $table->timestamp('scanned_at')->useCurrent();
-    });
+        Schema::create('rfid_logs', function (Blueprint $table) {
+            $table->id();
 
+
+            $table->string('uid')->index('idx_uid'); 
+
+
+            $table->timestamp('scanned_at')->useCurrent()->index('idx_scanned_at');
+
+
+            $table->index(['uid', 'scanned_at'], 'idx_uid_scanned_at');
+        });
     }
 
     /**
@@ -24,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('rfid_logs');
     }
 };

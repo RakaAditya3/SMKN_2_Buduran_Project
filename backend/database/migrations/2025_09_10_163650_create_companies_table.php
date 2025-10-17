@@ -10,13 +10,16 @@ return new class extends Migration
     {
         Schema::create('companies', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('address');
-            $table->string('website')->nullable();
+            $table->string('name')->index();
+            $table->string('address')->index(); 
+            $table->string('website')->nullable()->index(); 
             $table->string('logo')->nullable();
             $table->timestamps();
+
+            $table->index(['name', 'address'], 'idx_name_address');
         });
     }
+
     public function down(): void
     {
         Schema::dropIfExists('companies');

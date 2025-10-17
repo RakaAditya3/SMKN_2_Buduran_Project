@@ -11,16 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-       Schema::create('presensis', function (Blueprint $table) {
-    $table->id();
-    $table->foreignId('student_id')->constrained('students')->onDelete('cascade');
-    $table->date('date');
-    $table->enum('status', ['hadir', 'tidak hadir'])->default('tidak hadir');
-    $table->timestamps();
+        Schema::create('presensis', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('student_id')
+                ->constrained('students')
+                ->onDelete('cascade');
 
-    $table->unique(['student_id', 'date']);
-    });
-
+            $table->date('date');
+            $table->enum('status', ['hadir', 'tidak hadir'])->default('tidak hadir');
+            $table->timestamps();
+            $table->unique(['student_id', 'date']);
+            $table->index('date');
+            $table->index(['student_id', 'status']);
+            $table->index('status');
+        });
     }
 
     /**
@@ -28,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('presensis');
     }
 };
