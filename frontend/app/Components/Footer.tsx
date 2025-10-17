@@ -132,7 +132,7 @@ const Footer: React.FC = () => {
 
         {/* === COPYRIGHT SECTION === */}
         <div className="flex flex-col md:flex-row items-center justify-between border-t border-gray-700 mt-12 pt-6 text-center md:text-left gap-4">
-          <img src="/images/Logo-Jagoan.png" alt="Logo Jagoan" className="w-36 h-auto" />
+          <img src="/images/Logo-Jagoan-fix.png" alt="Logo Jagoan" className="w-36 h-auto" />
           <p className="text-gray-400 text-sm order-last md:order-none">
             © 2025 SMKN 2 BUDURAN. All Rights Reserved.
           </p>
