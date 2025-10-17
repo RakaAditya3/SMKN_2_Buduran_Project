@@ -6,6 +6,7 @@ import { Search, Sparkles, BookOpenCheck, Clock3 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { fetcher } from '@/lib/fetcher';
+import { resolveLocalProxyImage } from "@/lib/resolveImageUrl";
 
 interface EBook {
   id: number;
@@ -33,14 +34,6 @@ const EBookDashboard: React.FC = () => {
     if (!query) return ebooks;
     return ebooks.filter((book) => book.title.toLowerCase().includes(query));
   }, [ebooks, searchQuery]);
-
-  function resolveLocalImageUrl(path?: string | null) {
-  if (!path) return "/images/default-ebook.jpg";
-
-  if (path.startsWith("http")) return path;
-
-  return `http://localhost:8000/storage/ebooks/${path.replace(/^\/?storage\/ebooks\/?/, "")}`;
-}
 
 
   return (
@@ -126,7 +119,7 @@ const EBookDashboard: React.FC = () => {
                 >
                   <div className="relative h-40 w-full overflow-hidden">
                     <Image
-                      src={resolveLocalImageUrl(book.image_path ?? book.image_url ?? null)}
+                      src={resolveLocalProxyImage(book.image_path ?? book.image_url ?? null)} // ✅ Pakai proxy
                       alt={book.title}
                       fill
                       sizes="(max-width: 768px) 100vw, 50vw"
