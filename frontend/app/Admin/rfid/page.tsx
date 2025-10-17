@@ -35,24 +35,33 @@ export default function ScanPresensi() {
     setLoading(true);
 
     try {
+      // Simpan log scan ke backend
       await api.post("/admin/rfid-logs", { uid });
-      const check = await api.get(`/admin/rfid/check-scan/${uid}`);
+
+      // Periksa cache
+      const check = await api.get("/admin/rfid/check-scan/${uid}");
+      const data = check.data;
 
       setScannedUIDs((prev) => [
         {
           uid,
-          nama: check.data?.student || "UID tidak dikenal",
-          status: check.data?.status === "cached" ? "hadir" : "unknown",
+          nama: data.student || "UID tidak dikenal",
+          status:
+            data.status === "cached"
+              ? "hadir"
+              : data.status === "expired"
+              ? "unknown"
+              : "error",
           time: new Date().toLocaleTimeString(),
         },
         ...prev,
       ]);
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      console.error("❌ Error handleScan:", err);
       setScannedUIDs((prev) => [
         {
           uid,
-          nama: "⚠️ Error kirim/cek server",
+          nama: "⚠ Error kirim/cek server",
           status: "error",
           time: new Date().toLocaleTimeString(),
         },
@@ -60,7 +69,7 @@ export default function ScanPresensi() {
       ]);
     } finally {
       setLoading(false);
-      if (inputRef.current) inputRef.current.focus();
+      inputRef.current?.focus();
     }
   };
 
