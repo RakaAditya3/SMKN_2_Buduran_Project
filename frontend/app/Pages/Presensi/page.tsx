@@ -41,9 +41,9 @@ export default function PresensiPage() {
       d.nama.toLowerCase().includes(searchNama.toLowerCase())
     ) ?? [];
 
-  const totalMasuk = filteredData.filter((d) => d.status === "Masuk").length;
+  const totalMasuk = filteredData.filter((d) => d.status === "hadir").length;
   const totalTidakHadir = filteredData.filter(
-    (d) => d.status === "Tidak Hadir"
+    (d) => d.status === "tidak hadir"
   ).length;
 
   return (
