@@ -10,7 +10,6 @@ import useSWR from 'swr';
 import { fetcher } from '@/lib/fetcher';
 import { resolvePublicImageUrl } from '@/lib/publicAsset';
 import InfiniteCarousel from '@/app/Components/InfinityCarousel';
-import { resolveLocalProxyImage } from "@/lib/resolveImageUrl"
 
 const CountUp = dynamic(() => import("react-countup"), { ssr: false });
 
@@ -516,11 +515,14 @@ const page = () => {
               </div>
               <div className="p-2 sm:p-4 flex flex-col md:flex-row items-center justify-center">
                 <div className='w-full md:w-auto mb-4 md:mb-0 md:mr-4'>
-                    <img
-                     src={resolveLocalProxyImage("https://env-laravel.jh-beon.cloud/storage/kepsek.png")}
-                      alt="Kepala Sekolah"
-                      className="w-full md:w-fit h-[200px] sm:h-[300px] md:h-[330px] object-contain rounded-lg shadow mx-auto"
-                    />
+                   <Image
+                  src="/images/kepsek.png"
+                  alt="Kepala Sekolah"
+                  width={400}
+                  height={400}
+                  priority
+                  className="w-full md:w-fit h-[200px] sm:h-[300px] md:h-[330px] object-contain rounded-lg shadow mx-auto"
+                />
                 </div>
                 {/* Principal's message moved here for mobile responsiveness in a better flow */}
                 <div className="w-full md:w-auto lg:hidden"> 
