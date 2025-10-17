@@ -1,6 +1,6 @@
 const nextConfig = {
   images: {
-    domains: ["localhost", "kmzmzmrdwbaaibcgqowh.supabase.co"],
+    domains: ["https://env-laravel.jh-beon.cloud"],
   },
 };
 
