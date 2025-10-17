@@ -7,6 +7,7 @@ use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 
 class StudentController extends Controller
 {
@@ -17,18 +18,10 @@ class StudentController extends Controller
     {
         try {
             $students = Student::all();
-
-            return response()->json([
-                'success' => true,
-                'data' => $students,
-            ]);
+            return response()->json($students, 200);
         } catch (\Throwable $e) {
-            Log::error('Student index error', ['error' => $e->getMessage()]);
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal mengambil data siswa',
-                'error' => $e->getMessage(),
-            ], 500);
+            Log::error('🔥 Student index error', ['error' => $e->getMessage()]);
+            return response()->json(['message' => 'Gagal mengambil data siswa'], 500);
         }
     }
 
@@ -50,36 +43,33 @@ class StudentController extends Controller
             ];
 
             $validated = $request->validate($rules);
+        } catch (ValidationException $e) {
+            return response()->json($e->errors(), 422);
+        }
 
-            // ✅ Pastikan UID selalu uppercase jika diisi
+        try {
+            // ✅ UID selalu uppercase jika diisi
             if (!empty($validated['uid'])) {
                 $validated['uid'] = strtoupper(trim($validated['uid']));
             }
 
             if ($id) {
                 // 🔹 Update data siswa
-                $student = Student::findOrFail($id);
+                $student = Student::find($id);
+                if (!$student) {
+                    return response()->json(['message' => 'Siswa tidak ditemukan'], 404);
+                }
                 $student->update($validated);
-                $message = 'Siswa berhasil diperbarui.';
             } else {
                 // 🔹 Tambah siswa baru
                 $validated['password'] = Hash::make('password123');
                 $student = Student::create($validated);
-                $message = 'Siswa baru berhasil ditambahkan.';
             }
 
-            return response()->json([
-                'success' => true,
-                'message' => $message,
-                'data'    => $student,
-            ]);
+            return response()->json($student, $id ? 200 : 201);
         } catch (\Throwable $e) {
-            Log::error('Student store error', ['error' => $e->getMessage()]);
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal menyimpan data siswa',
-                'error'   => $e->getMessage(),
-            ], 500);
+            Log::error('🔥 Student store error', ['error' => $e->getMessage()]);
+            return response()->json(['message' => 'Gagal menyimpan data siswa'], 500);
         }
     }
 
@@ -88,19 +78,18 @@ class StudentController extends Controller
      */
     public function show($id)
     {
-        $student = Student::find($id);
+        try {
+            $student = Student::find($id);
 
-        if (!$student) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Siswa tidak ditemukan.',
-            ], 404);
+            if (!$student) {
+                return response()->json(['message' => 'Siswa tidak ditemukan'], 404);
+            }
+
+            return response()->json($student, 200);
+        } catch (\Throwable $e) {
+            Log::error('🔥 Student show error', ['error' => $e->getMessage()]);
+            return response()->json(['message' => 'Gagal mengambil data siswa'], 500);
         }
-
-        return response()->json([
-            'success' => true,
-            'data' => $student,
-        ]);
     }
 
     /**
@@ -108,20 +97,18 @@ class StudentController extends Controller
      */
     public function destroy($id)
     {
-        $student = Student::find($id);
+        try {
+            $student = Student::find($id);
 
-        if (!$student) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Siswa tidak ditemukan.',
-            ], 404);
+            if (!$student) {
+                return response()->json(['message' => 'Siswa tidak ditemukan'], 404);
+            }
+
+            $student->delete();
+            return response()->json(['message' => 'Siswa berhasil dihapus'], 200);
+        } catch (\Throwable $e) {
+            Log::error('🔥 Student delete error', ['error' => $e->getMessage()]);
+            return response()->json(['message' => 'Gagal menghapus data siswa'], 500);
         }
-
-        $student->delete();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Siswa berhasil dihapus.',
-        ]);
     }
 }

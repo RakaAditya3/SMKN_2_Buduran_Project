@@ -21,7 +21,7 @@ class CompanyController extends Controller
     }
 
     /**
-     * 📄 Tampilkan semua perusahaan (cache 2 hari)
+     * 🏢 Ambil semua perusahaan (cache 2 hari)
      */
     public function index(Request $request)
     {
@@ -37,13 +37,9 @@ class CompanyController extends Controller
                 });
             });
 
-            return response()->json([
-                'success' => true,
-                'cached' => true,
-                'data' => $companies,
-            ]);
+            return response()->json($companies, 200);
         } catch (\Throwable $e) {
-            Log::error('🔥 Company index cache error', ['error' => $e->getMessage()]);
+            Log::error('🔥 Company index error', ['error' => $e->getMessage()]);
 
             $companies = Company::latest()->get()->map(function ($company) {
                 if ($company->logo && !str_starts_with($company->logo, 'http')) {
@@ -52,87 +48,63 @@ class CompanyController extends Controller
                 return $company;
             });
 
-            return response()->json([
-                'success' => true,
-                'cached' => false,
-                'data' => $companies,
-            ]);
+            return response()->json($companies, 200);
         }
     }
 
     /**
-     * 💾 Tambah atau update perusahaan (dengan cache flush)
+     * 💾 Tambah atau update perusahaan (flush cache)
      */
     public function store(Request $request)
     {
         try {
             $id = $request->input('id');
 
-            $rules = [
+            $validated = $request->validate([
                 'name'    => 'required|string|max:255',
                 'address' => 'required|string',
                 'website' => 'nullable|string',
                 'logo'    => 'nullable|image|mimes:jpeg,png,jpg,webp,svg|max:2048',
-            ];
+            ]);
 
-            $validated = $request->validate($rules);
-            $imageUrl = null;
-
-            // 🔹 Upload logo jika ada
+            // Upload logo jika ada
             if ($request->hasFile('logo')) {
                 $image = $request->file('logo');
                 $fileName = 'company_' . Str::random(40) . '.' . $image->getClientOriginalExtension();
                 $image->storeAs('public/companies', $fileName);
-                $imageUrl = '/storage/companies/' . $fileName;
-                $validated['logo'] = $imageUrl;
+                $validated['logo'] = '/storage/companies/' . $fileName;
             }
 
-            if ($id) {
-                $company = $this->companyService->update($validated, $id);
-                $message = '🏢 Perusahaan berhasil diperbarui.';
-            } else {
-                $company = $this->companyService->store($validated);
-                $message = '🏢 Perusahaan berhasil ditambahkan.';
-            }
+            $company = $id
+                ? $this->companyService->update($validated, $id)
+                : $this->companyService->store($validated);
 
-            // 🔁 Hapus cache lama agar data baru muncul
             Cache::flush();
 
-            return response()->json([
-                'success' => true,
-                'message' => $message,
-                'data'    => $company,
-            ]);
+            return response()->json($company, $id ? 200 : 201);
         } catch (\Throwable $e) {
             Log::error('🔥 Company store error', ['error' => $e->getMessage()]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal menyimpan data perusahaan.',
-                'error' => $e->getMessage(),
-            ], 500);
+            return response()->json(['message' => 'Gagal menyimpan data perusahaan'], 500);
         }
     }
 
     /**
-     * ✏️ Update perusahaan
+     * ✏️ Update perusahaan (dengan cache flush)
      */
     public function update(Request $request, $id)
     {
         try {
-            $rules = [
+            $validated = $request->validate([
                 'name'    => 'required|string|max:255',
                 'address' => 'required|string',
                 'website' => 'nullable|string',
                 'logo'    => 'nullable|image|max:2048',
-            ];
-
-            $validated = $request->validate($rules);
+            ]);
 
             $company = Company::findOrFail($id);
             $imageUrl = $company->logo;
 
-            // 🔹 Ganti logo jika ada file baru
+            // Ganti logo jika ada file baru
             if ($request->hasFile('logo')) {
                 if ($company->logo && str_contains($company->logo, '/storage/companies/')) {
                     $oldPath = str_replace('/storage/', '', $company->logo);
@@ -152,58 +124,38 @@ class CompanyController extends Controller
                 'logo'    => $imageUrl,
             ]);
 
-            // 🔁 Flush cache agar data baru terbaca
             Cache::forget("company:show:{$id}");
             Cache::flush();
 
-            return response()->json([
-                'success' => true,
-                'message' => '✅ Perusahaan berhasil diperbarui.',
-                'data'    => $company,
-            ]);
+            return response()->json($company, 200);
         } catch (\Throwable $e) {
             Log::error('🔥 Company update error', ['error' => $e->getMessage()]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Terjadi kesalahan saat memperbarui data.',
-                'error' => $e->getMessage(),
-            ], 500);
+            return response()->json(['message' => 'Gagal memperbarui perusahaan'], 500);
         }
     }
 
     /**
-     * 🔎 Detail perusahaan (cache 2 hari)
+     * 🔍 Detail perusahaan (cache 2 hari)
      */
     public function show($id)
     {
         try {
             $cacheKey = "company:show:{$id}";
 
-            $company = Cache::remember($cacheKey, now()->addDays(2), function () use ($id) {
-                return Company::find($id);
-            });
+            $company = Cache::remember($cacheKey, now()->addDays(2), fn() => Company::find($id));
 
             if (!$company) {
-                return response()->json(['error' => 'Perusahaan tidak ditemukan.'], 404);
+                return response()->json(['message' => 'Perusahaan tidak ditemukan'], 404);
             }
 
             if ($company->logo && !str_starts_with($company->logo, 'http')) {
                 $company->logo = url($company->logo);
             }
 
-            return response()->json([
-                'success' => true,
-                'data' => $company,
-                'cached' => true,
-            ]);
+            return response()->json($company, 200);
         } catch (\Throwable $e) {
-            Log::error('🔥 Company show cache error', ['error' => $e->getMessage()]);
-            return response()->json([
-                'success' => false,
-                'message' => 'Terjadi kesalahan saat mengambil data perusahaan.',
-                'error' => $e->getMessage(),
-            ], 500);
+            Log::error('🔥 Company show error', ['error' => $e->getMessage()]);
+            return response()->json(['message' => 'Gagal mengambil data perusahaan'], 500);
         }
     }
 
@@ -215,7 +167,6 @@ class CompanyController extends Controller
         try {
             $company = Company::findOrFail($id);
 
-            // 🔹 Hapus file logo
             if ($company->logo && str_contains($company->logo, '/storage/companies/')) {
                 $filePath = str_replace('/storage/', '', $company->logo);
                 Storage::delete('public/' . $filePath);
@@ -223,21 +174,13 @@ class CompanyController extends Controller
 
             $this->companyService->delete($id);
 
-            // 🔁 Hapus cache
             Cache::forget("company:show:{$id}");
             Cache::flush();
 
-            return response()->json([
-                'success' => true,
-                'message' => '🗑️ Perusahaan berhasil dihapus.',
-            ]);
+            return response()->json([], 204);
         } catch (\Throwable $e) {
             Log::error('🔥 Company delete error', ['error' => $e->getMessage()]);
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal menghapus data perusahaan.',
-                'error' => $e->getMessage(),
-            ], 500);
+            return response()->json(['message' => 'Gagal menghapus perusahaan'], 500);
         }
     }
 }

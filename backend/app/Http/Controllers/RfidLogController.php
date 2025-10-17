@@ -21,10 +21,7 @@ class RfidLogController extends Controller
 
             // ✅ Validasi input UID
             if (empty($uid)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'UID tidak boleh kosong.',
-                ], 422);
+                return response()->json(['message' => 'UID tidak boleh kosong.'], 422);
             }
 
             // ✅ Simpan ke database
@@ -33,35 +30,27 @@ class RfidLogController extends Controller
                 'scanned_at' => Carbon::now(),
             ]);
 
-            // ✅ Cek apakah UID terdaftar di data siswa
+            // ✅ Cari data siswa berdasarkan UID
             $student = Student::where('uid', $uid)->first();
 
             // ✅ Simpan hasil ke cache (TTL = 2 menit)
             $cacheKey = "rfid_stream:{$uid}";
             Cache::put($cacheKey, $student?->nama ?? null, now()->addMinutes(2));
 
+            // ✅ Return data clean
             return response()->json([
-                'success' => true,
                 'uid' => $uid,
                 'student' => $student?->nama,
-                'status' => 'cached',
-                'cache_key' => $cacheKey,
-                'message' => $student
-                    ? 'UID dikenali dan disimpan sementara di cache.'
-                    : 'UID tidak ditemukan di daftar siswa, tetapi tetap dicatat di log.',
-            ]);
+                'cached_until' => now()->addMinutes(2)->toISOString(),
+                'found' => (bool) $student,
+            ], 201);
         } catch (\Throwable $e) {
-            Log::error('RFID Store Error', [
+            Log::error('🔥 RFID Store Error', [
                 'message' => $e->getMessage(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
             ]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Terjadi kesalahan saat menyimpan log RFID.',
-                'error' => $e->getMessage(),
-            ], 500);
+            return response()->json(['message' => 'Gagal menyimpan log RFID.'], 500);
         }
     }
 
@@ -75,35 +64,28 @@ class RfidLogController extends Controller
             $cacheKey = "rfid_stream:{$uid}";
             $studentName = Cache::get($cacheKey);
 
+            // ✅ Jika ada di cache
             if ($studentName) {
                 return response()->json([
-                    'success' => true,
                     'uid' => $uid,
                     'student' => $studentName,
-                    'status' => 'cached',
-                    'message' => 'Data RFID masih tersimpan sementara di cache.',
-                ]);
+                    'cached' => true,
+                ], 200);
             }
 
+            // ✅ Jika tidak ada di cache
             return response()->json([
-                'success' => false,
                 'uid' => $uid,
                 'student' => null,
-                'status' => 'expired',
-                'message' => 'Data cache sudah kedaluwarsa atau belum pernah disimpan.',
-            ]);
+                'cached' => false,
+            ], 200);
         } catch (\Throwable $e) {
-            Log::error('RFID Check Cache Error', [
+            Log::error('🔥 RFID Cache Check Error', [
                 'message' => $e->getMessage(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
             ]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Terjadi kesalahan saat memeriksa cache RFID.',
-                'error' => $e->getMessage(),
-            ], 500);
+            return response()->json(['message' => 'Gagal memeriksa cache RFID.'], 500);
         }
     }
 }

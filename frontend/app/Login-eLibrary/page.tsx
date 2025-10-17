@@ -39,19 +39,19 @@ const LoginPage: React.FC = () => {
     try {
       const res = await api.post('/login-elibrary', credentials);
 
-      if (res.data.success) {
-        if (res.data.token) {
-          localStorage.setItem('student_token', res.data.token);
-          localStorage.setItem('user', JSON.stringify(res.data.user));
-        }
+// ganti pengecekan ini:
+if (res.data.token) {
+  localStorage.setItem('student_token', res.data.token);
+  localStorage.setItem('user', JSON.stringify(res.data.user));
 
-        setSuccess('Login berhasil! Anda akan diarahkan...');
-        setTimeout(() => {
-          router.push('/Pages/eLibrary/Dashboard');
-        }, 1000);
-      } else {
-        setError(res.data.message || 'Login gagal, periksa NIS/Password!');
-      }
+  setSuccess('Login berhasil! Anda akan diarahkan...');
+  setTimeout(() => {
+    router.push('/Pages/eLibrary/Dashboard');
+  }, 1000);
+} else {
+  setError(res.data.message || 'Login gagal, periksa NISN/Password!');
+}
+
     } catch (err: any) {
       console.error('Login error:', err);
       setError('Login gagal, periksa NIS dan Password Anda!');

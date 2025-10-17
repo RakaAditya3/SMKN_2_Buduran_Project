@@ -7,20 +7,19 @@ use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Redis; // ✅ Tambah Redis Stream
+use Illuminate\Support\Facades\Redis;
 use Laravel\Sanctum\PersonalAccessToken;
 use Carbon\Carbon;
 
 class RecordController extends Controller
 {
     /**
-     * 🔐 Ambil student yang login via token Sanctum (versi kamu)
+     * 🔐 Ambil student login dari token Sanctum
      */
     private function getAuthenticatedStudent(Request $request)
     {
         try {
             $authHeader = $request->header('Authorization');
-
             if (!$authHeader || !str_starts_with($authHeader, 'Bearer ')) {
                 return null;
             }
@@ -28,9 +27,7 @@ class RecordController extends Controller
             $token = trim(str_replace('Bearer', '', $authHeader));
             $accessToken = PersonalAccessToken::findToken($token);
 
-            if (!$accessToken) return null;
-
-            return $accessToken->tokenable;
+            return $accessToken?->tokenable;
         } catch (\Throwable $e) {
             Log::error('Token parsing error', ['error' => $e->getMessage()]);
             return null;
@@ -43,27 +40,23 @@ class RecordController extends Controller
     public function index(Request $request): JsonResponse
     {
         $student = $this->getAuthenticatedStudent($request);
-
         if (!$student) {
-            return response()->json([], 401);
+            return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-        $query = Record::with('ebook')->where('student_id', $student->id);
+        $query = Record::with('ebook')
+            ->where('student_id', $student->id);
 
-        if ($request->has('date') && $request->date) {
+        if ($request->filled('date')) {
             $date = $request->date;
             $filterType = $request->get('filter_type', 'specific');
-
-            if ($filterType === 'before') {
-                $query->where('borrowed_at', '<=', $date . ' 23:59:59');
-            } else {
-                $query->whereDate('borrowed_at', $date);
-            }
+            $filterType === 'before'
+                ? $query->where('borrowed_at', '<=', $date . ' 23:59:59')
+                : $query->whereDate('borrowed_at', $date);
         }
 
-        $records = $query->orderBy('borrowed_at', 'desc')->get();
-
-        return response()->json($records);
+        $records = $query->orderByDesc('borrowed_at')->get();
+        return response()->json($records, 200);
     }
 
     /**
@@ -73,24 +66,20 @@ class RecordController extends Controller
     {
         $query = Record::with(['ebook', 'student']);
 
-        if ($request->has('date') && $request->date) {
+        if ($request->filled('date')) {
             $date = $request->date;
             $filterType = $request->get('filter_type', 'specific');
-
-            if ($filterType === 'before') {
-                $query->where('borrowed_at', '<=', $date . ' 23:59:59');
-            } else {
-                $query->whereDate('borrowed_at', $date);
-            }
+            $filterType === 'before'
+                ? $query->where('borrowed_at', '<=', $date . ' 23:59:59')
+                : $query->whereDate('borrowed_at', $date);
         }
 
-        if ($request->has('status') && $request->status) {
+        if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
-        $records = $query->orderBy('borrowed_at', 'desc')->get();
-
-        return response()->json($records);
+        $records = $query->orderByDesc('borrowed_at')->get();
+        return response()->json($records, 200);
     }
 
     /**
@@ -99,7 +88,6 @@ class RecordController extends Controller
     public function store(Request $request): JsonResponse
     {
         $student = $this->getAuthenticatedStudent($request);
-
         if (!$student) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
@@ -123,13 +111,9 @@ class RecordController extends Controller
             'borrowed_at' => $borrowed,
             'returned_at' => $returned,
             'status'      => 'borrowed',
-        ]);
+        ])->load('ebook', 'student');
 
-        $record->load('ebook', 'student');
-
-        // ================================================================
-        // 🚀 Tambahkan log ke Redis Stream (Realtime Monitor)
-        // ================================================================
+        // 🚀 Tambahkan ke Redis Stream
         try {
             $streamKey = 'stream:records';
             Redis::xadd($streamKey, '*', [
@@ -146,7 +130,6 @@ class RecordController extends Controller
         } catch (\Throwable $e) {
             Log::warning('Redis XADD record gagal', ['error' => $e->getMessage()]);
         }
-        // ================================================================
 
         return response()->json($record, 201);
     }
@@ -162,22 +145,25 @@ class RecordController extends Controller
         ]);
 
         $statusMap = [
-            'dipinjam'     => 'borrowed',
+            'dipinjam' => 'borrowed',
             'dikembalikan' => 'returned',
-            'hilang'       => 'lost',
+            'hilang' => 'lost',
         ];
 
         $status = strtolower($request->status);
         $normalizedStatus = $statusMap[$status] ?? $status;
 
-        $record = Record::findOrFail($id);
-        $record->status = $normalizedStatus;
-        $record->returned_at = $request->returned_at ?? null;
-        $record->save();
+        $record = Record::find($id);
+        if (!$record) {
+            return response()->json(['message' => 'Record tidak ditemukan'], 404);
+        }
 
-        // ================================================================
-        // 🌀 Log ke Redis Stream untuk pemantauan realtime
-        // ================================================================
+        $record->update([
+            'status' => $normalizedStatus,
+            'returned_at' => $request->returned_at,
+        ]);
+
+        // 🌀 Log ke Redis Stream
         try {
             $streamKey = 'stream:records';
             Redis::xadd($streamKey, '*', [
@@ -191,8 +177,7 @@ class RecordController extends Controller
         } catch (\Throwable $e) {
             Log::warning('Redis XADD update record gagal', ['error' => $e->getMessage()]);
         }
-        // ================================================================
 
-        return response()->json($record);
+        return response()->json($record, 200);
     }
 }

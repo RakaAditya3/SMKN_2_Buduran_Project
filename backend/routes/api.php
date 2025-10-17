@@ -51,6 +51,7 @@ Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
     Route::get("presensis", [PresensiController::class, 'index']);
     Route::post('/presensis/process', [PresensiController::class, 'processToday']);
     Route::apiResource("student-showcase", StudentShowcaseController::class);
+    Route::post("student-showcase-post", [StudentShowcaseController::class, 'store']);
 });
 
 // STUDENT

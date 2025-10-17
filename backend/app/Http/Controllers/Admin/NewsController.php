@@ -14,7 +14,7 @@ use Illuminate\Support\Str;
 class NewsController extends Controller
 {
     protected $newsService;
-    protected $cacheTTL = 18000;
+    protected $cacheTTL = 18000; // 5 jam
 
     public function __construct(NewsService $newsService)
     {
@@ -22,44 +22,50 @@ class NewsController extends Controller
     }
 
     /**
-     * 📄 Tampilkan semua berita (cache per filter selama 5 jam)
+     * 📰 Tampilkan semua berita (cache per filter 5 jam)
      */
-    public function index(Request $request)
-    {
-        try {
-            $params = $request->all();
-            $cacheKey = 'news_index_' . md5(json_encode($params));
+   public function index(Request $request)
+{
+    try {
+        // Deteksi apakah request berasal dari route admin
+        $isAdmin = $request->is('admin/*');
 
-            // 🔹 Cache dengan tag ‘news’ agar tidak bentrok modul lain
-            $news = Cache::tags('news')->remember($cacheKey, $this->cacheTTL, function () use ($params) {
-                return $this->newsService->search($params)->map(function ($item) {
-                    if ($item->thumbnail && !str_starts_with($item->thumbnail, 'http')) {
-                        $item->thumbnail = url($item->thumbnail);
-                    }
-                    return $item;
-                });
+        if ($isAdmin) {
+            // 🧠 Admin selalu ambil data fresh tanpa cache
+            $news = $this->newsService->search($request->all())->map(function ($item) {
+                if ($item->thumbnail && !str_starts_with($item->thumbnail, 'http')) {
+                    $item->thumbnail = url($item->thumbnail);
+                }
+                return $item;
             });
 
-            return response()->json([
-                'success' => true,
-                'cached' => true,
-                'data' => $news,
-            ]);
-        } catch (\Throwable $e) {
-            Log::error('🔥 News index error', ['error' => $e->getMessage()]);
-
-            // fallback tanpa cache
-            $news = $this->newsService->search($request->all());
-            return response()->json([
-                'success' => true,
-                'cached' => false,
-                'data' => $news,
-            ]);
+            return response()->json($news, 200);
         }
+
+        // 🧱 Kalau bukan admin (public endpoint)
+        $params = $request->all();
+        $cacheKey = 'news_index_' . md5(json_encode($params));
+
+        $news = Cache::tags('news')->remember($cacheKey, 18000, function () use ($params) {
+            return $this->newsService->search($params)->map(function ($item) {
+                if ($item->thumbnail && !str_starts_with($item->thumbnail, 'http')) {
+                    $item->thumbnail = url($item->thumbnail);
+                }
+                return $item;
+            });
+        });
+
+        return response()->json($news, 200);
+    } catch (\Throwable $e) {
+        Log::error('🔥 News index error', ['error' => $e->getMessage()]);
+        $news = $this->newsService->search($request->all());
+        return response()->json($news, 200);
     }
+}
+
 
     /**
-     * 📰 Tambah berita baru (auto flush cache tag 'news')
+     * 🧾 Tambah berita baru
      */
     public function store(Request $request)
     {
@@ -79,16 +85,8 @@ class NewsController extends Controller
             if ($request->hasFile('thumbnail')) {
                 $image = $request->file('thumbnail');
                 $fileName = 'news_' . Str::random(40) . '.' . $image->getClientOriginalExtension();
-
                 Storage::makeDirectory('public/news');
                 $image->storeAs('public/news', $fileName);
-
-                // logging upload
-                Log::info('🖼️ Thumbnail uploaded', [
-                    'stored_path' => "public/news/{$fileName}",
-                    'exists' => Storage::exists("public/news/{$fileName}"),
-                ]);
-
                 $imageUrl = '/storage/news/' . $fileName;
             }
 
@@ -102,33 +100,28 @@ class NewsController extends Controller
                 'published_at' => $validated['published_at'],
             ]);
 
-            // 🔁 Hapus cache news agar daftar update otomatis
+            // 🔁 Hapus cache news agar data langsung update
             Cache::tags('news')->flush();
+            $this->clearNewsCache();
 
-            return response()->json([
-                'success' => true,
-                'message' => '✅ Berita berhasil ditambahkan.',
-                'data'    => $news,
-            ], 201);
+            Log::info('🧹 Cache news dihapus setelah store');
+
+            return response()->json($news, 201);
         } catch (\Throwable $e) {
             Log::error('🔥 News store error', ['error' => $e->getMessage()]);
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal menambah berita.',
-                'error'   => $e->getMessage(),
-            ], 500);
+            return response()->json(['message' => 'Gagal menambah berita'], 500);
         }
     }
 
     /**
-     * ✏️ Update berita
+     * 🧱 Update berita
      */
     public function update(Request $request, $id)
     {
         try {
             $news = News::find($id);
             if (!$news) {
-                return response()->json(['success' => false, 'message' => 'Berita tidak ditemukan.'], 404);
+                return response()->json(['message' => 'Berita tidak ditemukan'], 404);
             }
 
             $validated = $request->validate([
@@ -143,7 +136,6 @@ class NewsController extends Controller
 
             $imageUrl = $news->thumbnail;
 
-            // 🔹 Update file thumbnail jika dikirim ulang
             if ($request->hasFile('thumbnail')) {
                 if ($news->thumbnail && str_contains($news->thumbnail, '/storage/news/')) {
                     $oldPath = str_replace('/storage/', '', $news->thumbnail);
@@ -166,26 +158,21 @@ class NewsController extends Controller
                 'published_at' => $request->published_at ?? $news->published_at,
             ]);
 
-            // Flush cache tag news
+            // 🔁 Flush cache news
             Cache::tags('news')->flush();
+            $this->clearNewsCache();
 
-            return response()->json([
-                'success' => true,
-                'message' => '✅ Berita berhasil diperbarui.',
-                'data'    => $news,
-            ]);
+            Log::info('🧹 Cache news dihapus setelah update');
+
+            return response()->json($news, 200);
         } catch (\Throwable $e) {
             Log::error('🔥 News update error', ['error' => $e->getMessage()]);
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal memperbarui berita.',
-                'error'   => $e->getMessage(),
-            ], 500);
+            return response()->json(['message' => 'Gagal memperbarui berita'], 500);
         }
     }
 
     /**
-     * 🔍 Detail berita (cached per ID)
+     * 🔍 Detail berita (cached 5 jam per ID)
      */
     public function show($id)
     {
@@ -197,25 +184,17 @@ class NewsController extends Controller
             });
 
             if (!$news) {
-                return response()->json(['error' => 'Berita tidak ditemukan.'], 404);
+                return response()->json(['message' => 'Berita tidak ditemukan'], 404);
             }
 
             if ($news->thumbnail && !str_starts_with($news->thumbnail, 'http')) {
                 $news->thumbnail = url($news->thumbnail);
             }
 
-            return response()->json([
-                'success' => true,
-                'data' => $news,
-                'cached' => true,
-            ]);
+            return response()->json($news, 200);
         } catch (\Throwable $e) {
             Log::error('🔥 News show error', ['error' => $e->getMessage()]);
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal mengambil detail berita.',
-                'error'   => $e->getMessage(),
-            ], 500);
+            return response()->json(['message' => 'Gagal mengambil detail berita'], 500);
         }
     }
 
@@ -227,7 +206,7 @@ class NewsController extends Controller
         try {
             $news = News::find($id);
             if (!$news) {
-                return response()->json(['success' => false, 'message' => 'Berita tidak ditemukan.'], 404);
+                return response()->json(['message' => 'Berita tidak ditemukan'], 404);
             }
 
             if ($news->thumbnail && str_contains($news->thumbnail, '/storage/news/')) {
@@ -237,20 +216,39 @@ class NewsController extends Controller
 
             $news->delete();
 
-            // Hapus cache bertag news
             Cache::tags('news')->flush();
+            $this->clearNewsCache();
 
-            return response()->json([
-                'success' => true,
-                'message' => '🗑️ Berita berhasil dihapus.',
-            ]);
+            Log::info('🧹 Cache news dihapus setelah delete');
+
+            return response()->json([], 204);
         } catch (\Throwable $e) {
             Log::error('🔥 News delete error', ['error' => $e->getMessage()]);
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal menghapus berita.',
-                'error'   => $e->getMessage(),
-            ], 500);
+            return response()->json(['message' => 'Gagal menghapus berita'], 500);
+        }
+    }
+
+    /**
+     * 🧹 Bersihkan semua cache berita (index & detail)
+     */
+    private function clearNewsCache()
+    {
+        try {
+            $redis = Cache::getRedis();
+
+            // hapus semua cache key yang berkaitan dengan news
+            $keys = array_merge(
+                $redis->keys('*news_index_*'),
+                $redis->keys('*news_show_*')
+            );
+
+            foreach ($keys as $key) {
+                $redis->del($key);
+            }
+
+            Log::info('🧹 Semua cache news dihapus dari Redis');
+        } catch (\Throwable $e) {
+            Log::error('❌ Gagal menghapus cache news', ['error' => $e->getMessage()]);
         }
     }
 }

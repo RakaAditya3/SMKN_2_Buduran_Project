@@ -90,11 +90,11 @@ export default function ShowcasePage() {
       let res;
       if (editingId) {
         formData.append("_method", "PUT");
-        res = await api.post(`/showcase/${editingId}`, formData, {
+        res = await api.post(`/student-showcase/${editingId}`, formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
       } else {
-        res = await api.post("/showcase", formData, {
+        res = await api.post("/admin/student-showcase-post", formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
       }
@@ -129,7 +129,7 @@ export default function ShowcasePage() {
   // Hapus data
   const handleDelete = async (id: number) => {
     if (!confirm("Yakin ingin menghapus showcase ini?")) return;
-    await api.delete(`/showcase/${id}`);
+    await api.delete(`/student-showcase/${id}`);
     fetchShowcases();
   };
 

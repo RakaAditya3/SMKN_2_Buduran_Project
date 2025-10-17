@@ -30,11 +30,7 @@ class StudentShowcaseController extends Controller
                 });
             });
 
-            return response()->json([
-                'success' => true,
-                'cached' => true,
-                'data' => $showcases,
-            ]);
+            return response()->json($showcases, 200);
         } catch (\Throwable $e) {
             Log::error('🔥 Showcase index cache error', ['error' => $e->getMessage()]);
 
@@ -46,11 +42,7 @@ class StudentShowcaseController extends Controller
                 return $showcase;
             });
 
-            return response()->json([
-                'success' => true,
-                'cached' => false,
-                'data' => $showcases,
-            ]);
+            return response()->json($showcases, 200);
         }
     }
 
@@ -72,11 +64,7 @@ class StudentShowcaseController extends Controller
                 'image'          => 'required|image|max:2048',
             ]);
         } catch (ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validasi gagal. Beberapa field belum terisi dengan benar.',
-                'errors'  => $e->errors(),
-            ], 422);
+            return response()->json($e->errors(), 422);
         }
 
         try {
@@ -107,19 +95,10 @@ class StudentShowcaseController extends Controller
             // 🔹 Hapus cache agar data baru langsung muncul
             Cache::forget('showcases_list');
 
-            return response()->json([
-                'success' => true,
-                'message' => '✅ Showcase berhasil ditambahkan.',
-                'data'    => $showcase,
-            ], 201);
+            return response()->json($showcase, 201);
         } catch (\Throwable $e) {
             Log::error('🔥 Showcase store error', ['error' => $e->getMessage()]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Terjadi kesalahan pada server.',
-                'error' => $e->getMessage(),
-            ], 500);
+            return response()->json(['message' => 'Server error'], 500);
         }
     }
 
@@ -128,16 +107,17 @@ class StudentShowcaseController extends Controller
      */
     public function show($slug)
     {
-        $showcase = StudentShowcase::where('slug', $slug)->firstOrFail();
+        $showcase = StudentShowcase::where('slug', $slug)->first();
+
+        if (!$showcase) {
+            return response()->json(['message' => 'Data tidak ditemukan'], 404);
+        }
 
         if ($showcase->image_url && !str_starts_with($showcase->image_url, 'http')) {
             $showcase->image_url = url($showcase->image_url);
         }
 
-        return response()->json([
-            'success' => true,
-            'data' => $showcase,
-        ]);
+        return response()->json($showcase, 200);
     }
 
     /**
@@ -145,7 +125,11 @@ class StudentShowcaseController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $showcase = StudentShowcase::findOrFail($id);
+        $showcase = StudentShowcase::find($id);
+
+        if (!$showcase) {
+            return response()->json(['message' => 'Data tidak ditemukan'], 404);
+        }
 
         try {
             $validated = $request->validate([
@@ -160,11 +144,7 @@ class StudentShowcaseController extends Controller
                 'image'          => 'nullable|image|max:2048',
             ]);
         } catch (ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validasi gagal saat update.',
-                'errors'  => $e->errors(),
-            ], 422);
+            return response()->json($e->errors(), 422);
         }
 
         try {
@@ -183,23 +163,12 @@ class StudentShowcaseController extends Controller
             }
 
             $showcase->update($validated);
-
-            // 🔹 Hapus cache agar data baru langsung muncul
             Cache::forget('showcases_list');
 
-            return response()->json([
-                'success' => true,
-                'message' => '✅ Showcase berhasil diperbarui.',
-                'data'    => $showcase,
-            ]);
+            return response()->json($showcase, 200);
         } catch (\Throwable $e) {
             Log::error('🔥 Showcase update error', ['error' => $e->getMessage()]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Terjadi kesalahan pada server.',
-                'error' => $e->getMessage(),
-            ], 500);
+            return response()->json(['message' => 'Server error'], 500);
         }
     }
 
@@ -208,9 +177,13 @@ class StudentShowcaseController extends Controller
      */
     public function destroy($id)
     {
-        try {
-            $showcase = StudentShowcase::findOrFail($id);
+        $showcase = StudentShowcase::find($id);
 
+        if (!$showcase) {
+            return response()->json(['message' => 'Data tidak ditemukan'], 404);
+        }
+
+        try {
             // 🔹 Hapus gambar lama
             if ($showcase->image_url && str_contains($showcase->image_url, '/storage/showcase/')) {
                 $filePath = str_replace(asset('storage/'), '', $showcase->image_url);
@@ -218,22 +191,12 @@ class StudentShowcaseController extends Controller
             }
 
             $showcase->delete();
-
-            // 🔹 Hapus cache agar daftar terbaru langsung diambil dari DB
             Cache::forget('showcases_list');
 
-            return response()->json([
-                'success' => true,
-                'message' => '🗑️ Showcase berhasil dihapus.',
-            ]);
+            return response()->json(['message' => 'Showcase berhasil dihapus'], 200);
         } catch (\Throwable $e) {
             Log::error('🔥 Showcase delete error', ['error' => $e->getMessage()]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Terjadi kesalahan saat menghapus showcase.',
-                'error' => $e->getMessage(),
-            ], 500);
+            return response()->json(['message' => 'Server error'], 500);
         }
     }
 }

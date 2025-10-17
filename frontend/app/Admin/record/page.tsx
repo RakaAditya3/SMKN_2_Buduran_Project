@@ -74,6 +74,11 @@ export default function RecordsPage() {
       setSaving(false);
     }
   };
+  const resolveImageUrl = (path?: string) => {
+  if (!path) return "https://via.placeholder.com/40x50";
+  if (path.startsWith("http")) return path;
+  return `${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"}${path}`;
+};
 
   return (
     <div className="p-6">
@@ -110,10 +115,8 @@ export default function RecordsPage() {
                 <tr key={rec.id} className="border-b hover:bg-gray-50">
                   <td className="p-2 flex items-center gap-3">
                     <img
-                      src={
-                        rec.ebook?.image_path ||
-                        "https://via.placeholder.com/40x50"
-                      }
+                      src={resolveImageUrl(rec.ebook?.image_path)}
+                      
                       alt={rec.ebook?.title}
                       className="w-10 h-12 object-cover rounded border"
                     />

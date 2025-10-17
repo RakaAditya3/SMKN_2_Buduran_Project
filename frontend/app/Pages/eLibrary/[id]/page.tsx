@@ -46,7 +46,8 @@ const EbookDetail: React.FC = () => {
             image_path: response.data.data.image_path,
           });
         }
-        setEbook(response.data?.data ?? null);
+       setEbook(response.data?.data ?? response.data ?? null);
+
       } catch (err) {
         setFeedback({ type: 'error', message: 'Gagal memuat detail buku. Silakan coba lagi.' });
       } finally {
