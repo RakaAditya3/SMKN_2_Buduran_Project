@@ -24,6 +24,29 @@ interface BorrowPopupData {
   returned_at: string;
 }
 
+const resolveStoredStudentName = (): string | null => {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = localStorage.getItem('user');
+    if (!raw) return null;
+    const data = JSON.parse(raw);
+    if (!data || typeof data !== 'object') return null;
+
+    return (
+      data?.name ??
+      data?.nama ??
+      data?.full_name ??
+      data?.fullName ??
+      data?.student?.name ??
+      data?.student?.nama ??
+      null
+    );
+  } catch (error) {
+    console.warn('Failed to parse stored user data', error);
+    return null;
+  }
+};
+
 const EbookDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [ebook, setEbook] = useState<Ebook | null>(null);
@@ -83,8 +106,15 @@ const EbookDetail: React.FC = () => {
 
       const record = response.data?.record;
 
+      const storedStudentName = resolveStoredStudentName();
       setPopupData({
-        student_name: record?.student?.nama ?? 'Tidak diketahui',
+        student_name:
+          record?.student?.nama ??
+          record?.student?.name ??
+          record?.student_name ??
+          record?.studentName ??
+          storedStudentName ??
+          'Tidak diketahui',
         ebook_title: record?.ebook?.title ?? ebook.title,
         borrowed_at: dayjs(record?.borrowed_at ?? borrowedAt).format('DD MMMM YYYY'),
         returned_at: dayjs(record?.returned_at ?? returnedAt).format('DD MMMM YYYY'),
