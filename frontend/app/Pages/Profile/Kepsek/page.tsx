@@ -24,7 +24,7 @@ export default function SambutanKepalaSekolah() {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-gray-100 py-8">
+      <div className="min-h-screen bg-gray-100 py-8 pt-30">
         <div className="max-w-4xl mx-auto px-4">
           {/* Sambutan Kepala Sekolah */}
           <div className="bg-white rounded-lg shadow-lg p-8 mb-8">

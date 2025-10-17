@@ -6,7 +6,7 @@ export default function VisiMisiSekolah() {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-gray-100 py-12">
+      <div className="min-h-screen bg-gray-100 py-12 pt-30">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
           <div className="text-center mb-12">

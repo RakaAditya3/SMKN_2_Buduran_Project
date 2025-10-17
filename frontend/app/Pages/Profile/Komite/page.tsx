@@ -6,7 +6,7 @@ export default function SambutanKomite() {
   return (
     <>
     <Navbar />
-    <div className="font-sans text-gray-800 bg-white p-8">
+    <div className="font-sans text-gray-800 bg-white p-8 pt-30">
       {/* Judul */}
       <h1 className="text-2xl font-bold text-center mb-8">
       Sambutan Ketua Komite Sekolah
