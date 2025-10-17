@@ -86,7 +86,8 @@ class NewsController extends Controller
                 $image = $request->file('thumbnail');
                 $fileName = 'news_' . Str::random(40) . '.' . $image->getClientOriginalExtension();
                 Storage::makeDirectory('public/news');
-                $image->storeAs('public/news', $fileName);
+               $image->storeAs('news', $fileName, 'public');
+
                 $imageUrl = '/storage/news/' . $fileName;
             }
 
@@ -144,7 +145,8 @@ class NewsController extends Controller
 
                 $image = $request->file('thumbnail');
                 $fileName = 'news_' . Str::random(40) . '.' . $image->getClientOriginalExtension();
-                $image->storeAs('public/news', $fileName);
+               $image->storeAs('news', $fileName, 'public');
+
                 $imageUrl = '/storage/news/' . $fileName;
             }
 
