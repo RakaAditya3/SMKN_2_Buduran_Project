@@ -13,6 +13,8 @@ use Illuminate\Support\Str;
 
 class EBookController extends Controller
 {
+    protected $cacheTTL = 3600; // 1 jam (detik)
+
     /**
      * 🔑 Login siswa (token student_token)
      */
@@ -33,24 +35,23 @@ class EBookController extends Controller
         $student->tokens()->delete();
         $token = $student->createToken('student_token', ['student'])->plainTextToken;
 
-       return response()->json([
-    'success' => true,
-    'message' => 'Login berhasil',
-    'token'   => $token,
-    'user'    => $student,
-], 200);
-
+        return response()->json([
+            'success' => true,
+            'message' => 'Login berhasil',
+            'token'   => $token,
+            'user'    => $student,
+        ], 200);
     }
 
     /**
-     * 📚 Ambil semua eBook (cached selama 1 jam)
+     * 📚 Ambil semua eBook (cached 1 jam)
      */
     public function index()
     {
         try {
-            $cacheKey = 'ebooks_all';
+            $cacheKey = 'ebooks_index_all';
 
-            $ebooks = Cache::remember($cacheKey, 3600, function () {
+            $ebooks = Cache::tags('ebooks')->remember($cacheKey, $this->cacheTTL, function () {
                 return EBook::latest()->get()->map(function ($ebook) {
                     if ($ebook->image_path && !str_starts_with($ebook->image_path, 'http')) {
                         $ebook->image_path = url($ebook->image_path);
@@ -80,11 +81,14 @@ class EBookController extends Controller
 
             $imagePath = null;
 
+            // 🧱 Upload ke disk public/ebooks
             if ($request->hasFile('image')) {
                 $image = $request->file('image');
                 $fileName = 'ebook_' . Str::random(40) . '.' . $image->getClientOriginalExtension();
+
                 Storage::makeDirectory('public/ebooks');
-                $image->storeAs('public/ebooks', $fileName);
+                $image->storeAs('ebooks', $fileName, 'public');
+
                 $imagePath = '/storage/ebooks/' . $fileName;
             }
 
@@ -94,8 +98,9 @@ class EBookController extends Controller
                 'image_path'  => $imagePath,
             ]);
 
-            // Hapus cache agar data baru muncul
-            Cache::forget('ebooks_all');
+            // 🔁 Bersihkan cache
+            Cache::tags('ebooks')->flush();
+            $this->clearEbookCache();
 
             return response()->json($ebook, 201);
         } catch (\Throwable $e) {
@@ -105,12 +110,20 @@ class EBookController extends Controller
     }
 
     /**
-     * 📖 Detail eBook berdasarkan ID (no cache)
+     * 📖 Detail eBook (cached 1 jam per ID)
      */
     public function show($id)
     {
         try {
-            $ebook = EBook::findOrFail($id);
+            $cacheKey = "ebook_show_{$id}";
+
+            $ebook = Cache::tags('ebooks')->remember($cacheKey, $this->cacheTTL, function () use ($id) {
+                return EBook::find($id);
+            });
+
+            if (!$ebook) {
+                return response()->json(['message' => 'EBook tidak ditemukan'], 404);
+            }
 
             if ($ebook->image_path && !str_starts_with($ebook->image_path, 'http')) {
                 $ebook->image_path = url($ebook->image_path);
@@ -118,7 +131,8 @@ class EBookController extends Controller
 
             return response()->json($ebook, 200);
         } catch (\Throwable $e) {
-            return response()->json(['message' => 'EBook tidak ditemukan'], 404);
+            Log::error('🔥 EBook show error', ['error' => $e->getMessage()]);
+            return response()->json(['message' => 'Gagal mengambil detail eBook'], 500);
         }
     }
 
@@ -139,15 +153,19 @@ class EBookController extends Controller
             $imagePath = $ebook->image_path;
 
             if ($request->hasFile('image')) {
+                // Hapus file lama
                 if ($ebook->image_path && str_contains($ebook->image_path, '/storage/ebooks/')) {
                     $oldPath = str_replace('/storage/', '', $ebook->image_path);
                     Storage::delete('public/' . $oldPath);
                 }
 
+                // Simpan baru
                 $image = $request->file('image');
                 $fileName = 'ebook_' . Str::random(40) . '.' . $image->getClientOriginalExtension();
+
                 Storage::makeDirectory('public/ebooks');
-                $image->storeAs('public/ebooks', $fileName);
+                $image->storeAs('ebooks', $fileName, 'public');
+
                 $imagePath = '/storage/ebooks/' . $fileName;
             }
 
@@ -157,7 +175,9 @@ class EBookController extends Controller
                 'image_path'  => $imagePath,
             ]);
 
-            Cache::forget('ebooks_all');
+            // 🔁 Flush cache
+            Cache::tags('ebooks')->flush();
+            $this->clearEbookCache();
 
             return response()->json($ebook, 200);
         } catch (\Throwable $e) {
@@ -167,7 +187,7 @@ class EBookController extends Controller
     }
 
     /**
-     * 🗑️ Hapus eBook (flush cache)
+     * 🗑️ Hapus eBook (hapus file & flush cache)
      */
     public function destroy($id)
     {
@@ -180,12 +200,37 @@ class EBookController extends Controller
             }
 
             $ebook->delete();
-            Cache::forget('ebooks_all');
+
+            Cache::tags('ebooks')->flush();
+            $this->clearEbookCache();
 
             return response()->json([], 204);
         } catch (\Throwable $e) {
             Log::error('🔥 EBook delete error', ['error' => $e->getMessage()]);
             return response()->json(['message' => 'Gagal menghapus eBook'], 500);
+        }
+    }
+
+    /**
+     * 🧹 Bersihkan semua cache eBook (index & detail)
+     */
+    private function clearEbookCache()
+    {
+        try {
+            $redis = Cache::getRedis();
+
+            $keys = array_merge(
+                $redis->keys('*ebooks_index_*'),
+                $redis->keys('*ebook_show_*')
+            );
+
+            foreach ($keys as $key) {
+                $redis->del($key);
+            }
+
+            Log::info('🧹 Semua cache eBook dihapus dari Redis');
+        } catch (\Throwable $e) {
+            Log::error('❌ Gagal menghapus cache eBook', ['error' => $e->getMessage()]);
         }
     }
 }
