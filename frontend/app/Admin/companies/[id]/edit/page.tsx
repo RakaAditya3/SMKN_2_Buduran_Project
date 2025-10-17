@@ -4,6 +4,7 @@ import { useEffect, useState, ChangeEvent, FormEvent } from "react";
 import api from "@/api/api";
 import { useParams, useRouter } from "next/navigation";
 import { ImagePlus, X } from "lucide-react";
+import { resolveLocalProxyImage } from "@/lib/resolveImageUrl";
 
 interface Company {
   id?: number;
@@ -31,12 +32,28 @@ export default function EditCompanyPage() {
   // Fetch existing company
   useEffect(() => {
     const fetchCompany = async () => {
-      const res = await api.get(`/admin/companies/${id}`);
-      setForm(res.data);
-      setPreview(res.data.logo || null);
+      try {
+        const res = await api.get(`/admin/companies/${id}`);
+        const company = res.data?.data ?? res.data;
+
+        setForm({
+          name: company.name,
+          address: company.address,
+          website: company.website,
+          logo: company.logo,
+        });
+
+
+        setPreview(resolveLocalProxyImage(company.logo ?? null));
+      } catch (error) {
+        console.error("❌ Gagal memuat data perusahaan:", error);
+        alert("Gagal memuat data perusahaan.");
+      }
     };
-    fetchCompany();
+
+    if (id) fetchCompany();
   }, [id]);
+
 
   //  Handle input
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {

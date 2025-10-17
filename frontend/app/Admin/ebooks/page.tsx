@@ -3,6 +3,7 @@
 import { useEffect, useState, ChangeEvent, FormEvent } from "react";
 import api from "@/api/api";
 import { ImagePlus, X, Pencil, Trash2 } from "lucide-react";
+import { resolveLocalProxyImage } from "@/lib/resolveImageUrl";
 
 interface EBook {
   id?: number;
@@ -105,7 +106,7 @@ export default function EbooksPage() {
       title: ebook.title,
       description: ebook.description,
     });
-    setPreview(resolveLocalImageUrl(ebook.image_url ?? ebook.image_path ?? null));
+   setPreview(resolveLocalProxyImage(ebook.image_path ?? ebook.image_url ?? null));
     setImage(null);
   };
 
@@ -253,7 +254,7 @@ export default function EbooksPage() {
                 <td className="p-2">
                   {ebook.image_path || ebook.image_url ? (
                     <img
-                      src={resolveLocalImageUrl(ebook.image_path ?? ebook.image_url ?? null)}
+                     src={resolveLocalProxyImage(ebook.image_path ?? ebook.image_url ?? null)}
                       alt={ebook.title}
                       className="w-14 h-20 object-cover rounded border"
                     />

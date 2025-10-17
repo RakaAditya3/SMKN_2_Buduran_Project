@@ -4,6 +4,7 @@ import { useState, FormEvent, ChangeEvent } from "react";
 import useSWR from "swr";
 import api from "@/api/api";
 import { useRouter } from "next/navigation";
+import { resolveLocalProxyImage } from "@/lib/resolveImageUrl";
 
 interface Category {
   id: number;
@@ -261,7 +262,7 @@ export default function NewsPage() {
                   <td className="p-2">
                     {item.thumbnail ? (
                       <img
-                        src={item.thumbnail}
+                       src={resolveLocalProxyImage(item.thumbnail)}
                         className="w-16 h-12 rounded object-cover border"
                       />
                     ) : (

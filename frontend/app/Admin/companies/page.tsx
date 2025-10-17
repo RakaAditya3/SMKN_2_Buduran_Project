@@ -4,6 +4,7 @@ import { useEffect, useState, ChangeEvent, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import api from "@/api/api";
 import { ImagePlus, X } from "lucide-react";
+import { resolveLocalProxyImage } from "@/lib/resolveImageUrl";
 
 interface Company {
   id?: number;
@@ -215,7 +216,7 @@ export default function CompaniesPage() {
                 <td className="p-2">
                   {company.logo ? (
                     <img
-                      src={company.logo}
+                      src={resolveLocalProxyImage(company.logo)} // ✅ Gunakan proxy resolver di sini
                       alt={company.name}
                       className="w-12 h-12 object-cover rounded border"
                     />

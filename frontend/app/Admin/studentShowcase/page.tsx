@@ -3,6 +3,7 @@
 import { useEffect, useState, ChangeEvent, FormEvent } from "react";
 import api from "@/api/api";
 import { ImagePlus, X, Pencil, Trash2, Link2 } from "lucide-react";
+import { resolveLocalProxyImage } from "@/lib/resolveImageUrl";
 
 interface Showcase {
   id?: number;
@@ -33,13 +34,6 @@ export default function ShowcasePage() {
   const [preview, setPreview] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
-
-  // ✅ Helper: resolve URL dari Laravel storage
-  function resolveLocalImageUrl(path?: string | null): string {
-    if (!path) return "/images/default-placeholder.jpg";
-    if (path.startsWith("http")) return path;
-    return `http://localhost:8000/storage/showcase/${path.replace(/^\/?storage\/showcase\/?/, "")}`;
-  }
 
   // Fetch data showcase
   const fetchShowcases = async () => {
@@ -123,7 +117,7 @@ export default function ShowcasePage() {
       project_link: data.project_link || "",
       status: data.status || "published",
     });
-    setPreview(resolveLocalImageUrl(data.image_url ?? null));
+  setPreview(resolveLocalProxyImage(data.image_url ?? null));
   };
 
   // Hapus data
@@ -322,7 +316,7 @@ export default function ShowcasePage() {
                 <td className="p-2">
                   {s.image_url ? (
                     <img
-                      src={resolveLocalImageUrl(s.image_url)}
+                      src={resolveLocalProxyImage(s.image_url)}
                       alt={s.title}
                       className="w-14 h-20 object-cover rounded border"
                     />

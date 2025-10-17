@@ -3,6 +3,7 @@
 import { useEffect, useState, ChangeEvent, FormEvent } from "react";
 import { useParams, useRouter } from "next/navigation";
 import api from "@/api/api";
+import { resolveLocalProxyImage } from "@/lib/resolveImageUrl";
 
 interface Category {
   id: number;
@@ -40,7 +41,7 @@ export default function EditNewsPage() {
         published_at: data.published_at.split("T")[0],
         category_id: data.category_id.toString(),
       });
-      setPreview(data.thumbnail || null);
+       setPreview(resolveLocalProxyImage(data.thumbnail ?? null));
     } catch (err) {
       alert("❌ Gagal memuat data berita.");
     }
