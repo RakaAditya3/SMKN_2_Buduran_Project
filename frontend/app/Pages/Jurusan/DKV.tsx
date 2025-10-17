@@ -130,48 +130,58 @@ export default function JurusanDKV() {
         </section>
 
         {/* Facilities */}
-        <section>
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold relative inline-block after:block after:w-16 after:h-1 after:bg-gradient-to-r after:from-blue-800 after:to-blue-800 after:mx-auto after:mt-2">
+        <section className="px-4 sm:px-6 lg:px-8 py-12 bg-gray-50">
+          <div className="text-center mb-10">
+            <h2 className="text-2xl sm:text-3xl font-bold relative inline-block after:block after:w-16 after:h-1 after:bg-gradient-to-r after:from-blue-800 after:to-blue-800 after:mx-auto after:mt-2">
               Fasilitas & Sarana
             </h2>
-            <p className="text-gray-600 mt-3">4 Laboratorium Praktik DKV dengan peralatan lengkap</p>
+            <p className="text-gray-600 mt-3 text-sm sm:text-base">
+              4 Laboratorium Praktik DKV dengan peralatan lengkap
+            </p>
           </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+          {/* Grid utama */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 max-w-6xl mx-auto">
             {[
               {icon:'🖥️',title:'Personal Computer Built-Up',desc:'Komputer dengan spesifikasi tinggi untuk design grafis dan rendering'},
-              {icon:'📸',title:'Kamera DSLR & Mirroriess',desc:'Peralatan fotografi profesional dengan berbagai lensa'},
-              {icon:'🎥',title:'Camcorder & Drone',desc:'Peralatan videografi untuk kontent multimedia'},
-              {icon:'💡',title:'Lightning Film Set',desc:'Sistem pencahayaan profesional untuk fotografi dan videografi'},
-              {icon:'🎭',title:'Multimedia Home Theatre',desc:'System audio visual untuk presentasi dan preview karya'},
+              {icon:'📸',title:'Kamera DSLR & Mirrorless',desc:'Peralatan fotografi profesional dengan berbagai lensa'},
+              {icon:'🎥',title:'Camcorder & Drone',desc:'Peralatan videografi untuk konten multimedia'},
+              {icon:'💡',title:'Lighting Film Set',desc:'Sistem pencahayaan profesional untuk fotografi dan videografi'},
+              {icon:'🎭',title:'Multimedia Home Theatre',desc:'Sistem audio visual untuk presentasi dan preview karya'},
               {icon:'🖨️',title:'Printer & Plotter',desc:'Peralatan cetak berkualitas tinggi untuk output final'},
             ].map((f,i)=>(
-              <div key={i} className="bg-white p-5 rounded-lg shadow flex gap-4 items-center border-l-4 border-blue-800 hover:-translate-y-1 transition">
-                <div className="text-3xl text-green-600">{f.icon}</div>
+              <div
+                key={i}
+                className="bg-white p-4 sm:p-5 rounded-xl shadow-md flex gap-4 items-start border-l-4 border-blue-800
+                          hover:-translate-y-1 hover:shadow-lg transition-transform duration-200"
+              >
+                <div className="text-2xl sm:text-3xl text-green-600 flex-shrink-0">{f.icon}</div>
                 <div>
-                  <h4 className="font-semibold mb-1">{f.title}</h4>
-                  <p className="text-gray-600 text-sm">{f.desc}</p>
+                  <h4 className="font-semibold mb-1 text-sm sm:text-base">{f.title}</h4>
+                  <p className="text-gray-600 text-xs sm:text-sm leading-relaxed">{f.desc}</p>
                 </div>
               </div>
             ))}
+          </div>
 
-            <div className="col-span-full flex justify-center gap-6">
-              <div className="bg-white p-5 rounded-lg shadow flex gap-4 items-center border-l-4 border-blue-800 flex-1 max-w-sm hover:-translate-y-1 transition">
-                <div className="text-3xl text-green-600">✏️</div>
+          {/* Dua card tambahan (center di desktop) */}
+          <div className="mt-10 flex flex-col sm:flex-row sm:justify-center lg:justify-center gap-6">
+            {[
+              {icon:'✏️',title:'Pen Tablet & Drawing Tools',desc:'Peralatan digital drawing dan sketching untuk ilustrasi'},
+              {icon:'📽️',title:'LCD Projector',desc:'Media presentasi untuk pembelajaran dan showcase karya'},
+            ].map((f,i)=>(
+              <div
+                key={i}
+                className="bg-white p-4 sm:p-5 rounded-xl shadow-md flex gap-4 items-start border-l-4 border-blue-800
+                          hover:-translate-y-1 hover:shadow-lg transition-transform duration-200 flex-1 sm:max-w-sm mx-auto sm:mx-0"
+              >
+                <div className="text-2xl sm:text-3xl text-green-600 flex-shrink-0">{f.icon}</div>
                 <div>
-                  <h4 className="font-semibold mb-1">Pen Tablet & Drawing Tools</h4>
-                  <p className="text-gray-600 text-sm">Peralatan digital drawing dan sketching untuk ilustrasi</p>
+                  <h4 className="font-semibold mb-1 text-sm sm:text-base">{f.title}</h4>
+                  <p className="text-gray-600 text-xs sm:text-sm leading-relaxed">{f.desc}</p>
                 </div>
               </div>
-
-              <div className="bg-white p-5 rounded-lg shadow flex gap-4 items-center border-l-4 border-blue-800 flex-1 max-w-sm hover:-translate-y-1 transition">
-                <div className="text-3xl text-green-600">📽️</div>
-                <div>
-                  <h4 className="font-semibold mb-1">LCD Projector</h4>
-                  <p className="text-gray-600 text-sm">Media presentasi untuk pembelajaran dan showcase karya</p>
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
         </section>
 

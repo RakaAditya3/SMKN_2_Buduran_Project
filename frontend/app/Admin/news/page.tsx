@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState, FormEvent, ChangeEvent } from "react";
+import { useState, FormEvent, ChangeEvent } from "react";
+import useSWR from "swr";
 import api from "@/api/api";
 import { useRouter } from "next/navigation";
 
@@ -21,9 +22,14 @@ interface News {
 }
 
 export default function NewsPage() {
-  const [news, setNews] = useState<News[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
   const router = useRouter();
+
+  // ✅ SWR Hooks (auto refresh data)
+  const fetcher = (url: string) => api.get(url).then((res) => res.data);
+  const { data: news = [], mutate: refreshNews } = useSWR<News[]>("/admin/news", fetcher);
+  const { data: categories = [] } = useSWR<Category[]>("/admin/categories", fetcher);
+
+  // Form State
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -36,26 +42,15 @@ export default function NewsPage() {
   const [preview, setPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const getNews = async () => {
-    const res = await api.get("/admin/news");
-    setNews(res.data);
-  };
-
-  const getCategories = async () => {
-    const res = await api.get("/admin/categories");
-    setCategories(res.data);
-  };
-
-  useEffect(() => {
-    getNews();
-    getCategories();
-  }, []);
-
-  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  // 🧭 Handle Input Change
+  const handleChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
+  // 🖼️ Handle Image Upload
   const handleThumbnailChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
     setThumbnail(file);
@@ -68,6 +63,7 @@ export default function NewsPage() {
     }
   };
 
+  // 📰 Tambah Berita
   const addNews = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -84,7 +80,11 @@ export default function NewsPage() {
       await api.post("/admin/news", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      alert("✅ Berita berhasil ditambahkan!");
+
+      // ✅ Revalidate list langsung
+      await refreshNews();
+
+      // Reset form
       setForm({
         title: "",
         description: "",
@@ -95,18 +95,22 @@ export default function NewsPage() {
       });
       setThumbnail(null);
       setPreview(null);
-      getNews();
-    } catch {
-      alert("❌ Gagal menambahkan berita. Periksa input Anda.");
+
+      alert("✅ Berita berhasil ditambahkan!");
+    } catch (err) {
+      alert("❌ Gagal menambahkan berita.");
+      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
+  // 🗑️ Hapus Berita
   const deleteNews = async (id: number) => {
     if (!confirm("Yakin ingin menghapus berita ini?")) return;
     await api.delete(`/admin/news/${id}`);
-    getNews();
+    // ✅ Revalidate otomatis
+    await refreshNews();
   };
 
   return (
@@ -114,54 +118,47 @@ export default function NewsPage() {
       <h1 className="text-3xl font-semibold mb-6">Create New Article</h1>
       <p className="text-gray-500 mb-8">Write and publish news article</p>
 
+      {/* FORM TAMBAH BERITA */}
       <form onSubmit={addNews} className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
         {/* LEFT - Article Content */}
         <div className="lg:col-span-2 space-y-6">
           <div className="bg-white p-6 rounded-xl shadow-sm border">
             <h2 className="font-semibold mb-4 text-lg text-gray-800">Article Content</h2>
             <div className="space-y-4">
-              <div>
-                <input
-                  name="title"
-                  placeholder="Write Title Here..."
-                  value={form.title}
-                  onChange={handleChange}
-                  required
-                  className="w-full border rounded-lg p-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <input
-                  name="slug"
-                  placeholder="Write Slug Here..."
-                  value={form.slug}
-                  onChange={handleChange}
-                  required
-                  className="w-full border rounded-lg p-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <textarea
-                  name="description"
-                  placeholder="Write Excerpt / Short Description..."
-                  value={form.description}
-                  onChange={handleChange}
-                  rows={3}
-                  required
-                  className="w-full border rounded-lg p-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <textarea
-                  name="content"
-                  placeholder="Write Full Description Here..."
-                  value={form.content}
-                  onChange={handleChange}
-                  rows={6}
-                  required
-                  className="w-full border rounded-lg p-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
+              <input
+                name="title"
+                placeholder="Write Title Here..."
+                value={form.title}
+                onChange={handleChange}
+                required
+                className="w-full border rounded-lg p-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500"
+              />
+              <input
+                name="slug"
+                placeholder="Write Slug Here..."
+                value={form.slug}
+                onChange={handleChange}
+                required
+                className="w-full border rounded-lg p-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500"
+              />
+              <textarea
+                name="description"
+                placeholder="Write Excerpt / Short Description..."
+                value={form.description}
+                onChange={handleChange}
+                rows={3}
+                required
+                className="w-full border rounded-lg p-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500"
+              />
+              <textarea
+                name="content"
+                placeholder="Write Full Description Here..."
+                value={form.content}
+                onChange={handleChange}
+                rows={6}
+                required
+                className="w-full border rounded-lg p-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500"
+              />
             </div>
           </div>
 
@@ -174,7 +171,11 @@ export default function NewsPage() {
               <input type="file" accept="image/*" className="hidden" onChange={handleThumbnailChange} />
             </label>
             {preview && (
-              <img src={preview} alt="Preview" className="mt-4 w-full max-h-56 object-cover rounded-lg border" />
+              <img
+                src={preview}
+                alt="Preview"
+                className="mt-4 w-full max-h-56 object-cover rounded-lg border"
+              />
             )}
           </div>
         </div>
@@ -231,22 +232,10 @@ export default function NewsPage() {
               </div>
             </div>
           </div>
-
-          {/* Tags Section (Optional Future Feature) */}
-          <div className="bg-white p-6 rounded-xl shadow-sm border">
-            <h2 className="font-semibold mb-3 text-lg text-gray-800">Tags</h2>
-            <div className="flex gap-2">
-              <input
-                placeholder="Add Tags"
-                className="flex-1 border rounded-lg p-2 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500"
-              />
-              <button className="px-4 bg-black text-white rounded-lg hover:bg-gray-800 font-medium">Add</button>
-            </div>
-          </div>
         </div>
       </form>
 
-      {/* NEWS LIST */}
+      {/* 🗂️ NEWS LIST */}
       <div className="bg-white shadow-sm rounded-xl border p-6">
         <h2 className="text-xl font-semibold mb-4">Existing News</h2>
         <table className="w-full text-left">
@@ -260,21 +249,32 @@ export default function NewsPage() {
             </tr>
           </thead>
           <tbody>
-            {news.map((item) => (
-              <tr key={item.id} className="border-b hover:bg-gray-50">
-                <td className="p-2">
-                  {item.thumbnail ? (
-                    <img src={item.thumbnail} className="w-16 h-12 rounded object-cover border" />
-                  ) : (
-                    <span className="text-gray-400 italic">No Image</span>
-                  )}
+            {news.length === 0 ? (
+              <tr>
+                <td colSpan={5} className="text-center text-gray-500 py-8">
+                  Belum ada berita
                 </td>
-                <td className="p-2">{item.title}</td>
-                <td className="p-2">{categories.find((c) => c.id === item.category_id)?.name || "—"}</td>
-                <td className="p-2">
-                  {new Date(item.published_at).toLocaleDateString("id-ID")}
-                </td>
-              
+              </tr>
+            ) : (
+              news.map((item) => (
+                <tr key={item.id} className="border-b hover:bg-gray-50">
+                  <td className="p-2">
+                    {item.thumbnail ? (
+                      <img
+                        src={item.thumbnail}
+                        className="w-16 h-12 rounded object-cover border"
+                      />
+                    ) : (
+                      <span className="text-gray-400 italic">No Image</span>
+                    )}
+                  </td>
+                  <td className="p-2">{item.title}</td>
+                  <td className="p-2">
+                    {categories.find((c) => c.id === item.category_id)?.name || "—"}
+                  </td>
+                  <td className="p-2">
+                    {new Date(item.published_at).toLocaleDateString("id-ID")}
+                  </td>
                   <td className="p-2 text-right space-x-3">
                     <button
                       onClick={() => router.push(`/Admin/news/${item.id}/edit`)}
@@ -289,8 +289,9 @@ export default function NewsPage() {
                       Delete
                     </button>
                   </td>
-              </tr>
-            ))}
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

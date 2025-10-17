@@ -1,8 +1,8 @@
 import { Metadata } from "next"
 import Image from "next/image"
-import api from "@/api/api" // pakai axios instance kamu
+import api from "@/api/api"
+import { resolveLocalProxyImage } from "@/lib/resolveImageUrl";
 
-// ---- API helper
 async function getNewsById(id: string) {
   try {
     const res = await api.get(`/news/${id}`)
@@ -71,7 +71,7 @@ export default async function NewsDetailPage({ params }: { params: { id: string 
       {/* Gambar utama */}
       <div className="relative w-full h-80 md:h-96 rounded-lg overflow-hidden shadow">
         <Image
-          src={news.thumbnail}
+          src={resolveLocalProxyImage(news.thumbnail)}
           alt={news.title}
           fill
           className="object-cover"
