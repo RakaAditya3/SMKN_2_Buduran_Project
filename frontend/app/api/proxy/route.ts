@@ -9,16 +9,37 @@ export async function GET(request: Request) {
   }
 
   try {
-    const res = await fetch(imageUrl);
+    // ✅ Ambil dari backend Laravel
+    const res = await fetch(imageUrl, {
+      headers: {
+        Accept: "image/*",
+      },
+      cache: "no-store",
+    });
+
+    // Jika gagal ambil
+    if (!res.ok) {
+      return NextResponse.json(
+        { error: Failed to fetch: ${res.statusText} },
+        { status: res.status }
+      );
+    }
+
+    // Ambil data binary (image)
     const arrayBuffer = await res.arrayBuffer();
 
-    return new Response(arrayBuffer, {
+    // ✅ Tambahkan header agar browser mengizinkan tampilkan
+    const response = new Response(arrayBuffer, {
       headers: {
         "Content-Type": res.headers.get("Content-Type") || "image/jpeg",
-        "Cache-Control": "public, max-age=3600",
+        "Cache-Control": "public, max-age=3600", // 1 jam cache
+        "Access-Control-Allow-Origin": "*", // 🟩 FIX utama
       },
     });
-  } catch {
+
+    return response;
+  } catch (error) {
+    console.error("Proxy fetch failed:", error);
     return NextResponse.json({ error: "Failed to fetch image" }, { status: 500 });
   }
 }
