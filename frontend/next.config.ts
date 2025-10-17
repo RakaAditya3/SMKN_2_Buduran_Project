@@ -1,6 +1,15 @@
 const nextConfig = {
   images: {
-    domains: ["https://env-laravel.jh-beon.cloud"],
+
+    domains: ["env-laravel.jh-beon.cloud"],
+
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "env-laravel.jh-beon.cloud",
+        pathname: "/storage/**",
+      },
+    ],
   },
 };
 
