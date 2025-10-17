@@ -147,27 +147,36 @@ export default function EComplaintPage() {
                 </form>
 
                 {ticket && (
-                  <div className="mt-6 p-6 bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 rounded-2xl">
-                    <div className="flex items-start gap-4">
-                      <div className="flex-shrink-0 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
-                        <CheckCircle2 className="w-6 h-6 text-white" />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="text-lg font-bold text-green-900 mb-1">
-                          Pengaduan Berhasil Dikirim!
-                        </h3>
-                        <p className="text-sm text-green-700 mb-3">
-                          Kami telah menerima pengaduan Anda dan akan segera memprosesnya.
-                        </p>
-                        <div className="flex items-center gap-2 bg-white px-4 py-3 rounded-xl border border-green-200">
+                <div className="mt-6 p-6 sm:p-8 bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 rounded-2xl shadow-lg">
+                  <div className="flex flex-col sm:flex-row sm:items-start gap-4 sm:gap-6">
+                    {/* Icon */}
+                    <div className="flex-shrink-0 w-16 h-16 sm:w-14 sm:h-14 bg-green-500 rounded-full flex items-center justify-center mx-auto sm:mx-0">
+                      <CheckCircle2 className="w-8 h-8 sm:w-7 sm:h-7 text-white" />
+                    </div>
+
+                    {/* Text content */}
+                    <div className="flex-1 text-center sm:text-left">
+                      <h3 className="text-xl sm:text-lg font-bold text-green-900 mb-1">
+                        Pengaduan Berhasil Dikirim!
+                      </h3>
+                      <p className="text-sm sm:text-base text-green-700 mb-4">
+                        Kami telah menerima pengaduan Anda dan akan segera memprosesnya.
+                      </p>
+
+                      {/* Ticket Box */}
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-center sm:justify-start gap-3 bg-white px-5 py-4 rounded-xl border border-green-200">
+                        <div className="flex items-center justify-center gap-2">
                           <Ticket className="w-5 h-5 text-green-600" />
                           <span className="text-sm font-medium text-gray-700">Nomor Tiket:</span>
-                          <code className="text-lg font-bold text-green-700 font-mono">{ticket}</code>
                         </div>
+                        <code className="text-base sm:text-lg font-bold text-green-700 font-mono break-all">
+                          {ticket}
+                        </code>
                       </div>
                     </div>
                   </div>
-                )}
+                </div>
+              )}
               </div>
             )}
 
