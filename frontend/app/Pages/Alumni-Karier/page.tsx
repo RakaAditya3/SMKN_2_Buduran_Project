@@ -218,8 +218,8 @@ function PartnerList() {
                 key={partner.id}
                 className="bg-white rounded-2xl shadow-md hover:shadow-xl hover:scale-[1.02] transition-all p-6 flex flex-col text-center"
               >
-                <img
-                  src={partner.logo}
+               <img
+                  src={resolveLocalProxyImage(partner.logo)}
                   alt={partner.name}
                   className="h-16 object-contain mx-auto mb-4"
                 />
